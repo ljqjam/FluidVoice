@@ -1389,7 +1389,7 @@ struct SettingsView: View {
                 // Experimental Card
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("Experimental (might not work well)", systemImage: "exclamationmark.triangle")
+                        Label("Experimental Settings", systemImage: "exclamationmark.triangle")
                             .font(.headline)
                             .foregroundStyle(.primary)
 
@@ -1415,10 +1415,10 @@ struct SettingsView: View {
                                 .disabled(self.asr.isRunning)
                             }
 
-                            Text("Normal: most reliable.")
+                            Text("Normal: most reliable and standard.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text("Fast: faster, but may be less consistent.")
+                            Text("Fast: faster, but maybe inaccurate.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
 
