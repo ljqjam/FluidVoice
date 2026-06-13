@@ -111,6 +111,7 @@ protocol PrivateAIIntegrationProviding: Sendable {
     func status(for runtime: PrivateAIIntegrationService.RuntimeConfiguration) async -> PrivateAIStatus
     func loadedModelState() async -> PrivateAIIntegrationService.LoadedModelState?
     func loadModel(_ model: PrivateAIRegisteredModel) async throws -> PrivateAIStatus
+    func prewarmDictation() async
     func unloadCachedRuntime(reason: String) async
     func enhanceDictation(
         _ inputText: String,
@@ -123,6 +124,11 @@ extension PrivateAIIntegrationProviding {
     func prepareModel(_ model: PrivateAIRegisteredModel) async throws -> URL {
         try await self.prepareModel(model, progressHandler: nil)
     }
+
+    /// Best-effort, no-op by default. Backends that support prefix priming
+    /// (the local FluidIntelligence bridge) override this to load and prime the
+    /// dictation runtime ahead of the first request.
+    func prewarmDictation() async {}
 }
 
 enum PrivateAIProviderRegistry {

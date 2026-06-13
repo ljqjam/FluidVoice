@@ -2569,6 +2569,20 @@ struct ContentView: View {
                 DebugLogger.shared.error("Failed to pre-load model: \(error)", source: "ContentView")
             }
         }
+
+        // Pre-warm the local AI dictation runtime during recording so the first
+        // enhancement is a warm prefix-cache hit instead of paying model load +
+        // prompt prefill after the user stops speaking. Only when the private
+        // provider is the selected, configured dictation provider; best-effort.
+        if PrivateAIProviderPromptFormat.isAvailable(settings: SettingsStore.shared),
+           DictationAIPostProcessingGate.isConfigured()
+        {
+            Task {
+                DebugLogger.shared.debug("ContentView: AI dictation prewarm started", source: "ContentView")
+                await PrivateAIIntegrationService.shared.prewarmDictation()
+                DebugLogger.shared.debug("AI dictation prewarm complete", source: "ContentView")
+            }
+        }
     }
 
     /// Best-effort: re-activate the app that was focused when recording started.

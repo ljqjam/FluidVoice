@@ -103,6 +103,10 @@ actor PrivateAIIntegrationService {
         try await Self.provider.loadModel(model)
     }
 
+    func prewarmDictation() async {
+        await Self.provider.prewarmDictation()
+    }
+
     func unloadCachedRuntime(reason: String = "manual") async {
         await Self.provider.unloadCachedRuntime(reason: reason)
     }
