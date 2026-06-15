@@ -962,7 +962,7 @@ struct ContentView: View {
 
     private func sidebarSectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.caption.weight(.medium))
+            .font(self.theme.typography.sidebarSection)
             .foregroundStyle(.secondary)
             .textCase(nil)
             .padding(.top, 8)
@@ -971,13 +971,8 @@ struct ContentView: View {
     private func sidebarNavigationLink(_ item: SidebarItem, title: String, systemImage: String) -> some View {
         NavigationLink(value: item) {
             Label(title, systemImage: systemImage)
-                .font(.body.weight(.medium))
+                .font(self.theme.typography.sidebarItem)
         }
-        .listRowBackground(self.sidebarRowBackground(for: item))
-    }
-
-    private func sidebarRowBackground(for item: SidebarItem) -> some View {
-        return Color.clear
     }
 
     private var detailView: some View {
@@ -1084,7 +1079,7 @@ struct ContentView: View {
 
                     if self.asr.micStatus != .authorized {
                         Text("Microphone access is required for voice recording")
-                            .font(.caption)
+                            .font(self.theme.typography.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -1135,9 +1130,9 @@ struct ContentView: View {
             HStack(spacing: 8) {
                 Image(systemName: "info.circle.fill")
                     .foregroundStyle(self.theme.palette.accent)
-                    .font(.caption)
+                    .font(self.theme.typography.caption)
                 Text("How to enable microphone access:")
-                    .font(.caption)
+                    .font(self.theme.typography.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
             }
@@ -1162,12 +1157,12 @@ struct ContentView: View {
     private func instructionStep(number: String, text: String) -> some View {
         HStack(spacing: 8) {
             Text(number + ".")
-                .font(.caption2)
+                .font(self.theme.typography.captionSmall)
                 .foregroundStyle(self.theme.palette.accent)
                 .fontWeight(.semibold)
                 .frame(width: 16)
             Text(text)
-                .font(.caption)
+                .font(self.theme.typography.caption)
                 .foregroundStyle(.primary)
         }
     }

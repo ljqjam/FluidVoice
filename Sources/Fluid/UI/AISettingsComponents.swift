@@ -67,10 +67,10 @@ struct LiquidBar: View {
             // Label
             HStack(spacing: 4) {
                 Image(systemName: self.icon)
-                    .font(.system(size: 10))
+                    .font(self.theme.typography.tiny)
                     .foregroundStyle(self.color)
                 Text(self.label)
-                    .font(.system(size: 10, weight: .bold))
+                    .font(self.theme.typography.tinyStrong)
                     .foregroundStyle(.secondary)
             }
 
@@ -151,7 +151,7 @@ struct LiquidBar: View {
 
             // Percentage (shows target, not animated)
             Text("\(Int(self.fillPercent * 100))%")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(self.theme.typography.metricTiny)
                 .foregroundStyle(self.fillPercent > 0 ? self.color : .secondary)
                 .contentTransition(.numericText())
         }

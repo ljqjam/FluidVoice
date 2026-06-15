@@ -45,13 +45,13 @@ struct WelcomeView: View {
                     // Header
                     HStack(spacing: 10) {
                         Image(systemName: "book.fill")
-                            .font(.title2)
+                            .font(self.theme.typography.titleIcon)
                             .foregroundStyle(self.theme.palette.accent)
                         VStack(alignment: .leading, spacing: 2) {
                             Text((self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "Getting Started" : "Welcome to FluidVoice")
-                                .font(.title2.weight(.bold))
+                                .font(self.theme.typography.title)
                             Text("Talk anywhere. FluidVoice types for you.")
-                                .font(.subheadline)
+                                .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -62,7 +62,7 @@ struct WelcomeView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 10) {
                                 Label("Quick Setup", systemImage: "checkmark.circle.fill")
-                                    .font(.headline)
+                                    .font(self.theme.typography.sectionTitle)
                                     .foregroundStyle(self.theme.palette.accent)
 
                                 Spacer()
@@ -169,14 +169,14 @@ struct WelcomeView: View {
                                 Label {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text("Test Playground")
-                                            .font(.headline)
+                                            .font(self.theme.typography.sectionTitle)
                                         Text("Click record, speak, and see your transcription")
-                                            .font(.caption)
+                                            .font(self.theme.typography.caption)
                                             .foregroundStyle(.secondary)
                                     }
                                 } icon: {
                                     Image(systemName: "text.bubble")
-                                        .font(.title3)
+                                        .font(self.theme.typography.titleIcon)
                                 }
 
                                 Spacer()
@@ -187,12 +187,12 @@ struct WelcomeView: View {
                                             .fill(.red)
                                             .frame(width: 6, height: 6)
                                         Text("Recording...")
-                                            .font(.caption.weight(.medium))
+                                            .font(self.theme.typography.captionStrong)
                                             .foregroundStyle(.red)
                                     }
                                 } else if !self.asr.finalText.isEmpty {
                                     Text("\(self.asr.finalText.count) characters")
-                                        .font(.caption)
+                                        .font(self.theme.typography.caption)
                                         .foregroundStyle(.secondary)
                                 }
 
@@ -211,10 +211,10 @@ struct WelcomeView: View {
                             if self.settings.selectedSpeechModel == .parakeetTDT || self.settings.selectedSpeechModel == .parakeetTDTv2 {
                                 HStack(spacing: 6) {
                                     Image(systemName: "text.magnifyingglass")
-                                        .font(.caption)
+                                        .font(self.theme.typography.caption)
                                         .foregroundStyle(self.theme.palette.accent)
                                     Text(self.asr.wordBoostStatusText)
-                                        .font(.caption)
+                                        .font(self.theme.typography.caption)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                 }
@@ -267,7 +267,7 @@ struct WelcomeView: View {
                                         get: { self.asr.finalText },
                                         set: { self.asr.finalText = $0 }
                                     ))
-                                    .font(.body)
+                                    .font(self.theme.typography.body)
                                     .focused(self.isTranscriptionFocused)
                                     .frame(height: 140)
                                     .padding(10)
@@ -289,22 +289,22 @@ struct WelcomeView: View {
                                         VStack(spacing: 8) {
                                             if self.asr.isRunning {
                                                 Image(systemName: "waveform")
-                                                    .font(.title2)
+                                                    .font(self.theme.typography.titleIcon)
                                                     .foregroundStyle(self.theme.palette.accent)
                                                 Text("Listening... Speak now!")
-                                                    .font(.subheadline.weight(.medium))
+                                                    .font(self.theme.typography.bodySmallStrong)
                                                     .foregroundStyle(self.theme.palette.accent)
                                                 Text("Transcription will appear when you stop recording")
-                                                    .font(.caption)
+                                                    .font(self.theme.typography.caption)
                                                     .foregroundStyle(self.theme.palette.accent.opacity(0.7))
                                             } else if self.asr.finalText.isEmpty {
                                                 Image(systemName: "text.bubble")
-                                                    .font(.title2)
+                                                    .font(self.theme.typography.titleIcon)
                                                     .foregroundStyle(.secondary.opacity(0.5))
                                                 Text("Ready to test!")
-                                                    .font(.subheadline.weight(.medium))
+                                                    .font(self.theme.typography.bodySmallStrong)
                                                 Text("Click 'Start Recording' or press your hotkey")
-                                                    .font(.caption)
+                                                    .font(self.theme.typography.caption)
                                                     .foregroundStyle(.secondary)
                                             }
                                         }
@@ -351,7 +351,7 @@ struct WelcomeView: View {
                                 .padding(.top, 8)
                             } label: {
                                 Label("How to Use", systemImage: "play.fill")
-                                    .font(.headline)
+                                    .font(self.theme.typography.sectionTitle)
                                     .foregroundStyle(self.theme.palette.accent)
                             }
 
@@ -363,7 +363,7 @@ struct WelcomeView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Label("Command Mode", systemImage: "terminal.fill")
-                                        .font(.headline)
+                                        .font(self.theme.typography.sectionTitle)
                                         .foregroundStyle(self.commandModeColor)
                                     self.featureBadge("New", color: self.commandModeColor)
                                     self.featureBadge("Alpha", color: self.commandModeColor.opacity(0.75))
@@ -378,7 +378,7 @@ struct WelcomeView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Label("Edit Mode", systemImage: "pencil.and.outline")
-                                        .font(.headline)
+                                        .font(self.theme.typography.sectionTitle)
                                         .foregroundStyle(self.editModeColor)
                                     self.featureBadge("New", color: self.editModeColor)
                                 }
@@ -409,7 +409,7 @@ struct WelcomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Control your Mac with voice commands. Execute terminal commands, open apps, and more.")
-                    .font(.subheadline)
+                    .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.secondary)
 
                 Spacer()
@@ -423,7 +423,7 @@ struct WelcomeView: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("Getting Started")
-                    .font(.subheadline.weight(.medium))
+                    .font(self.theme.typography.bodySmallStrong)
                     .foregroundStyle(self.commandModeColor)
 
                 HStack(spacing: 4) {
@@ -431,13 +431,13 @@ struct WelcomeView: View {
                     self.keyboardBadge(self.commandModeShortcutDisplay)
                     Text("to open, speak your command, then press again to send.")
                 }
-                .font(.caption)
+                .font(self.theme.typography.caption)
                 .foregroundStyle(.primary.opacity(0.8))
             }
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("Examples")
-                    .font(.subheadline.weight(.medium))
+                    .font(self.theme.typography.bodySmallStrong)
                     .foregroundStyle(self.commandModeColor)
                 self.commandModeExample(icon: "folder", text: "\"List files in my Downloads folder\"")
                 self.commandModeExample(icon: "plus.rectangle.on.folder", text: "\"Create a folder called Projects on Desktop\"")
@@ -447,10 +447,10 @@ struct WelcomeView: View {
 
             HStack(spacing: 4) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.caption2)
+                    .font(self.theme.typography.captionSmall)
                     .foregroundStyle(self.commandModeColor)
                 Text("AI can make mistakes. Avoid destructive commands.")
-                    .font(.caption)
+                    .font(self.theme.typography.caption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -460,7 +460,7 @@ struct WelcomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("AI-powered editing assistant. Write fresh content or edit selected text with voice.")
-                    .font(.subheadline)
+                    .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.secondary)
 
                 Spacer()
@@ -475,7 +475,7 @@ struct WelcomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Create New Text")
-                        .font(.subheadline.weight(.medium))
+                        .font(self.theme.typography.bodySmallStrong)
                         .foregroundStyle(self.editModeColor)
 
                     HStack(spacing: 4) {
@@ -483,7 +483,7 @@ struct WelcomeView: View {
                         self.keyboardBadge(self.writeModeShortcutDisplay)
                         Text("and speak what you want to write.")
                     }
-                    .font(.caption)
+                    .font(self.theme.typography.caption)
                     .foregroundStyle(.primary.opacity(0.8))
 
                     self.writeModeExample(text: "\"Write an email asking for time off\"")
@@ -492,7 +492,7 @@ struct WelcomeView: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Edit Selected Text")
-                        .font(.subheadline.weight(.medium))
+                        .font(self.theme.typography.bodySmallStrong)
                         .foregroundStyle(self.editModeColor)
 
                     HStack(spacing: 4) {
@@ -500,7 +500,7 @@ struct WelcomeView: View {
                         self.keyboardBadge(self.writeModeShortcutDisplay)
                         Text("and speak your instruction.")
                     }
-                    .font(.caption)
+                    .font(self.theme.typography.caption)
                     .foregroundStyle(.primary.opacity(0.8))
 
                     self.writeModeExample(text: "\"Make this more formal\"")
@@ -518,14 +518,14 @@ struct WelcomeView: View {
                     .fill(self.theme.palette.accent.opacity(0.15))
                     .frame(width: 28, height: 28)
                 Text("\(number)")
-                    .font(.caption.weight(.bold))
+                    .font(self.theme.typography.captionStrong)
                     .foregroundStyle(self.theme.palette.accent)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.body.weight(.medium))
+                    .font(self.theme.typography.bodyStrong)
                 Text(description)
-                    .font(.subheadline)
+                    .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.secondary)
             }
             Spacer()
@@ -534,7 +534,7 @@ struct WelcomeView: View {
 
     private func featureBadge(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.caption2.weight(.semibold))
+            .font(self.theme.typography.badge)
             .foregroundStyle(.white)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
@@ -543,7 +543,7 @@ struct WelcomeView: View {
 
     private func keyboardBadge(_ text: String) -> some View {
         Text(text)
-            .font(.caption.weight(.medium))
+            .font(self.theme.typography.captionStrong)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(self.theme.palette.cardBackground.opacity(0.7), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
@@ -552,11 +552,11 @@ struct WelcomeView: View {
     private func commandModeExample(icon: String, text: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.caption2)
+                .font(self.theme.typography.captionSmall)
                 .foregroundStyle(self.commandModeColor.opacity(0.8))
                 .frame(width: 14)
             Text(text)
-                .font(.caption)
+                .font(self.theme.typography.caption)
                 .foregroundStyle(.primary.opacity(0.8))
         }
     }
@@ -567,7 +567,7 @@ struct WelcomeView: View {
                 .fill(self.editModeColor.opacity(0.6))
                 .frame(width: 4, height: 4)
             Text(text)
-                .font(.caption)
+                .font(self.theme.typography.caption)
                 .foregroundStyle(.primary.opacity(0.8))
         }
     }
@@ -857,20 +857,20 @@ struct OnboardingFlowView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Welcome to FluidVoice")
-                .font(.title2.weight(.bold))
+                .font(self.theme.typography.title)
                 .foregroundStyle(self.theme.palette.primaryText)
 
             Text(self.step.subtitle)
-                .font(.subheadline)
+                .font(self.theme.typography.bodySmall)
                 .foregroundStyle(self.theme.palette.secondaryText)
 
             HStack {
                 Text("Step \(self.step.rawValue + 1) of \(Step.allCases.count)")
-                    .font(.caption.weight(.semibold))
+                    .font(self.theme.typography.captionStrong)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(self.step.title)
-                    .font(.caption.weight(.semibold))
+                    .font(self.theme.typography.captionStrong)
                     .foregroundStyle(self.theme.palette.accent)
             }
 
@@ -904,11 +904,11 @@ struct OnboardingFlowView: View {
                         if self.shouldShowLanguageChoice {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Preferred language")
-                                    .font(.body.weight(.semibold))
+                                    .font(self.theme.typography.bodyStrong)
                                     .foregroundStyle(self.theme.palette.primaryText)
 
                                 Text("Pick the path that matches how you usually speak. You can change models later.")
-                                    .font(.caption)
+                                    .font(self.theme.typography.caption)
                                     .foregroundStyle(.secondary)
 
                                 HStack(spacing: 10) {
@@ -927,11 +927,11 @@ struct OnboardingFlowView: View {
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(self.recommendedModelHeadline)
-                                    .font(.body.weight(.semibold))
+                                    .font(self.theme.typography.bodyStrong)
                                     .foregroundStyle(self.theme.palette.primaryText)
 
                                 Text(self.recommendedModelReasonText)
-                                    .font(.caption)
+                                    .font(self.theme.typography.caption)
                                     .foregroundStyle(.secondary)
                             }
 
@@ -953,23 +953,23 @@ struct OnboardingFlowView: View {
                         } else if self.showsMappedRecommendedModel {
                             HStack(spacing: 10) {
                                 Label(self.recommendedOnboardingModel.downloadSize, systemImage: "internaldrive")
-                                    .font(.caption)
+                                    .font(self.theme.typography.caption)
                                     .foregroundStyle(.secondary)
 
                                 Text(self.recommendedOnboardingModel.languageSupport)
-                                    .font(.caption)
+                                    .font(self.theme.typography.caption)
                                     .foregroundStyle(.secondary)
                             }
 
                             if let supportedLanguageCodes = self.recommendedOnboardingModel.supportedLanguageCodes {
                                 Text(supportedLanguageCodes)
-                                    .font(.caption2)
+                                    .font(self.theme.typography.captionSmall)
                                     .foregroundStyle(.secondary)
                             }
 
                             if let supportedLanguageNames = self.recommendedOnboardingModel.supportedLanguageNames {
                                 Text("Supported languages: \(supportedLanguageNames)")
-                                    .font(.caption2)
+                                    .font(self.theme.typography.captionSmall)
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -982,14 +982,14 @@ struct OnboardingFlowView: View {
                                             ProgressView()
                                                 .controlSize(.small)
                                             Text("Finalizing download and loading model…")
-                                                .font(.caption)
+                                                .font(self.theme.typography.caption)
                                                 .foregroundStyle(.secondary)
                                         }
                                     } else {
                                         ProgressView(value: progress)
                                             .tint(self.theme.palette.accent)
                                         Text("Downloading \(Int(progress * 100))%")
-                                            .font(.caption)
+                                            .font(self.theme.typography.caption)
                                             .foregroundStyle(.secondary)
                                     }
                                 } else {
@@ -997,7 +997,7 @@ struct OnboardingFlowView: View {
                                         ProgressView()
                                             .controlSize(.small)
                                         Text("Loading model…")
-                                            .font(.caption)
+                                            .font(self.theme.typography.caption)
                                             .foregroundStyle(.secondary)
                                     }
                                 }
@@ -1011,25 +1011,25 @@ struct OnboardingFlowView: View {
                                         ? "Choose either FluidVoice-recommended English model."
                                         : "Choose either FluidVoice-recommended multilingual model."
                                 )
-                                .font(.caption.weight(.semibold))
+                                .font(self.theme.typography.captionStrong)
                                 .foregroundStyle(.secondary)
                             } else if self.isRecommendedModelReady {
                                 Label(
                                     "Model downloaded and loaded",
                                     systemImage: "checkmark.seal.fill"
                                 )
-                                .font(.caption.weight(.semibold))
+                                .font(self.theme.typography.captionStrong)
                                 .foregroundStyle(self.theme.palette.success)
                             } else if self.isRecommendedModelDownloaded {
                                 Label(
                                     self.isRecommendedModelSelected ? "Model downloaded. Click to finish loading." : "Model downloaded",
                                     systemImage: "arrow.triangle.2.circlepath"
                                 )
-                                .font(.caption.weight(.semibold))
+                                .font(self.theme.typography.captionStrong)
                                 .foregroundStyle(.secondary)
                             } else {
                                 Label("Model not downloaded yet", systemImage: "arrow.down.circle")
-                                    .font(.caption.weight(.semibold))
+                                    .font(self.theme.typography.captionStrong)
                                     .foregroundStyle(.secondary)
                             }
 
@@ -1039,7 +1039,7 @@ struct OnboardingFlowView: View {
                                 EmptyView()
                             } else if self.preferredLanguageChoice == .other && self.shouldShowLanguageChoice {
                                 Text("Choose a model from the options below.")
-                                    .font(.caption.weight(.semibold))
+                                    .font(self.theme.typography.captionStrong)
                                     .foregroundStyle(.secondary)
                             } else {
                                 Button(self.onboardingModelActionButtonTitle(for: self.recommendedOnboardingModel)) {
@@ -1052,7 +1052,7 @@ struct OnboardingFlowView: View {
 
                         if self.isVoiceModelReady && !self.isRecommendedModelSelected && self.preferredLanguageChoice != .other {
                             Text("A different model is already configured. You can continue, or switch to the recommended model.")
-                                .font(.caption)
+                                .font(self.theme.typography.caption)
                                 .foregroundStyle(.secondary)
                         }
 
@@ -1060,7 +1060,7 @@ struct OnboardingFlowView: View {
                             Divider().padding(.vertical, 2)
 
                             Text("More model options")
-                                .font(.subheadline.weight(.semibold))
+                                .font(self.theme.typography.bodySmallStrong)
                                 .foregroundStyle(self.theme.palette.primaryText)
 
                             VStack(spacing: 8) {
@@ -1071,7 +1071,7 @@ struct OnboardingFlowView: View {
                         }
 
                         Text("You can switch models later in Voice Engine settings.")
-                            .font(.caption)
+                            .font(self.theme.typography.caption)
                             .foregroundStyle(.secondary)
                     }
                     .padding(16)
@@ -1092,7 +1092,7 @@ struct OnboardingFlowView: View {
                                 .frame(width: 10, height: 10)
 
                             Text(self.isMicrophoneReady ? "Microphone access granted" : "Microphone access required")
-                                .font(.body.weight(.medium))
+                                .font(self.theme.typography.bodyStrong)
                                 .foregroundStyle(self.isMicrophoneReady ? .primary : self.theme.palette.warning)
 
                             Spacer()
@@ -1108,7 +1108,7 @@ struct OnboardingFlowView: View {
                         if !self.isMicrophoneReady {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("How to enable microphone access")
-                                    .font(.caption.weight(.semibold))
+                                    .font(self.theme.typography.captionStrong)
                                     .foregroundStyle(.secondary)
 
                                 if self.asr.micStatus == .notDetermined {
@@ -1120,7 +1120,7 @@ struct OnboardingFlowView: View {
                                     Text("3. Toggle FluidVoice on")
                                 }
                             }
-                            .font(.caption)
+                            .font(self.theme.typography.caption)
                             .foregroundStyle(.secondary)
                         }
                     }
@@ -1142,7 +1142,7 @@ struct OnboardingFlowView: View {
                                 .frame(width: 10, height: 10)
 
                             Text(self.isAccessibilityReady ? "Accessibility enabled" : "Accessibility permission required")
-                                .font(.body.weight(.medium))
+                                .font(self.theme.typography.bodyStrong)
                                 .foregroundStyle(self.isAccessibilityReady ? .primary : self.theme.palette.warning)
 
                             Spacer()
@@ -1158,14 +1158,14 @@ struct OnboardingFlowView: View {
                         if !self.isAccessibilityReady {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("How to enable accessibility")
-                                    .font(.caption.weight(.semibold))
+                                    .font(self.theme.typography.captionStrong)
                                     .foregroundStyle(.secondary)
                                 Text("1. Click \"Enable Accessibility\"")
                                 Text("2. Add or enable FluidVoice in Accessibility")
                                 Text("3. FluidVoice should restart automatically")
                                 Text("4. If it does not, use Restart FluidVoice below")
                             }
-                            .font(.caption)
+                            .font(self.theme.typography.caption)
                             .foregroundStyle(.secondary)
 
                             Button("Restart FluidVoice") {
@@ -1189,7 +1189,7 @@ struct OnboardingFlowView: View {
                 Text(self.isAIReady
                     ? "AI enhancement is ready (or skipped)"
                     : "Configure AI enhancement or skip to continue")
-                    .font(.subheadline.weight(.medium))
+                    .font(self.theme.typography.bodySmallStrong)
                     .foregroundStyle(self.isAIReady ? self.theme.palette.success : .secondary)
             }
             .padding(.horizontal, 24)
@@ -1206,18 +1206,18 @@ struct OnboardingFlowView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
                             Text("Quick Playground Test")
-                                .font(.headline)
+                                .font(self.theme.typography.sectionTitle)
                             Spacer()
                             if self.asr.isRunning {
                                 Text("Recording...")
-                                    .font(.caption.weight(.semibold))
+                                    .font(self.theme.typography.captionStrong)
                                     .foregroundStyle(.red)
                             }
                         }
 
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Press Start Recording or use \(self.onboardingShortcutDisplay), then stop and confirm your text appears below.")
-                                .font(.caption)
+                                .font(self.theme.typography.caption)
                                 .foregroundStyle(.secondary)
 
                             Button(self.asr.isRunning ? "Stop Recording" : "Start Recording") {
@@ -1231,7 +1231,7 @@ struct OnboardingFlowView: View {
                             get: { self.asr.finalText },
                             set: { self.asr.finalText = $0 }
                         ))
-                        .font(.body)
+                        .font(self.theme.typography.body)
                         .frame(height: 170)
                         .fluidOnboardingEditorSurface()
                         .scrollContentBackground(.hidden)
@@ -1241,12 +1241,12 @@ struct OnboardingFlowView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(self.theme.palette.success)
                                 Text("Playground test passed. You can finish setup.")
-                                    .font(.caption)
+                                    .font(self.theme.typography.caption)
                                     .foregroundStyle(.secondary)
                             }
                         } else {
                             Text("Record a short sample with the button or your hotkey and confirm transcription appears here.")
-                                .font(.caption)
+                                .font(self.theme.typography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -1358,32 +1358,32 @@ struct OnboardingFlowView: View {
             HStack(alignment: .top, spacing: 10) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(model.displayName)
-                        .font(.callout.weight(.semibold))
+                        .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.theme.palette.primaryText)
 
                     Text(model.cardDescription)
-                        .font(.caption)
+                        .font(self.theme.typography.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
 
                     HStack(spacing: 10) {
                         Label(model.downloadSize, systemImage: "internaldrive")
-                            .font(.caption2)
+                            .font(self.theme.typography.captionSmall)
                             .foregroundStyle(.secondary)
                         Text(model.languageSupport)
-                            .font(.caption2)
+                            .font(self.theme.typography.captionSmall)
                             .foregroundStyle(.secondary)
                     }
 
                     if let supportedLanguageCodes = model.supportedLanguageCodes {
                         Text(supportedLanguageCodes)
-                            .font(.caption2)
+                            .font(self.theme.typography.captionSmall)
                             .foregroundStyle(.secondary)
                     }
 
                     if let supportedLanguageNames = model.supportedLanguageNames {
                         Text("Supported languages: \(supportedLanguageNames)")
-                            .font(.caption2)
+                            .font(self.theme.typography.captionSmall)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -1404,28 +1404,28 @@ struct OnboardingFlowView: View {
                             ProgressView()
                                 .controlSize(.mini)
                             Text("Finalizing...")
-                                .font(.caption2)
+                                .font(self.theme.typography.captionSmall)
                                 .foregroundStyle(.secondary)
                         }
                     } else {
                         ProgressView(value: progress)
                             .tint(self.theme.palette.accent)
                         Text("Downloading \(Int(progress * 100))%")
-                            .font(.caption2)
+                            .font(self.theme.typography.captionSmall)
                             .foregroundStyle(.secondary)
                     }
                 } else {
                     Text("Loading model...")
-                        .font(.caption2)
+                        .font(self.theme.typography.captionSmall)
                         .foregroundStyle(.secondary)
                 }
             } else if isReady {
                 Label("Downloaded and loaded", systemImage: "checkmark.circle.fill")
-                    .font(.caption2.weight(.semibold))
+                    .font(self.theme.typography.badge)
                     .foregroundStyle(self.theme.palette.success)
             } else if isDownloaded {
                 Label("Downloaded", systemImage: "arrow.triangle.2.circlepath")
-                    .font(.caption2.weight(.semibold))
+                    .font(self.theme.typography.badge)
                     .foregroundStyle(.secondary)
             }
         }
@@ -1448,13 +1448,13 @@ struct OnboardingFlowView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 8) {
                 Text(model.displayName)
-                    .font(.callout.weight(.semibold))
+                    .font(self.theme.typography.bodyStrong)
                     .foregroundStyle(self.theme.palette.primaryText)
 
                 Spacer(minLength: 8)
 
                 Text("FV Recommended")
-                    .font(.caption2.weight(.semibold))
+                    .font(self.theme.typography.badge)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Capsule().fill(self.theme.palette.accent.opacity(0.18)))
@@ -1462,16 +1462,16 @@ struct OnboardingFlowView: View {
             }
 
             Text(model.cardDescription)
-                .font(.caption)
+                .font(self.theme.typography.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
             HStack(spacing: 10) {
                 Label(model.downloadSize, systemImage: "internaldrive")
-                    .font(.caption2)
+                    .font(self.theme.typography.captionSmall)
                     .foregroundStyle(.secondary)
                 Text(model.languageSupport)
-                    .font(.caption2)
+                    .font(self.theme.typography.captionSmall)
                     .foregroundStyle(.secondary)
             }
 
@@ -1482,24 +1482,24 @@ struct OnboardingFlowView: View {
                     ProgressView(value: progress)
                         .tint(self.theme.palette.accent)
                     Text(progress >= 0.82 ? "Finalizing..." : "Downloading \(Int(progress * 100))%")
-                        .font(.caption2)
+                        .font(self.theme.typography.captionSmall)
                         .foregroundStyle(.secondary)
                 } else {
                     Text("Loading model...")
-                        .font(.caption2)
+                        .font(self.theme.typography.captionSmall)
                         .foregroundStyle(.secondary)
                 }
             } else if isReady {
                 Label("Downloaded and loaded", systemImage: "checkmark.circle.fill")
-                    .font(.caption2.weight(.semibold))
+                    .font(self.theme.typography.badge)
                     .foregroundStyle(self.theme.palette.success)
             } else if isDownloaded {
                 Label("Downloaded", systemImage: "arrow.triangle.2.circlepath")
-                    .font(.caption2.weight(.semibold))
+                    .font(self.theme.typography.badge)
                     .foregroundStyle(.secondary)
             } else {
                 Label("Not downloaded yet", systemImage: "arrow.down.circle")
-                    .font(.caption2.weight(.semibold))
+                    .font(self.theme.typography.badge)
                     .foregroundStyle(.secondary)
             }
 
@@ -1554,12 +1554,12 @@ struct OnboardingFlowView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Text(option.title)
-                        .font(.callout.weight(.semibold))
+                        .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.theme.palette.primaryText)
 
                     if option != .other {
                         Text("FluidVoice Recommended")
-                            .font(.caption2.weight(.semibold))
+                            .font(self.theme.typography.badge)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Capsule().fill(self.theme.palette.accent.opacity(0.18)))
@@ -1568,7 +1568,7 @@ struct OnboardingFlowView: View {
                 }
 
                 Text(option.subtitle)
-                    .font(.caption)
+                    .font(self.theme.typography.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.leading)
             }

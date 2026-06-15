@@ -20,6 +20,48 @@ struct AppTheme {
         let success: Color
     }
 
+    struct Typography {
+        let title: Font
+        let titleIcon: Font
+        let sectionTitle: Font
+        let body: Font
+        let bodyStrong: Font
+        let bodySmall: Font
+        let bodySmallStrong: Font
+        let caption: Font
+        let captionStrong: Font
+        let captionSmall: Font
+        let tiny: Font
+        let tinyStrong: Font
+        let badge: Font
+        let metricTiny: Font
+        let codeCaption: Font
+        let sidebarItem: Font
+        let sidebarSection: Font
+        let chromeCaption: Font
+
+        static let standard = Typography(
+            title: .system(size: 22, weight: .bold),
+            titleIcon: .system(size: 22, weight: .regular),
+            sectionTitle: .system(size: 15, weight: .semibold),
+            body: .system(size: 14, weight: .regular),
+            bodyStrong: .system(size: 14, weight: .medium),
+            bodySmall: .system(size: 13, weight: .regular),
+            bodySmallStrong: .system(size: 13, weight: .medium),
+            caption: .system(size: 12, weight: .regular),
+            captionStrong: .system(size: 12, weight: .medium),
+            captionSmall: .system(size: 11, weight: .regular),
+            tiny: .system(size: 11, weight: .regular),
+            tinyStrong: .system(size: 11, weight: .bold),
+            badge: .system(size: 11, weight: .semibold),
+            metricTiny: .system(size: 11, weight: .bold, design: .rounded),
+            codeCaption: .system(size: 12, weight: .medium, design: .monospaced),
+            sidebarItem: .system(size: 14, weight: .regular),
+            sidebarSection: .system(size: 12, weight: .medium),
+            chromeCaption: .system(size: 12, weight: .regular)
+        )
+    }
+
     struct Metrics {
         struct Spacing {
             let xs: CGFloat
@@ -187,6 +229,7 @@ struct AppTheme {
     }
 
     let palette: Palette
+    let typography: Typography
     let metrics: Metrics
     let materials: Materials
 
@@ -210,6 +253,7 @@ struct AppTheme {
                 warning: Color(nsColor: .systemOrange),
                 success: accent
             ),
+            typography: .standard,
             metrics: Metrics(
                 spacing: .standard,
                 corners: .standard,
