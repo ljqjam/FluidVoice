@@ -73,31 +73,9 @@ struct SearchableProviderPicker: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 Spacer(minLength: 6)
-                Image(systemName: "chevron.down")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 20, height: 20)
-                    .background(
-                        Circle()
-                            .fill(self.theme.palette.cardBackground.opacity(0.7))
-                            .overlay(
-                                Circle()
-                                    .stroke(self.theme.palette.cardBorder.opacity(0.4), lineWidth: 1)
-                            )
-                    )
+                FluidPickerDisclosureIcon(backgroundOpacity: 0.7)
             }
-            .frame(width: self.controlWidth, alignment: .leading)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 5)
-            .frame(height: self.controlHeight)
-            .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(self.theme.palette.cardBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .stroke(self.theme.palette.cardBorder.opacity(0.35), lineWidth: 1)
-                    )
-            )
+            .searchablePickerControlChrome(width: self.controlWidth, height: self.controlHeight)
         }
         .buttonStyle(.plain)
         .popover(isPresented: self.$isShowingPopover, arrowEdge: .bottom) {
@@ -109,15 +87,7 @@ struct SearchableProviderPicker: View {
                     TextField("Search providers...", text: self.$searchText)
                         .textFieldStyle(.plain)
                 }
-                .padding(8)
-                .background(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(self.theme.palette.contentBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .stroke(self.theme.palette.cardBorder.opacity(0.3), lineWidth: 1)
-                        )
-                )
+                .searchablePickerSearchFieldChrome()
 
                 Divider()
 
@@ -195,7 +165,7 @@ struct SearchableProviderPicker: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .background(provider.id == self.selectedProviderID ? self.theme.palette.accent.opacity(0.15) : Color.clear)
+        .searchablePickerSelectedRowBackground(isSelected: provider.id == self.selectedProviderID)
     }
 }
 

@@ -512,8 +512,132 @@ struct FormRowStyle: ViewModifier {
     }
 }
 
+// MARK: - Searchable Picker Chrome
+
+struct FluidPickerDisclosureIcon: View {
+    @Environment(\.theme) private var theme
+    var backgroundOpacity: Double
+
+    var body: some View {
+        let picker = self.theme.metrics.pickerControl
+
+        Image(systemName: "chevron.down")
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .frame(width: picker.disclosureSize, height: picker.disclosureSize)
+            .background(
+                Circle()
+                    .fill(self.theme.palette.cardBackground.opacity(self.backgroundOpacity))
+                    .overlay(
+                        Circle()
+                            .stroke(self.theme.palette.cardBorder.opacity(picker.disclosureBorderOpacity), lineWidth: 1)
+                    )
+            )
+    }
+}
+
+struct SearchablePickerControlChrome: ViewModifier {
+    @Environment(\.theme) private var theme
+    let width: CGFloat
+    let height: CGFloat?
+    let usesMaterial: Bool
+    let showsShadow: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        let picker = self.theme.metrics.pickerControl
+        let shape = RoundedRectangle(cornerRadius: picker.cornerRadius, style: .continuous)
+        let control = content
+            .frame(width: self.width, alignment: .leading)
+            .padding(.horizontal, picker.horizontalPadding)
+            .padding(.vertical, picker.verticalPadding)
+            .frame(height: self.height)
+            .contentShape(Rectangle())
+
+        if self.usesMaterial {
+            control
+                .background(self.theme.materials.card, in: shape)
+                .background(self.pickerSurface(shape, picker: picker))
+                .shadow(
+                    color: self.theme.palette.cardBorder.opacity(self.showsShadow ? 0.18 : 0),
+                    radius: self.showsShadow ? 3 : 0,
+                    x: 0,
+                    y: self.showsShadow ? 1 : 0
+                )
+        } else {
+            control
+                .background(self.pickerSurface(shape, picker: picker))
+        }
+    }
+
+    private func pickerSurface(
+        _ shape: RoundedRectangle,
+        picker: AppTheme.Metrics.PickerControl
+    ) -> some View {
+        shape
+            .fill(self.theme.palette.cardBackground)
+            .overlay(
+                shape.stroke(self.theme.palette.cardBorder.opacity(picker.borderOpacity), lineWidth: 1)
+            )
+    }
+}
+
+struct SearchablePickerSearchFieldChrome: ViewModifier {
+    @Environment(\.theme) private var theme
+
+    func body(content: Content) -> some View {
+        let picker = self.theme.metrics.pickerControl
+        let shape = RoundedRectangle(cornerRadius: picker.cornerRadius, style: .continuous)
+
+        content
+            .padding(self.theme.metrics.spacing.sm)
+            .background(
+                shape
+                    .fill(self.theme.palette.contentBackground)
+                    .overlay(
+                        shape.stroke(self.theme.palette.cardBorder.opacity(picker.searchBorderOpacity), lineWidth: 1)
+                    )
+            )
+    }
+}
+
 extension View {
     func formRowStyle() -> some View {
         modifier(FormRowStyle())
+    }
+
+    func searchablePickerControlChrome(
+        width: CGFloat,
+        height: CGFloat?,
+        usesMaterial: Bool = false,
+        showsShadow: Bool = false
+    ) -> some View {
+        modifier(SearchablePickerControlChrome(
+            width: width,
+            height: height,
+            usesMaterial: usesMaterial,
+            showsShadow: showsShadow
+        ))
+    }
+
+    func searchablePickerSearchFieldChrome() -> some View {
+        modifier(SearchablePickerSearchFieldChrome())
+    }
+
+    func searchablePickerSelectedRowBackground(isSelected: Bool) -> some View {
+        modifier(SearchablePickerSelectedRowBackground(isSelected: isSelected))
+    }
+}
+
+private struct SearchablePickerSelectedRowBackground: ViewModifier {
+    @Environment(\.theme) private var theme
+    let isSelected: Bool
+
+    func body(content: Content) -> some View {
+        content.background(
+            self.isSelected
+                ? self.theme.palette.accent.opacity(self.theme.metrics.pickerControl.selectedRowOpacity)
+                : Color.clear
+        )
     }
 }

@@ -59,38 +59,13 @@ struct SearchableModelPicker: View {
                         .truncationMode(.middle)
                         .foregroundStyle(self.selectedModel.isEmpty ? .secondary : .primary)
                     Spacer(minLength: 6)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 20, height: 20)
-                        .background(
-                            Circle()
-                                .fill(self.theme.palette.cardBackground.opacity(0.6))
-                                .overlay(
-                                    Circle()
-                                        .stroke(self.theme.palette.cardBorder.opacity(0.4), lineWidth: 1)
-                                )
-                        )
+                    FluidPickerDisclosureIcon(backgroundOpacity: 0.6)
                 }
-                .frame(width: self.controlWidth, alignment: .leading)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .frame(height: self.controlHeight)
-                .contentShape(Rectangle())
-                .background(self.theme.materials.card, in: RoundedRectangle(cornerRadius: self.theme.metrics.corners.sm, style: .continuous))
-                .background(
-                    RoundedRectangle(cornerRadius: self.theme.metrics.corners.sm, style: .continuous)
-                        .fill(self.theme.palette.cardBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: self.theme.metrics.corners.sm, style: .continuous)
-                                .stroke(self.theme.palette.cardBorder.opacity(0.35), lineWidth: 1)
-                        )
-                )
-                .shadow(
-                    color: self.theme.palette.cardBorder.opacity(0.18),
-                    radius: 3,
-                    x: 0,
-                    y: 1
+                .searchablePickerControlChrome(
+                    width: self.controlWidth,
+                    height: self.controlHeight,
+                    usesMaterial: true,
+                    showsShadow: true
                 )
             }
             .buttonStyle(.plain)
@@ -105,15 +80,7 @@ struct SearchableModelPicker: View {
                         TextField("Search models...", text: self.$searchText)
                             .textFieldStyle(.plain)
                     }
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(self.theme.palette.contentBackground)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .stroke(self.theme.palette.cardBorder.opacity(0.3), lineWidth: 1)
-                            )
-                    )
+                    .searchablePickerSearchFieldChrome()
 
                     Divider()
 
@@ -162,7 +129,7 @@ struct SearchableModelPicker: View {
                                                 .contentShape(Rectangle())
                                             }
                                             .buttonStyle(.plain)
-                                            .background(model == self.selectedModel ? self.theme.palette.accent.opacity(0.15) : Color.clear)
+                                            .searchablePickerSelectedRowBackground(isSelected: model == self.selectedModel)
                                         }
                                     }
                                 }
@@ -214,7 +181,7 @@ struct SearchableModelPicker: View {
                                 .font(.system(size: 12, weight: .semibold))
                         }
                     }
-                    .buttonStyle(AccentButtonStyle(compact: true))
+                    .fluidButton(.accent, size: .small)
                     .frame(width: self.controlHeight, height: self.controlHeight)
                     .disabled(self.isRefreshing || !self.refreshEnabled)
                     .opacity(self.refreshEnabled ? 1 : 0.45)

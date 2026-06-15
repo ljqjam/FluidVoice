@@ -81,9 +81,32 @@ struct AppTheme {
             )
         }
 
+        struct PickerControl {
+            let horizontalPadding: CGFloat
+            let verticalPadding: CGFloat
+            let cornerRadius: CGFloat
+            let borderOpacity: Double
+            let searchBorderOpacity: Double
+            let disclosureSize: CGFloat
+            let disclosureBorderOpacity: Double
+            let selectedRowOpacity: Double
+
+            static let standard = PickerControl(
+                horizontalPadding: 8,
+                verticalPadding: 5,
+                cornerRadius: 6,
+                borderOpacity: 0.35,
+                searchBorderOpacity: 0.3,
+                disclosureSize: 20,
+                disclosureBorderOpacity: 0.4,
+                selectedRowOpacity: 0.15
+            )
+        }
+
         let spacing: Spacing
         let corners: CornerRadius
         let formRow: FormRow
+        let pickerControl: PickerControl
         let cardShadow: Shadow
         let elevatedCardShadow: Shadow
     }
@@ -125,6 +148,7 @@ struct AppTheme {
                 spacing: .standard,
                 corners: .standard,
                 formRow: .standard,
+                pickerControl: .standard,
                 cardShadow: .subtle(color: .black, opacity: 0.70),
                 elevatedCardShadow: .subtle(color: .black, opacity: 0.80)
             ),
