@@ -371,7 +371,7 @@ extension VoiceEngineSettingsView {
                         HStack(spacing: 6) {
                             ProgressView()
                                 .controlSize(.mini)
-                            Text("Finalizing…")
+                            Text("Downloading…")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
@@ -392,7 +392,7 @@ extension VoiceEngineSettingsView {
                             HStack(spacing: 6) {
                                 ProgressView()
                                     .controlSize(.mini)
-                                Text("Finalizing…")
+                                Text("Downloading…")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
@@ -633,18 +633,9 @@ extension VoiceEngineSettingsView {
             if (self.viewModel.asr.isDownloadingModel || self.viewModel.asr.isLoadingModel) && !self.viewModel.asr.isAsrReady {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small).fixedSize()
-                    if self.viewModel.asr.isDownloadingModel,
-                       let progress = self.viewModel.asr.downloadProgress,
-                       progress >= 0.82
-                    {
-                        Text("Finalizing download and loading model…")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text(self.viewModel.asr.isLoadingModel ? "Loading model…" : "Downloading…")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    Text(self.viewModel.asr.isLoadingModel ? "Loading model…" : "Downloading model…")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             } else if self.viewModel.asr.isAsrReady {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.fluidGreen).font(.caption)
