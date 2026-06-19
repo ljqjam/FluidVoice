@@ -991,13 +991,16 @@ struct ContentView: View {
             .font(self.theme.typography.sidebarSection)
             .foregroundStyle(.secondary)
             .textCase(nil)
-            .padding(.top, 8)
+            .padding(.top, self.theme.metrics.spacing.sm)
+            .padding(.bottom, self.theme.metrics.spacing.xs)
     }
 
     private func sidebarNavigationLink(_ item: SidebarItem, title: String, systemImage: String) -> some View {
         NavigationLink(value: item) {
             Label(title, systemImage: systemImage)
                 .font(self.theme.typography.sidebarItem)
+                .frame(minHeight: 24, alignment: .leading)
+                .padding(.vertical, self.theme.metrics.spacing.xs / 2)
         }
     }
 
