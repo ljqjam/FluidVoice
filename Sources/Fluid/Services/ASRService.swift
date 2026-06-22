@@ -2943,26 +2943,35 @@ final class ASRService: ObservableObject {
 
         let precedingTrimmed = precedingText.trimmingCharacters(in: .whitespacesAndNewlines)
         if precedingTrimmed.isEmpty {
-            // Empty field = sentence start: capitalize first alphabetic character.
-            if let first = result.first, first.isLetter, first.isLowercase {
-                result = first.uppercased() + result.dropFirst()
-            }
+            result = self.replacingFirstLetter(in: result, transform: { $0.uppercased() })
         } else if let lastChar = precedingTrimmed.last, lastChar.isLetter || lastChar.isNumber {
             // Last char before cursor is alphanumeric (no terminal punctuation): lowercase the
             // first character so this segment flows inline with the existing text.
-            if let first = result.first, first.isUppercase {
-                result = first.lowercased() + result.dropFirst()
-            }
+            result = self.replacingFirstLetter(in: result, transform: { $0.lowercased() })
         }
         // If preceding text ends with .!? (or any other punctuation), leave the model's
         // capitalization as-is (sentence start).
 
-        // Append a trailing space so the next dictation chains without a manual spacebar press.
-        if !result.hasSuffix(" ") {
+        // Add a separator when continuing after existing inline text, then leave a trailing
+        // space so the next dictation can chain without a manual spacebar press.
+        if let lastPreceding = precedingText.last,
+           !lastPreceding.isWhitespace,
+           result.first?.isWhitespace != true
+        {
+            result = " " + result
+        }
+
+        if result.last?.isWhitespace != true {
             result += " "
         }
 
         return result
+    }
+
+    private static func replacingFirstLetter(in text: String, transform: (Character) -> String) -> String {
+        guard let index = text.firstIndex(where: { $0.isLetter }) else { return text }
+        let nextIndex = text.index(after: index)
+        return String(text[..<index]) + transform(text[index]) + String(text[nextIndex...])
     }
 }
 

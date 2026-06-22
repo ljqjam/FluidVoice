@@ -172,42 +172,8 @@ final class TypingService {
     /// Best-effort: returns the text immediately before the caret in the currently focused
     /// text field. Used by Continuous Dictation Mode to decide capitalization when chaining
     /// transcribed segments. Returns "" when the focused field/context is unavailable.
-    /// Low-resource: single AX round-trip with a range fallback; no polling, no timers.
     static func textBeforeCursorInFocusedField() -> String {
-        guard AXIsProcessTrusted() else { return "" }
-
-        let systemWideElement = AXUIElementCreateSystemWide()
-        var focusedElementRef: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(
-            systemWideElement,
-            kAXFocusedUIElementAttribute as CFString,
-            &focusedElementRef
-        )
-        guard result == .success, let focusedElementRef else { return "" }
-        guard CFGetTypeID(focusedElementRef) == AXUIElementGetTypeID() else { return "" }
-        let element = unsafeBitCast(focusedElementRef, to: AXUIElement.self)
-
-        var rangeRef: CFTypeRef?
-        let rangeResult = AXUIElementCopyAttributeValue(
-            element,
-            kAXSelectedTextRangeAttribute as CFString,
-            &rangeRef
-        )
-        guard rangeResult == .success, let rangeRef else { return "" }
-        guard CFGetTypeID(rangeRef) == AXValueGetTypeID() else { return "" }
-
-        var range = CFRange()
-        guard AXValueGetValue(unsafeBitCast(rangeRef, to: AXValue.self), .cfRange, &range) else { return "" }
-        guard range.location != kCFNotFound, range.location >= 0 else { return "" }
-
-        var valueRef: CFTypeRef?
-        let valueResult = AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &valueRef)
-        guard valueResult == .success, let fullText = valueRef as? String else { return "" }
-
-        let nsText = fullText as NSString
-        let location = min(range.location, nsText.length)
-        guard location > 0 else { return "" }
-        return nsText.substring(with: NSRange(location: 0, length: location))
+        TypingService().captureTextBeforeCursorInFocusedField()
     }
 
     @discardableResult
@@ -1030,6 +996,32 @@ final class TypingService {
             appScriptValue: appScriptSnapshot?.value,
             appScriptSelectedRange: appScriptSnapshot?.selectedRange
         )
+    }
+
+    private func captureTextBeforeCursorInFocusedField() -> String {
+        guard let snapshot = self.captureFocusedTextSnapshot() else { return "" }
+
+        let scriptRange = snapshot.appScriptSelectedRange ?? snapshot.selectedRange
+        if let scriptValue = snapshot.appScriptValue,
+           let scriptRange
+        {
+            return Self.prefix(in: scriptValue, before: scriptRange.location)
+        }
+
+        if let value = snapshot.value,
+           let selectedRange = snapshot.selectedRange
+        {
+            return Self.prefix(in: value, before: selectedRange.location)
+        }
+
+        return ""
+    }
+
+    private static func prefix(in text: String, before location: Int) -> String {
+        let nsText = text as NSString
+        let safeLocation = max(0, min(location, nsText.length))
+        guard safeLocation > 0 else { return "" }
+        return nsText.substring(with: NSRange(location: 0, length: safeLocation))
     }
 
     private struct AppScriptTextSnapshot {
