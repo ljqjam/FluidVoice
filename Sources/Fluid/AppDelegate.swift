@@ -141,8 +141,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             == OSType(keyAELaunchedAsLogInItem)
     }
 
-    private func openMainWindowOnLaunch() {
+    /// Apply the user's dock-visibility preference ("Hide from dock", issue #162).
+    /// Re-applied after operations that can reset the process activation policy - notably the
+    /// LaunchServices reopen below, which restores the bundle default (.regular) even when the
+    /// app is reopened without activation, so hide-from-dock is honored on login launches (#396).
+    private func applyDockVisibilityPolicy() {
         NSApp.setActivationPolicy(SettingsStore.shared.showInDock ? .regular : .accessory)
+    }
+
+    private func openMainWindowOnLaunch() {
+        self.applyDockVisibilityPolicy()
 
         // Users can opt out of showing the window for login-item launches (#369).
         // The window must still be CREATED either way - ContentView's appearance
@@ -215,9 +223,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
 
         DebugLogger.shared.info("Requesting LaunchServices reopen to create SwiftUI main window", source: "AppDelegate")
-        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { _, error in
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { [weak self] _, error in
             if let error {
                 DebugLogger.shared.error("LaunchServices reopen failed: \(error.localizedDescription)", source: "AppDelegate")
+            }
+            // The reopen restores the app's bundle default activation policy (.regular), which
+            // would surface the Dock icon even when the user enabled "Hide from dock". Re-apply
+            // the configured policy so login launches honor the setting (#396). The completion
+            // runs off the main thread, so hop back before touching NSApp.
+            DispatchQueue.main.async {
+                self?.applyDockVisibilityPolicy()
             }
         }
     }
