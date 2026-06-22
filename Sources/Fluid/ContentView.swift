@@ -1444,9 +1444,8 @@ struct ContentView: View {
             source: "ContentView"
         )
 
-        // Capture text before the caret for Continuous Dictation Mode smart caps.
-        // Only read the field when the feature is enabled (low-resource: one AX round-trip).
-        if SettingsStore.shared.continuousDictationModeEnabled {
+        // Capture text before the caret only when formatting needs focused-field context.
+        if SettingsStore.shared.needsDictationFormattingContext {
             self.recordingPrecedingText = TypingService.textBeforeCursorInFocusedField()
             DebugLogger.shared.debug(
                 "Captured preceding text for continuous dictation (chars=\(self.recordingPrecedingText.count))",
@@ -2371,7 +2370,7 @@ struct ContentView: View {
         }
 
         let gaavText = ASRService.applyGAAVFormatting(text)
-        let precedingText = SettingsStore.shared.continuousDictationModeEnabled
+        let precedingText = SettingsStore.shared.needsDictationFormattingContext
             ? TypingService.textBeforeCursorInFocusedField()
             : ""
         let finalText = ASRService.applyContinuousDictationFormatting(gaavText, precedingText: precedingText)
