@@ -208,7 +208,7 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        SettingsPersistentScrollView {
+        SettingsPersistentScrollView(theme: self.theme, colorScheme: self.colorScheme) {
             VStack(spacing: 16) {
                 // App Settings Card
                 ThemedCard(style: .standard) {
@@ -2277,10 +2277,22 @@ private final class SettingsPersistentScroller: NSScroller {
 }
 
 private struct SettingsPersistentScrollView<Content: View>: NSViewRepresentable {
+    private let theme: AppTheme
+    private let colorScheme: ColorScheme
     private let content: Content
 
-    init(@ViewBuilder content: () -> Content) {
+    init(theme: AppTheme, colorScheme: ColorScheme, @ViewBuilder content: () -> Content) {
+        self.theme = theme
+        self.colorScheme = colorScheme
         self.content = content()
+    }
+
+    private var hostedContent: AnyView {
+        AnyView(
+            self.content
+                .appTheme(self.theme)
+                .environment(\.colorScheme, self.colorScheme)
+        )
     }
 
     func makeNSView(context _: Context) -> NSScrollView {
@@ -2296,7 +2308,7 @@ private struct SettingsPersistentScrollView<Content: View>: NSViewRepresentable 
         scrollView.verticalScrollElasticity = .allowed
         scrollView.horizontalScrollElasticity = .none
 
-        let hostingView = NSHostingView(rootView: AnyView(self.content))
+        let hostingView = NSHostingView(rootView: self.hostedContent)
         hostingView.translatesAutoresizingMaskIntoConstraints = false
         hostingView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         hostingView.setContentHuggingPriority(.required, for: .vertical)
@@ -2313,7 +2325,7 @@ private struct SettingsPersistentScrollView<Content: View>: NSViewRepresentable 
     }
 
     func updateNSView(_ scrollView: NSScrollView, context _: Context) {
-        (scrollView.documentView as? NSHostingView<AnyView>)?.rootView = AnyView(self.content)
+        (scrollView.documentView as? NSHostingView<AnyView>)?.rootView = self.hostedContent
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = false
