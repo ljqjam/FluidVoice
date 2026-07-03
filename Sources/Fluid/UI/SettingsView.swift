@@ -185,21 +185,21 @@ struct SettingsView: View {
         let profiles = self.settings.promptProfiles(for: .dictate)
         let privateAILocked = PrivateAIProviderPromptFormat.isAvailable(settings: self.settings)
         HStack {
-            Text("AI Prompt")
+            Text("AI 提示词")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(self.settingsSecondaryText)
                 .padding(.leading, 30)
             Spacer()
             Picker("", selection: self.dictationPromptSelectionBinding(for: slot)) {
-                Text("Off").tag("__OFF__")
-                Text("Default").tag("__DEFAULT__").disabled(privateAILocked)
+                Text("关闭").tag("__OFF__")
+                Text("默认").tag("__DEFAULT__").disabled(privateAILocked)
                 if PrivateFeatures.privateAIProvider {
                     Text(PrivateAIProviderFeature.displayName)
                         .tag(PrivateAIProviderPromptFormat.promptSelectionID)
                         .disabled(!privateAILocked)
                 }
                 ForEach(profiles) { profile in
-                    Text(profile.name.isEmpty ? "Untitled" : profile.name)
+                    Text(profile.name.isEmpty ? "未命名" : profile.name)
                         .tag(profile.id)
                         .disabled(privateAILocked)
                 }
@@ -216,15 +216,15 @@ struct SettingsView: View {
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
                         // Section header
-                        Label("App Settings", systemImage: "power")
+                        Label("应用设置", systemImage: "power")
                             .font(.headline)
                             .foregroundStyle(.primary)
 
                         VStack(spacing: 16) {
                             // Launch at startup
                             self.settingsToggleRow(
-                                title: "Launch at startup",
-                                description: "Automatically start FluidVoice when you log in",
+                                title: "开机自动启动",
+                                description: "登录时自动启动 FluidVoice",
                                 footnote: self.settings.launchAtStartupStatusMessage,
                                 errorMessage: self.settings.launchAtStartupErrorMessage,
                                 isOn: self.launchAtStartupBinding
@@ -233,8 +233,8 @@ struct SettingsView: View {
 
                             // Show window when launched at login
                             self.settingsToggleRow(
-                                title: "Show window when launched at login",
-                                description: "When off, FluidVoice starts silently in the menu bar at login. Opening the app yourself always shows the window.",
+                                title: "登录启动时显示窗口",
+                                description: "关闭后，FluidVoice 在登录时静默运行于菜单栏。手动打开应用时始终显示窗口。",
                                 isOn: Binding(
                                     get: { SettingsStore.shared.showMainWindowAtLoginLaunch },
                                     set: { SettingsStore.shared.showMainWindowAtLoginLaunch = $0 }
@@ -244,9 +244,9 @@ struct SettingsView: View {
 
                             // Hide from Dock & App Switcher
                             self.settingsToggleRow(
-                                title: "Hide from Dock & App Switcher",
-                                description: "Keep FluidVoice in the menu bar only (hides Dock icon and Cmd+Tab entry)",
-                                footnote: "Note: May require app restart to take effect.",
+                                title: "从程序坞和应用切换器隐藏",
+                                description: "仅在菜单栏中保留 FluidVoice（隐藏程序坞图标和 Cmd+Tab 条目）",
+                                footnote: "注意：可能需要重启应用才能生效。",
                                 isOn: Binding(
                                     get: { SettingsStore.shared.hideFromDockAndAppSwitcher },
                                     set: { SettingsStore.shared.hideFromDockAndAppSwitcher = $0 }
@@ -258,10 +258,10 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack(alignment: .center) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Accent Color")
+                                        Text("强调色")
                                             .font(self.theme.typography.bodyStrong)
                                             .foregroundStyle(self.settingsTitleText)
-                                        Text("Pick a preset accent color for the app.")
+                                        Text("为应用选择一个预设强调色。")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -307,10 +307,10 @@ struct SettingsView: View {
 
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Transcription Sounds")
+                                    Text("转录提示音")
                                         .font(self.theme.typography.bodyStrong)
                                         .foregroundStyle(self.settingsTitleText)
-                                    Text("Choose the sound cue for recording. Some cues include an end sound.")
+                                    Text("选择录音提示音。部分提示音包含结束提示。")
                                         .font(self.theme.typography.bodySmall)
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
@@ -335,10 +335,10 @@ struct SettingsView: View {
                             if SettingsStore.shared.transcriptionStartSound != .none {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Volume")
+                                        Text("音量")
                                             .font(self.theme.typography.bodyStrong)
                                             .foregroundStyle(self.settingsTitleText)
-                                        Text("Adjust the recording sound cue volume.")
+                                        Text("调整录音提示音的音量。")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -363,9 +363,9 @@ struct SettingsView: View {
                                 }
 
                                 self.settingsToggleRow(
-                                    title: "Independent Volume",
-                                    description: "Sound volume stays constant regardless of system volume. Mute is still respected.",
-                                    footnote: "Temporarily changes system volume during playback, which may briefly affect other audio.",
+                                    title: "独立音量",
+                                    description: "无论系统音量如何，提示音音量保持不变。静音仍然有效。",
+                                    footnote: "播放期间会临时调整系统音量，可能短暂影响其他音频。",
                                     isOn: Binding(
                                         get: { SettingsStore.shared.transcriptionSoundIndependentVolume },
                                         set: { SettingsStore.shared.transcriptionSoundIndependentVolume = $0 }
@@ -379,10 +379,10 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack(alignment: .center) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Automatic Updates")
+                                        Text("自动更新")
                                             .font(self.theme.typography.bodyStrong)
                                             .foregroundStyle(self.settingsTitleText)
-                                        Text("Check for updates automatically once per hour")
+                                        Text("每小时自动检查一次更新")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -400,10 +400,10 @@ struct SettingsView: View {
 
                                 HStack(alignment: .center) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Beta Releases")
+                                        Text("测试版")
                                             .font(self.theme.typography.bodyStrong)
                                             .foregroundStyle(self.settingsTitleText)
-                                        Text("Opt in to preview builds that may be unstable")
+                                        Text("加入可能不稳定的预览版本")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -420,25 +420,25 @@ struct SettingsView: View {
                                 }
 
                                 if SettingsStore.shared.betaReleasesEnabled {
-                                    Text("Beta opt-in enabled. Update checks include both stable and beta builds.")
+                                    Text("已加入测试版。更新检查将包含正式版和测试版。")
                                         .font(.caption)
                                         .foregroundStyle(self.theme.palette.warning)
                                 }
 
                                 if let lastCheck = SettingsStore.shared.lastUpdateCheckDate {
-                                    Text("Last checked: \(lastCheck.formatted(date: .abbreviated, time: .shortened))")
+                                    Text("上次检查：\(lastCheck.formatted(date: .abbreviated, time: .shortened))")
                                         .font(self.theme.typography.bodySmall)
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
 
-                                Text("Current version: \(self.currentAppVersion)")
+                                Text("当前版本：\(self.currentAppVersion)")
                                     .font(self.theme.typography.bodySmall)
                                     .foregroundStyle(self.settingsSecondaryText)
                             }
 
                             // Update Buttons
                             HStack(spacing: 10) {
-                                Button("Check for Updates") {
+                                Button("检查更新") {
                                     Task { @MainActor in
                                         do {
                                             let includePrerelease = SettingsStore.shared.betaReleasesEnabled
@@ -448,22 +448,22 @@ struct SettingsView: View {
                                                 includePrerelease: includePrerelease
                                             )
                                             let ok = NSAlert()
-                                            ok.messageText = "Update Found!"
-                                            ok.informativeText = "A new version is available and will be installed now."
+                                            ok.messageText = "发现更新！"
+                                            ok.informativeText = "有新版本可用，即将开始安装。"
                                             ok.alertStyle = .informational
-                                            ok.addButton(withTitle: "OK")
+                                            ok.addButton(withTitle: "好")
                                             ok.runModal()
                                         } catch {
                                             let msg = NSAlert()
                                             if let pmkError = error as? PMKError, pmkError.isCancelled {
                                                 let isBeta = SettingsStore.shared.betaReleasesEnabled
-                                                msg.messageText = isBeta ? "You're Up To Date (Beta)" : "You're Up To Date"
+                                                msg.messageText = isBeta ? "已是最新版本（测试版）" : "已是最新版本"
                                                 msg.informativeText = isBeta
-                                                    ? "You're already running the latest build available in the beta channel."
-                                                    : "You're already running the latest version of FluidVoice."
+                                                    ? "您已在运行测试渠道中最新的版本。"
+                                                    : "您已在运行最新版本的 FluidVoice。"
                                             } else {
-                                                msg.messageText = "Update Check Failed"
-                                                msg.informativeText = "Unable to check for updates. Please try again later.\n\nError: \(error.localizedDescription)"
+                                                msg.messageText = "检查更新失败"
+                                                msg.informativeText = "无法检查更新，请稍后再试。\n\n错误：\(error.localizedDescription)"
                                             }
                                             msg.alertStyle = .informational
                                             msg.runModal()
@@ -474,7 +474,7 @@ struct SettingsView: View {
                                 .tint(self.theme.palette.accent)
                                 .controlSize(.regular)
 
-                                Button("Release Notes") {
+                                Button("更新日志") {
                                     if let url = URL(string: "https://github.com/altic-dev/Fluid-oss/releases") {
                                         NSWorkspace.shared.open(url)
                                     }
@@ -482,17 +482,17 @@ struct SettingsView: View {
                                 .buttonStyle(.bordered)
                                 .controlSize(.regular)
 
-                                Button(self.rollbackVersion.isEmpty ? "Rollback" : "Rollback to \(self.rollbackVersion)") {
+                                Button(self.rollbackVersion.isEmpty ? "回滚" : "回滚至 \(self.rollbackVersion)") {
                                     guard !self.isRollingBack else { return }
 
-                                    let infoText = self.rollbackVersion.isEmpty ? "your previously installed version" : self.rollbackVersion
+                                    let infoText = self.rollbackVersion.isEmpty ? "上一个已安装版本" : self.rollbackVersion
                                     let targetVersion = self.rollbackVersion
                                     let confirm = NSAlert()
-                                    confirm.messageText = "Rollback to \(infoText)?"
-                                    confirm.informativeText = "This will restore a previous app version and relaunch FluidVoice."
+                                    confirm.messageText = "回滚至 \(infoText)？"
+                                    confirm.informativeText = "这将还原到之前的应用版本并重新启动 FluidVoice。"
                                     confirm.alertStyle = .warning
-                                    confirm.addButton(withTitle: "Rollback")
-                                    confirm.addButton(withTitle: "Cancel")
+                                    confirm.addButton(withTitle: "回滚")
+                                    confirm.addButton(withTitle: "取消")
 
                                     guard confirm.runModal() == .alertFirstButtonReturn else { return }
 
@@ -508,11 +508,11 @@ struct SettingsView: View {
                                             try await SimpleUpdater.shared.rollbackToLatestBackup()
                                             await MainActor.run {
                                                 let success = NSAlert()
-                                                success.messageText = "Rollback Successful"
-                                                success.informativeText = "Rolled back to \(targetVersion). FluidVoice will relaunch shortly."
+                                                success.messageText = "回滚成功"
+                                                success.informativeText = "已回滚至 \(targetVersion)。FluidVoice 将在片刻后重新启动。"
                                                 success.alertStyle = .informational
-                                                success.addButton(withTitle: "Report Bug")
-                                                success.addButton(withTitle: "OK")
+                                                success.addButton(withTitle: "报告问题")
+                                                success.addButton(withTitle: "好")
                                                 let response = success.runModal()
                                                 if response == .alertFirstButtonReturn {
                                                     self.openIssueReportingPage()
@@ -521,10 +521,10 @@ struct SettingsView: View {
                                         } catch {
                                             await MainActor.run {
                                                 let fail = NSAlert()
-                                                fail.messageText = "Rollback Failed"
+                                                fail.messageText = "回滚失败"
                                                 fail.informativeText = error.localizedDescription
                                                 fail.alertStyle = .critical
-                                                fail.addButton(withTitle: "OK")
+                                                fail.addButton(withTitle: "好")
                                                 fail.runModal()
                                                 self.refreshRollbackState()
                                             }
@@ -536,7 +536,7 @@ struct SettingsView: View {
                                 .disabled(self.rollbackVersion.isEmpty || self.isRollingBack)
                                 .opacity(self.isRollingBack ? 0.7 : 1.0)
 
-                                Button("Get Previous Builds") {
+                                Button("获取历史版本") {
                                     self.openPreviousBuildPicker()
                                 }
                                 .buttonStyle(.bordered)
@@ -545,11 +545,11 @@ struct SettingsView: View {
                             .padding(.top, 12)
 
                             if self.rollbackVersion.isEmpty {
-                                Text("No rollback backup found.")
+                                Text("未找到回滚备份。")
                                     .font(self.theme.typography.bodySmall)
                                     .foregroundStyle(self.settingsSecondaryText)
                             } else {
-                                Text("Rollback target: \(self.rollbackVersion)")
+                                Text("回滚目标：\(self.rollbackVersion)")
                                     .font(self.theme.typography.bodySmall)
                                     .foregroundStyle(self.settingsSecondaryText)
                             }
@@ -561,7 +561,7 @@ struct SettingsView: View {
                 // Microphone Permission Card
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("Microphone Permission", systemImage: "mic.fill")
+                        Label("麦克风权限", systemImage: "mic.fill")
                             .font(.headline)
                             .foregroundStyle(.primary)
 
@@ -573,15 +573,15 @@ struct SettingsView: View {
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(
-                                        self.asr.micStatus == .authorized ? "Microphone access granted" :
-                                            self.asr.micStatus == .denied ? "Microphone access denied" :
-                                            "Microphone access not determined"
+                                        self.asr.micStatus == .authorized ? "已授予麦克风访问权限" :
+                                            self.asr.micStatus == .denied ? "已拒绝麦克风访问权限" :
+                                            "麦克风访问权限尚未确定"
                                     )
                                     .font(self.theme.typography.bodyStrong)
                                     .foregroundStyle(self.asr.micStatus == .authorized ? .primary : self.theme.palette.warning)
 
                                     if self.asr.micStatus != .authorized {
-                                        Text("Microphone access is required for voice recording")
+                                        Text("语音录制需要麦克风访问权限")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -592,7 +592,7 @@ struct SettingsView: View {
                                     Button {
                                         self.asr.requestMicAccess()
                                     } label: {
-                                        Label("Grant Access", systemImage: "mic.fill")
+                                        Label("授予权限", systemImage: "mic.fill")
                                     }
                                     .buttonStyle(.borderedProminent)
                                     .tint(self.theme.palette.accent)
@@ -601,7 +601,7 @@ struct SettingsView: View {
                                     Button {
                                         self.asr.openSystemSettingsForMic()
                                     } label: {
-                                        Label("Open Settings", systemImage: "gear")
+                                        Label("打开设置", systemImage: "gear")
                                     }
                                     .buttonStyle(.bordered)
                                     .controlSize(.regular)
@@ -610,13 +610,13 @@ struct SettingsView: View {
 
                             if self.asr.micStatus != .authorized {
                                 self.instructionsBox(
-                                    title: "How to enable microphone access:",
+                                    title: "如何启用麦克风访问权限：",
                                     steps: self.asr.micStatus == .notDetermined
-                                        ? ["Click **Grant Access** above", "Choose **Allow** in the system dialog"]
+                                        ? ["点击上方的**授予权限**", "在系统弹窗中选择**允许**"]
                                         : [
-                                            "Click **Open Settings** above",
-                                            "Find **\(self.appDisplayName)** in the microphone list",
-                                            "Toggle **\(self.appDisplayName) ON** to allow access",
+                                            "点击上方的**打开设置**",
+                                            "在麦克风列表中找到 **\(self.appDisplayName)**",
+                                            "将 **\(self.appDisplayName)** 的开关**打开**以允许访问",
                                         ]
                                 )
                             }
@@ -629,7 +629,7 @@ struct SettingsView: View {
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(spacing: 8) {
-                            Label("Global Hotkey", systemImage: "keyboard")
+                            Label("全局快捷键", systemImage: "keyboard")
                                 .font(.headline)
                                 .foregroundStyle(.primary)
 
@@ -637,7 +637,7 @@ struct SettingsView: View {
 
                             if self.accessibilityEnabled {
                                 if self.isRecordingAnyShortcut {
-                                    Text("Recording…")
+                                    Text("录制中…")
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.orange)
                                 } else if self.hotkeyManagerInitialized {
@@ -645,12 +645,12 @@ struct SettingsView: View {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundStyle(Color.fluidGreen)
                                             .font(.caption)
-                                        Text("Active")
+                                        Text("已激活")
                                             .font(.caption.weight(.semibold))
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
                                 } else {
-                                    Text("Initializing…")
+                                    Text("初始化中…")
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
@@ -663,7 +663,7 @@ struct SettingsView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: "hand.point.up.left.fill")
                                             .foregroundStyle(.orange)
-                                        Text("Press your new hotkey combination now…")
+                                        Text("请立即按下新的快捷键组合…")
                                             .font(.caption)
                                             .foregroundStyle(.orange)
                                     }
@@ -672,7 +672,7 @@ struct SettingsView: View {
                                         ProgressView()
                                             .controlSize(.small)
                                             .fixedSize()
-                                        Text("Hotkey initializing…")
+                                        Text("快捷键初始化中…")
                                             .font(.caption)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -681,11 +681,11 @@ struct SettingsView: View {
                                 // MARK: - Shortcuts Section
 
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Shortcuts")
+                                    Text("快捷键")
                                         .font(self.theme.typography.bodySmallStrong)
                                         .foregroundStyle(self.settingsTitleText)
 
-                                    Text("Primary dictation can use a keyboard shortcut or allowed mouse button. Changes usually apply immediately.")
+                                    Text("主听写可使用键盘快捷键或允许的鼠标按键，更改通常立即生效。")
                                         .font(.caption)
                                         .foregroundStyle(self.settingsTertiaryText)
 
@@ -697,8 +697,8 @@ struct SettingsView: View {
                                         content: .init(
                                             icon: "terminal.fill",
                                             iconColor: .secondary,
-                                            title: "Command Mode",
-                                            description: "Execute voice commands"
+                                            title: "命令模式",
+                                            description: "执行语音命令"
                                         ),
                                         shortcut: self.commandModeShortcut,
                                         isRecording: self.isRecording(.command),
@@ -726,8 +726,8 @@ struct SettingsView: View {
                                         content: .init(
                                             icon: "pencil.and.outline",
                                             iconColor: .secondary,
-                                            title: "Edit Mode",
-                                            description: "Select text and speak how to edit, or generate new content"
+                                            title: "编辑模式",
+                                            description: "选中文本后说出编辑指令，或生成新内容"
                                         ),
                                         shortcut: self.rewriteShortcut,
                                         isRecording: self.isRecording(.edit),
@@ -746,8 +746,8 @@ struct SettingsView: View {
                                         content: .init(
                                             icon: "xmark.circle.fill",
                                             iconColor: .secondary,
-                                            title: "Cancel Recording",
-                                            description: "Cancel the current recording or dismiss the active recording overlay"
+                                            title: "取消录音",
+                                            description: "取消当前录音或关闭活跃的录音悬浮窗"
                                         ),
                                         shortcut: self.cancelRecordingShortcut,
                                         isRecording: self.isRecording(.cancel),
@@ -765,8 +765,8 @@ struct SettingsView: View {
                                         content: .init(
                                             icon: "arrow.down.doc",
                                             iconColor: .secondary,
-                                            title: "Paste Last Transcription",
-                                            description: "Re-insert your most recent transcription without using the clipboard"
+                                            title: "粘贴上次转录",
+                                            description: "重新插入最近的转录内容，无需使用剪贴板"
                                         ),
                                         shortcut: self.pasteLastTranscriptionShortcut,
                                         isRecording: self.isRecording(.pasteLast),
@@ -804,7 +804,7 @@ struct SettingsView: View {
                                 VStack(spacing: 12) {
                                     HStack(alignment: .center) {
                                         VStack(alignment: .leading, spacing: 2) {
-                                            Text("Activation Mode")
+                                            Text("激活模式")
                                                 .font(self.theme.typography.bodyStrong)
                                                 .foregroundStyle(self.settingsTitleText)
                                             Text(self.hotkeyMode.description)
@@ -829,8 +829,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Copy to Clipboard",
-                                        description: "Automatically copy transcribed text to clipboard as a backup.",
+                                        title: "复制到剪贴板",
+                                        description: "自动将转录文本复制到剪贴板作为备份。",
                                         isOn: self.$copyToClipboard
                                     )
                                     .onChange(of: self.copyToClipboard) { _, newValue in
@@ -840,7 +840,7 @@ struct SettingsView: View {
 
                                     HStack(alignment: .center) {
                                         VStack(alignment: .leading, spacing: 2) {
-                                            Text("Text Insertion Mode")
+                                            Text("文本插入模式")
                                                 .font(self.theme.typography.bodyStrong)
                                                 .foregroundStyle(self.settingsTitleText)
                                             Text(SettingsStore.shared.textInsertionMode.description)
@@ -864,8 +864,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Save Transcription History",
-                                        description: "Save transcriptions for stats tracking. Disable for privacy.",
+                                        title: "保存转录历史",
+                                        description: "保存转录内容以用于统计追踪。如需保护隐私，可关闭此选项。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.saveTranscriptionHistory },
                                             set: {
@@ -877,8 +877,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Save Audio With History",
-                                        description: "Store actual microphone audio locally with dictation history. Disabled by default.",
+                                        title: "随历史保存音频",
+                                        description: "将实际麦克风音频与听写历史一同保存在本地。默认关闭。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.saveAudioWithTranscriptionHistory },
                                             set: {
@@ -900,8 +900,8 @@ struct SettingsView: View {
                                     }
 
                                     self.optionToggleRow(
-                                        title: "Notify AI Enhancement Failures",
-                                        description: "Show a macOS notification when AI Enhancement fails and raw transcription is typed.",
+                                        title: "通知 AI 增强失败",
+                                        description: "当 AI 增强失败并输出原始转录内容时，显示 macOS 通知。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.notifyAIProcessingFailures },
                                             set: { SettingsStore.shared.notifyAIProcessingFailures = $0 }
@@ -910,8 +910,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Weekends Don't Break Streak",
-                                        description: "Skip Saturday and Sunday when calculating usage streaks. Perfect for weekday-only users.",
+                                        title: "周末不中断连续记录",
+                                        description: "计算使用连续天数时跳过周六和周日，适合仅在工作日使用的用户。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.weekendsDontBreakStreak },
                                             set: { SettingsStore.shared.weekendsDontBreakStreak = $0 }
@@ -920,8 +920,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Lowercase First Letter",
-                                        description: "Start each transcription with a lowercase letter. Useful for search queries, form fields, or casual text.",
+                                        title: "首字母小写",
+                                        description: "每次转录以小写字母开头，适用于搜索词、表单字段或非正式文本。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.gaavLowercaseFirstLetterEnabled },
                                             set: { SettingsStore.shared.gaavLowercaseFirstLetterEnabled = $0 }
@@ -930,8 +930,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Remove Trailing Period",
-                                        description: "Drop a final period from transcriptions. Feature requested by MaxGaav.",
+                                        title: "移除末尾句点",
+                                        description: "去掉转录内容末尾的句点。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.gaavRemoveTrailingPeriodEnabled },
                                             set: { SettingsStore.shared.gaavRemoveTrailingPeriodEnabled = $0 }
@@ -940,8 +940,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Space Between Dictations",
-                                        description: "Add spacing so consecutive dictations chain without manually pressing the spacebar.",
+                                        title: "听写间自动空格",
+                                        description: "自动添加空格，使连续听写无需手动按空格键。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.continuousDictationSpacingEnabled },
                                             set: { SettingsStore.shared.continuousDictationSpacingEnabled = $0 }
@@ -950,8 +950,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Smart Capitalization",
-                                        description: "Use text before the cursor to decide whether the next dictation should start capitalized or lowercase.",
+                                        title: "智能大写",
+                                        description: "根据光标前的文本，自动判断下次听写是否应首字母大写。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.contextAwareCapitalizationEnabled },
                                             set: { SettingsStore.shared.contextAwareCapitalizationEnabled = $0 }
@@ -960,8 +960,8 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Pause Media During Transcription",
-                                        description: "Automatically pause currently playing audio/video when transcription starts. Resumes only if FluidVoice paused it.",
+                                        title: "转录时暂停媒体",
+                                        description: "转录开始时自动暂停当前播放的音视频，仅当由 FluidVoice 暂停时才会恢复。",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.pauseMediaDuringTranscription },
                                             set: { SettingsStore.shared.pauseMediaDuringTranscription = $0 }
@@ -970,13 +970,13 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
-                                        title: "Share Anonymous Analytics",
-                                        description: "Send anonymous usage and performance metrics to help improve FluidVoice. Never includes transcription text or prompts.",
+                                        title: "分享匿名统计数据",
+                                        description: "发送匿名使用情况和性能指标，帮助改进 FluidVoice。永远不包含转录文本或提示词。",
                                         isOn: self.analyticsToggleBinding
                                     )
 
                                     HStack {
-                                        Button("What we collect") {
+                                        Button("我们收集的内容") {
                                             self.showAnalyticsPrivacy = true
                                         }
                                         .buttonStyle(.link)
@@ -999,17 +999,17 @@ struct SettingsView: View {
                                         HStack(spacing: 6) {
                                             Image(systemName: "exclamationmark.triangle.fill")
                                                 .foregroundStyle(self.theme.palette.warning)
-                                            Text("Accessibility permissions required")
+                                            Text("需要辅助功能权限")
                                                 .font(self.theme.typography.bodyStrong)
                                                 .foregroundStyle(self.theme.palette.warning)
                                         }
-                                        Text("Required for global hotkey functionality")
+                                        Text("全局快捷键功能需要此权限")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
                                     Spacer()
 
-                                    Button("Open Accessibility Settings") {
+                                    Button("打开辅助功能设置") {
                                         self.openAccessibilitySettings()
                                     }
                                     .buttonStyle(.borderedProminent)
@@ -1018,24 +1018,24 @@ struct SettingsView: View {
                                 }
 
                                 self.instructionsBox(
-                                    title: "Follow these steps to enable Accessibility:",
+                                    title: "请按以下步骤启用辅助功能：",
                                     steps: [
-                                        "Click **Open Accessibility Settings** above",
-                                        "In the Accessibility window, click the **+ button**",
-                                        "Select **\(self.appDisplayName)**; use **Reveal in Finder** below if needed",
-                                        "Click **Open**, then toggle **\(self.appDisplayName) ON** in the list",
+                                        "点击上方的**打开辅助功能设置**",
+                                        "在辅助功能窗口中，点击 **+ 按钮**",
+                                        "选择 **\(self.appDisplayName)**；如需定位，请使用下方的**在 Finder 中显示**",
+                                        "点击**打开**，然后在列表中将 **\(self.appDisplayName)** 的开关**打开**",
                                     ],
                                     warningStyle: true
                                 )
 
                                 HStack(spacing: 10) {
-                                    Button("Reveal in Finder") {
+                                    Button("在 Finder 中显示") {
                                         self.revealAppInFinder()
                                     }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
 
-                                    Button("Open Applications") {
+                                    Button("打开应用程序文件夹") {
                                         self.openApplicationsFolder()
                                     }
                                     .buttonStyle(.bordered)
@@ -1051,7 +1051,7 @@ struct SettingsView: View {
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
-                            Label("Audio Devices", systemImage: "speaker.wave.2.fill")
+                            Label("音频设备", systemImage: "speaker.wave.2.fill")
                                 .font(.headline)
                                 .foregroundStyle(.primary)
 
@@ -1063,7 +1063,7 @@ struct SettingsView: View {
                                 self.cachedDefaultInputName = AudioDevice.getDefaultInputDevice()?.name ?? ""
                                 self.cachedDefaultOutputName = AudioDevice.getDefaultOutputDevice()?.name ?? ""
                             } label: {
-                                Label("Refresh", systemImage: "arrow.clockwise")
+                                Label("刷新", systemImage: "arrow.clockwise")
                             }
                             .buttonStyle(.bordered)
                             .controlSize(.small)
@@ -1074,7 +1074,7 @@ struct SettingsView: View {
                             Image(systemName: "info.circle")
                                 .foregroundStyle(self.settingsSecondaryText)
                                 .font(self.theme.typography.bodyStrong)
-                            Text("Audio devices are synced with macOS System Settings.")
+                            Text("音频设备与 macOS 系统设置同步。")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.settingsSecondaryText)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -1083,19 +1083,19 @@ struct SettingsView: View {
 
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("Input Device")
+                                Text("输入设备")
                                     .font(self.theme.typography.bodyStrong)
                                     .foregroundStyle(self.settingsTitleText)
                                 Spacer()
                                 Picker("", selection: self.$selectedInputUID) {
                                     // Handle empty state gracefully
                                     if self.inputDevices.isEmpty {
-                                        Text("Loading...").tag("")
+                                        Text("加载中…").tag("")
                                     } else {
                                         ForEach(self.inputDevices, id: \.uid) { dev in
                                             // Add "(System Default)" tag using cached name to avoid CoreAudio calls during layout
                                             let isSystemDefault = !self.cachedDefaultInputName.isEmpty && dev.name == self.cachedDefaultInputName
-                                            Text(isSystemDefault ? "\(dev.name) (System Default)" : dev.name).tag(dev.uid)
+                                            Text(isSystemDefault ? "\(dev.name)（系统默认）" : dev.name).tag(dev.uid)
                                         }
                                     }
                                 }
@@ -1141,14 +1141,14 @@ struct SettingsView: View {
                             }
 
                             HStack {
-                                Text("Output Device")
+                                Text("输出设备")
                                     .font(self.theme.typography.bodyStrong)
                                     .foregroundStyle(self.settingsTitleText)
                                 Spacer()
                                 Picker("", selection: self.$selectedOutputUID) {
                                     // Handle empty state gracefully
                                     if self.outputDevices.isEmpty {
-                                        Text("Loading...").tag("")
+                                        Text("加载中…").tag("")
                                     } else {
                                         ForEach(self.outputDevices, id: \.uid) { dev in
                                             // Add "(System Default)" tag using cached name to avoid CoreAudio calls during layout
@@ -1206,7 +1206,7 @@ struct SettingsView: View {
                             if !self.cachedDefaultInputName.isEmpty && !self.cachedDefaultOutputName.isEmpty {
                                 HStack {
                                     Spacer()
-                                    Text("Default: \(self.cachedDefaultInputName) / \(self.cachedDefaultOutputName)")
+                                    Text("默认：\(self.cachedDefaultInputName) / \(self.cachedDefaultOutputName)")
                                         .font(.caption)
                                         .foregroundStyle(self.settingsTertiaryText)
                                         .lineLimit(1)
@@ -1225,24 +1225,24 @@ struct SettingsView: View {
                 // Overlay Settings Card
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("Overlay", systemImage: "waveform")
+                        Label("悬浮窗", systemImage: "waveform")
                             .font(.headline)
                             .foregroundStyle(.primary)
 
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Sensitivity")
+                                    Text("灵敏度")
                                         .font(self.theme.typography.bodyStrong)
                                         .foregroundStyle(self.settingsTitleText)
-                                    Text("Control how sensitive the audio visualizer is to sound input")
+                                    Text("控制音频可视化对声音输入的灵敏程度")
                                         .font(self.theme.typography.bodySmall)
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
 
                                 Spacer()
 
-                                Button("Reset") {
+                                Button("重置") {
                                     self.visualizerNoiseThreshold = 0.4
                                     SettingsStore.shared.visualizerNoiseThreshold = self.visualizerNoiseThreshold
                                 }
@@ -1251,7 +1251,7 @@ struct SettingsView: View {
                             }
 
                             HStack(spacing: 10) {
-                                Text("More")
+                                Text("更多")
                                     .font(.caption)
                                     .foregroundStyle(self.settingsSecondaryText)
                                     .frame(width: 36, alignment: .trailing)
@@ -1259,7 +1259,7 @@ struct SettingsView: View {
                                 Slider(value: self.$visualizerNoiseThreshold, in: 0.01...0.8, step: 0.01)
                                     .controlSize(.regular)
 
-                                Text("Less")
+                                Text("更少")
                                     .font(.caption)
                                     .foregroundStyle(self.settingsSecondaryText)
                                     .frame(width: 36, alignment: .leading)
@@ -1275,10 +1275,10 @@ struct SettingsView: View {
                             // Overlay Position
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Overlay Position")
+                                    Text("悬浮窗位置")
                                         .font(self.theme.typography.bodyStrong)
                                         .foregroundStyle(self.settingsTitleText)
-                                    Text("Where the recording indicator appears on screen")
+                                    Text("录音指示器在屏幕上的显示位置")
                                         .font(self.theme.typography.bodySmall)
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
@@ -1299,23 +1299,23 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 10) {
                                 HStack(alignment: .top) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Transcription Preview Length")
+                                        Text("转录预览长度")
                                             .font(self.theme.typography.bodyStrong)
                                             .foregroundStyle(self.settingsTitleText)
-                                        Text("How many recent characters appear in the notch/pill preview")
+                                        Text("在刘海/胶囊预览中显示的最近字符数")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
 
                                     Spacer()
 
-                                    Text("\(self.settings.transcriptionPreviewCharLimit) chars")
+                                    Text("\(self.settings.transcriptionPreviewCharLimit) 个字符")
                                         .font(.caption.monospaced())
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
 
                                 HStack(spacing: 10) {
-                                    Text("Less")
+                                    Text("较少")
                                         .font(.caption)
                                         .foregroundStyle(self.settingsSecondaryText)
                                         .frame(width: 36, alignment: .trailing)
@@ -1330,7 +1330,7 @@ struct SettingsView: View {
                                     )
                                     .controlSize(.regular)
 
-                                    Text("More")
+                                    Text("较多")
                                         .font(.caption)
                                         .foregroundStyle(self.settingsSecondaryText)
                                         .frame(width: 36, alignment: .leading)
@@ -1341,13 +1341,13 @@ struct SettingsView: View {
 
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(self.settings.overlayPosition == .bottom ? "Overlay Size" : "Notch Style")
+                                    Text(self.settings.overlayPosition == .bottom ? "悬浮窗大小" : "刘海样式")
                                         .font(self.theme.typography.bodyStrong)
                                         .foregroundStyle(self.settingsTitleText)
                                     Text(
                                         self.settings.overlayPosition == .bottom
-                                            ? "How large the recording indicator appears"
-                                            : "Choose the regular notch or the compact layout"
+                                            ? "录音指示器的显示大小"
+                                            : "选择标准刘海或紧凑布局"
                                     )
                                     .font(self.theme.typography.bodySmall)
                                     .foregroundStyle(self.settingsSecondaryText)
@@ -1376,10 +1376,10 @@ struct SettingsView: View {
 
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Live Preview")
+                                    Text("实时预览")
                                         .font(self.theme.typography.bodyStrong)
                                         .foregroundStyle(self.settingsTitleText)
-                                    Text("Show transcription text in the overlay while you speak")
+                                    Text("说话时在悬浮窗中显示转录文本")
                                         .font(self.theme.typography.bodySmall)
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
@@ -1400,10 +1400,10 @@ struct SettingsView: View {
                                 // Bottom Offset
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Bottom Offset")
+                                        Text("底部偏移")
                                             .font(self.theme.typography.bodyStrong)
                                             .foregroundStyle(self.settingsTitleText)
-                                        Text("Distance from bottom of screen")
+                                        Text("距离屏幕底部的距离")
                                             .font(self.theme.typography.bodySmall)
                                             .foregroundStyle(self.settingsSecondaryText)
                                     }
@@ -1425,7 +1425,7 @@ struct SettingsView: View {
                             }
 
                             if self.asr.isRunning {
-                                Text("Settings are disabled during active recording")
+                                Text("录音期间设置不可用")
                                     .font(.caption)
                                     .foregroundStyle(self.settingsSecondaryText)
                                     .italic()
@@ -1446,14 +1446,14 @@ struct SettingsView: View {
                 // Debug Settings Card
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("Debug Settings", systemImage: "ladybug.fill")
+                        Label("调试设置", systemImage: "ladybug.fill")
                             .font(.headline)
                             .foregroundStyle(.primary)
 
                         VStack(alignment: .leading, spacing: 8) {
                             self.settingsToggleRow(
-                                title: "Show Debug Logs in App",
-                                description: "File logs are always collected for diagnostics.",
+                                title: "在应用内显示调试日志",
+                                description: "文件日志始终会被收集用于诊断。",
                                 isOn: Binding(
                                     get: { SettingsStore.shared.enableDebugLogs },
                                     set: { SettingsStore.shared.enableDebugLogs = $0 }
@@ -1470,15 +1470,15 @@ struct SettingsView: View {
                                     DebugLogger.shared.info("Log file not found at \(url.path)", source: "SettingsView")
                                 }
                             } label: {
-                                Label("Reveal Log File", systemImage: "doc.richtext")
+                                Label("显示日志文件", systemImage: "doc.richtext")
                             }
                             .buttonStyle(.bordered)
                             .controlSize(.regular)
 
-                            Text("The debug log contains detailed information about app operations and can help with troubleshooting.")
+                            Text("调试日志包含应用操作的详细信息，可帮助排查问题。")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.settingsSecondaryText)
-                            Text("Crash diagnostics are written to Library/Logs/Fluid/Fluid.log by default.")
+                            Text("崩溃诊断信息默认写入 Library/Logs/Fluid/Fluid.log。")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.settingsSecondaryText)
 
@@ -1489,12 +1489,12 @@ struct SettingsView: View {
                                 self.settings.resetOnboardingProgress()
                                 DebugLogger.shared.info("Developer action: onboarding reset", source: "SettingsView")
                             } label: {
-                                Label("Reset Onboarding (Dev)", systemImage: "arrow.counterclockwise")
+                                Label("重置新手引导（开发）", systemImage: "arrow.counterclockwise")
                             }
                             .buttonStyle(.bordered)
                             .controlSize(.regular)
 
-                            Text("Developer-only action. Immediately re-enters first-run onboarding flow.")
+                            Text("仅开发者可用。立即重新进入首次运行的新手引导流程。")
                                 .font(.caption)
                                 .foregroundStyle(self.settingsSecondaryText)
                             #endif
@@ -1506,14 +1506,14 @@ struct SettingsView: View {
                 // Experimental Card
                 ThemedCard(style: .standard) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("Experimental Settings", systemImage: "exclamationmark.triangle")
+                        Label("实验性设置", systemImage: "exclamationmark.triangle")
                             .font(.headline)
                             .foregroundStyle(.primary)
 
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(alignment: .center) {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Dictation Processing Speed")
+                                    Text("听写处理速度")
                                         .font(self.theme.typography.bodyStrong)
                                         .foregroundStyle(self.settingsTitleText)
                                 }
@@ -1541,12 +1541,12 @@ struct SettingsView: View {
                                 .disabled(self.asr.isRunning || !self.settings.selectedSpeechModel.supportsFastDictationProcessing)
                             }
 
-                            Text(self.settings.selectedSpeechModel.supportsFastDictationProcessing ? "Standard: most reliable. Fast: faster, but maybe inaccurate." : "Fast processing is available for Parakeet TDT v2 and v3.")
+                            Text(self.settings.selectedSpeechModel.supportsFastDictationProcessing ? "标准：最可靠。快速：更快但可能不够准确。" : "快速处理适用于 Parakeet TDT v2 和 v3。")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.settingsSecondaryText)
 
                             if self.asr.isRunning {
-                                Text("Settings are disabled during active recording")
+                                Text("录音期间设置不可用")
                                     .font(.caption)
                                     .foregroundStyle(self.settingsSecondaryText)
                                     .italic()
@@ -1656,12 +1656,12 @@ struct SettingsView: View {
             try data.write(to: url, options: .atomic)
 
             self.presentInfoAlert(
-                title: "Backup Exported",
-                message: "Saved your FluidVoice backup to:\n\(url.path)"
+                title: "备份已导出",
+                message: "FluidVoice 备份已保存至：\n\(url.path)"
             )
         } catch {
             self.presentErrorAlert(
-                title: "Backup Export Failed",
+                title: "备份导出失败",
                 message: error.localizedDescription
             )
         }
@@ -1685,16 +1685,16 @@ struct SettingsView: View {
             formatter.timeStyle = .short
 
             let confirm = NSAlert()
-            confirm.messageText = "Import this backup?"
+            confirm.messageText = "导入此备份？"
             confirm.informativeText = """
-            This replaces your current settings, prompt profiles, and stats history.
+            这将替换您当前的设置、提示词配置和统计历史。
 
-            Exported: \(formatter.string(from: document.exportedAt))
-            API keys are not included and will not be changed.
+            导出时间：\(formatter.string(from: document.exportedAt))
+            不包含 API 密钥，也不会更改 API 密钥。
             """
             confirm.alertStyle = .warning
-            confirm.addButton(withTitle: "Import")
-            confirm.addButton(withTitle: "Cancel")
+            confirm.addButton(withTitle: "导入")
+            confirm.addButton(withTitle: "取消")
 
             guard confirm.runModal() == .alertFirstButtonReturn else { return }
 
@@ -1702,12 +1702,12 @@ struct SettingsView: View {
             self.syncLocalSettingsAfterBackupRestore()
 
             self.presentInfoAlert(
-                title: "Backup Imported",
-                message: "Your settings, prompt profiles, and stats were restored successfully."
+                title: "备份已导入",
+                message: "您的设置、提示词配置和统计数据已成功恢复。"
             )
         } catch {
             self.presentErrorAlert(
-                title: "Backup Import Failed",
+                title: "备份导入失败",
                 message: error.localizedDescription
             )
         }
@@ -1730,7 +1730,7 @@ struct SettingsView: View {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: ",", with: ".")
         guard let value = Double(normalized), value > 0 else {
-            self.presentErrorAlert(title: "Invalid Budget", message: "Enter a positive number of GB.")
+            self.presentErrorAlert(title: "预算无效", message: "请输入一个大于零的 GB 数值。")
             self.refreshAudioHistoryUsage()
             return
         }
@@ -1739,13 +1739,13 @@ struct SettingsView: View {
         let newBudgetBytes = DictationAudioHistoryStore.bytes(forGigabytes: newBudget)
         if self.audioHistoryUsageBytes > newBudgetBytes {
             let confirm = NSAlert()
-            confirm.messageText = "Prune saved audio?"
+            confirm.messageText = "裁剪已保存的音频？"
             confirm.informativeText = """
-            This budget is below current audio usage. FluidVoice will delete the oldest saved audio first and keep transcript history.
+            此预算低于当前音频用量。FluidVoice 将优先删除最旧的已保存音频，并保留转录历史。
             """
             confirm.alertStyle = .warning
-            confirm.addButton(withTitle: "Apply and Prune")
-            confirm.addButton(withTitle: "Cancel")
+            confirm.addButton(withTitle: "应用并裁剪")
+            confirm.addButton(withTitle: "取消")
             guard confirm.runModal() == .alertFirstButtonReturn else {
                 self.refreshAudioHistoryUsage()
                 return
@@ -1756,22 +1756,22 @@ struct SettingsView: View {
         let pruned = TranscriptionHistoryStore.shared.pruneAudioToBudget()
         self.refreshAudioHistoryUsage()
         if pruned > 0 {
-            self.presentInfoAlert(title: "Audio Pruned", message: "Deleted oldest saved audio from \(pruned) history entries.")
+            self.presentInfoAlert(title: "音频已裁剪", message: "已从 \(pruned) 条历史记录中删除最旧的已保存音频。")
         }
     }
 
     private func deleteSavedAudio() {
         let confirm = NSAlert()
-        confirm.messageText = "Delete saved audio?"
-        confirm.informativeText = "This removes saved dictation audio only. Transcript history stays intact."
+        confirm.messageText = "删除已保存的音频？"
+        confirm.informativeText = "仅删除已保存的听写音频，转录历史保持完整。"
         confirm.alertStyle = .warning
-        confirm.addButton(withTitle: "Delete Audio")
-        confirm.addButton(withTitle: "Cancel")
+        confirm.addButton(withTitle: "删除音频")
+        confirm.addButton(withTitle: "取消")
         guard confirm.runModal() == .alertFirstButtonReturn else { return }
 
         let removed = TranscriptionHistoryStore.shared.deleteAllSavedAudio()
         self.refreshAudioHistoryUsage()
-        self.presentInfoAlert(title: "Audio Deleted", message: "Removed audio from \(removed) history entries.")
+        self.presentInfoAlert(title: "音频已删除", message: "已从 \(removed) 条历史记录中移除音频。")
     }
 
     private func exportAudioZip() {
@@ -1792,9 +1792,9 @@ struct SettingsView: View {
                 entries: TranscriptionHistoryStore.shared.entries,
                 to: url
             )
-            self.presentInfoAlert(title: "Audio Export Saved", message: "Saved your dictation audio export to:\n\(url.path)")
+            self.presentInfoAlert(title: "音频导出已保存", message: "听写音频导出已保存至：\n\(url.path)")
         } catch {
-            self.presentErrorAlert(title: "Audio Export Failed", message: error.localizedDescription)
+            self.presentErrorAlert(title: "音频导出失败", message: error.localizedDescription)
         }
     }
 
@@ -1803,7 +1803,7 @@ struct SettingsView: View {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "好")
         alert.runModal()
     }
 
@@ -1812,7 +1812,7 @@ struct SettingsView: View {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .critical
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "好")
         alert.runModal()
     }
 
@@ -1839,15 +1839,15 @@ struct SettingsView: View {
         }
 
         let picker = NSAlert()
-        picker.messageText = "Download Previous Build"
-        picker.informativeText = "No local rollback backup was found. Choose a recent release build:"
+        picker.messageText = "下载历史版本"
+        picker.informativeText = "未找到本地回滚备份。请选择一个近期发布版本："
         picker.alertStyle = .informational
 
         for option in options {
             picker.addButton(withTitle: option.version)
         }
-        picker.addButton(withTitle: "All Releases")
-        picker.addButton(withTitle: "Cancel")
+        picker.addButton(withTitle: "所有版本")
+        picker.addButton(withTitle: "取消")
 
         let response = picker.runModal()
         let first = NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
@@ -1923,10 +1923,10 @@ struct SettingsView: View {
                 .frame(width: 24, alignment: .center)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Backup & Restore")
+                Text("备份与恢复")
                     .font(self.theme.typography.bodyStrong)
                     .foregroundStyle(self.settingsTitleText)
-                Text("Export or import settings, prompt profiles, history, and stats. API keys excluded.")
+                Text("导出或导入设置、提示词配置、历史记录和统计数据。不包含 API 密钥。")
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(self.settingsSecondaryText)
             }
@@ -1935,14 +1935,14 @@ struct SettingsView: View {
 
             HStack(spacing: 8) {
                 Button(action: self.exportBackup) {
-                    Label("Export", systemImage: "square.and.arrow.up")
+                    Label("导出", systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(self.theme.palette.accent)
                 .controlSize(.regular)
 
                 Button(action: self.importBackup) {
-                    Label("Import", systemImage: "square.and.arrow.down")
+                    Label("导入", systemImage: "square.and.arrow.down")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.regular)
@@ -1954,10 +1954,10 @@ struct SettingsView: View {
         VStack(spacing: 12) {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Audio Storage")
+                    Text("音频存储")
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.settingsTitleText)
-                    Text("Audio history: \(DictationAudioHistoryStore.formattedGigabytes(self.audioHistoryUsageBytes)) / \(Self.audioBudgetText(for: SettingsStore.shared.audioHistoryBudgetGB)) GB Budget")
+                    Text("音频历史：\(DictationAudioHistoryStore.formattedGigabytes(self.audioHistoryUsageBytes)) / \(Self.audioBudgetText(for: SettingsStore.shared.audioHistoryBudgetGB)) GB 上限")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.settingsSecondaryText)
 
@@ -1969,7 +1969,7 @@ struct SettingsView: View {
                 Spacer(minLength: 16)
 
                 HStack(spacing: 8) {
-                    Text("Budget")
+                    Text("上限")
                         .font(.caption)
                         .foregroundStyle(self.settingsSecondaryText)
 
@@ -1981,7 +1981,7 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(self.settingsSecondaryText)
 
-                    Button("Apply") {
+                    Button("应用") {
                         self.applyAudioHistoryBudget()
                     }
                     .controlSize(.small)
@@ -1992,10 +1992,10 @@ struct SettingsView: View {
 
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Export Audio")
+                    Text("导出音频")
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.settingsTitleText)
-                    Text("ZIP with manifest.jsonl and WAV audio.")
+                    Text("包含 manifest.jsonl 和 WAV 音频的 ZIP 文件。")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.settingsSecondaryText)
                 }
@@ -2005,14 +2005,14 @@ struct SettingsView: View {
                 Button {
                     self.exportAudioZip()
                 } label: {
-                    Label("Export ZIP", systemImage: "square.and.arrow.up")
+                    Label("导出 ZIP", systemImage: "square.and.arrow.up")
                 }
                 .controlSize(.small)
 
                 Button(role: .destructive) {
                     self.deleteSavedAudio()
                 } label: {
-                    Label("Delete Audio", systemImage: "trash")
+                    Label("删除音频", systemImage: "trash")
                 }
                 .controlSize(.small)
                 .disabled(self.audioHistoryUsageBytes <= 0)
@@ -2105,10 +2105,10 @@ struct SettingsView: View {
                     .frame(width: 20)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Primary Dictation Shortcuts")
+                    Text("主听写快捷键")
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.settingsTitleText)
-                    Text("Use any keyboard shortcut, auxiliary mouse button, or modified click.")
+                    Text("可使用任意键盘快捷键、附加鼠标按键或修饰点击。")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.settingsSecondaryText)
                         .lineLimit(1)
@@ -2126,7 +2126,7 @@ struct SettingsView: View {
                         self.activeShortcutRecordingTarget = addTarget
                     }
                 } label: {
-                    Label(isAdding ? "Cancel" : "Add shortcut", systemImage: isAdding ? "xmark" : "plus")
+                    Label(isAdding ? "取消" : "添加快捷键", systemImage: isAdding ? "xmark" : "plus")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
@@ -2158,7 +2158,7 @@ struct SettingsView: View {
                 self.shortcutDisplayPill(shortcut.displayString)
             }
 
-            Button(isRecording ? "Cancel" : "Change") {
+            Button(isRecording ? "取消" : "更改") {
                 if isRecording {
                     self.shortcutRecordingMessage = nil
                     self.activeShortcutRecordingTarget = nil
@@ -2172,7 +2172,7 @@ struct SettingsView: View {
             .controlSize(.small)
             .disabled(!isRecording && self.isRecordingAnyShortcut)
 
-            Button("Remove") {
+            Button("移除") {
                 guard self.primaryDictationShortcuts.count > 1,
                       self.primaryDictationShortcuts.indices.contains(index)
                 else { return }
@@ -2212,7 +2212,7 @@ struct SettingsView: View {
     }
 
     private func shortcutCapturePill() -> some View {
-        Text("Press shortcut...")
+        Text("请按下快捷键…")
             .font(.caption.weight(.medium))
             .foregroundStyle(.orange)
             .padding(.horizontal, 8)
@@ -2288,10 +2288,10 @@ struct SettingsView: View {
                 if isRecording {
                     self.shortcutCapturePill()
                 } else {
-                    self.shortcutDisplayPill(shortcut?.displayString ?? "Not set")
+                    self.shortcutDisplayPill(shortcut?.displayString ?? "未设置")
                 }
 
-                Button(isRecording ? "Cancel" : "Change") {
+                Button(isRecording ? "取消" : "更改") {
                     if isRecording {
                         self.shortcutRecordingMessage = nil
                         self.activeShortcutRecordingTarget = nil
@@ -2304,7 +2304,7 @@ struct SettingsView: View {
                 .disabled(!isRecording && (isAnyRecordingActive || (!enabledValue && hasShortcut)))
 
                 if let onRemovePressed {
-                    Button("Remove") {
+                    Button("移除") {
                         onRemovePressed()
                     }
                     .buttonStyle(.bordered)
@@ -2400,7 +2400,7 @@ struct FillerWordsEditor: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Filler words to remove:")
+            Text("要移除的填充词：")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(.secondary)
 
@@ -2429,19 +2429,19 @@ struct FillerWordsEditor: View {
 
             // Add new word
             HStack(spacing: 8) {
-                TextField("Add word", text: self.$newWord)
+                TextField("添加词语", text: self.$newWord)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 100)
                     .onSubmit { self.addWord() }
 
-                Button("Add") { self.addWord() }
+                Button("添加") { self.addWord() }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
                     .disabled(self.newWord.trimmingCharacters(in: .whitespaces).isEmpty)
 
                 Spacer()
 
-                Button("Reset") {
+                Button("重置") {
                     self.fillerWords = SettingsStore.defaultFillerWords
                     SettingsStore.shared.fillerWords = self.fillerWords
                 }
@@ -2550,7 +2550,7 @@ struct AnalyticsConfirmationView: View {
 
     private var contactInfoText: AttributedString {
         var text = AttributedString(
-            "If you have any concerns we would love to hear about it, please email alticdev@gmail.com or file an issue in our GitHub."
+            "如有任何疑虑，欢迎随时联系我们，请发送邮件至 alticdev@gmail.com 或在我们的 GitHub 提交 Issue。"
         )
 
         if let emailRange = text.range(of: "alticdev@gmail.com") {
@@ -2568,10 +2568,10 @@ struct AnalyticsConfirmationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Are you sure you want to stop sharing anonymous analytics?")
+            Text("确定要停止分享匿名统计数据吗？")
                 .font(.headline)
 
-            Text("By sharing anonymous usage data, you help us build the features you care about most. We never collect personal information (Audio, Transcription text etc), ever. Your support simply helps us make FluidVoice better for you.")
+            Text("通过分享匿名使用数据，您帮助我们打造您最关心的功能。我们绝不收集任何个人信息（音频、转录文本等）。您的支持仅用于让 FluidVoice 更好地服务于您。")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(.secondary)
                 .padding(12)
@@ -2594,11 +2594,11 @@ struct AnalyticsConfirmationView: View {
             HStack {
                 Spacer()
 
-                Button("Cancel") {
+                Button("取消") {
                     self.onCancel()
                 }
 
-                Button("Yes") {
+                Button("是") {
                     self.onConfirm()
                 }
                 .buttonStyle(.borderedProminent)

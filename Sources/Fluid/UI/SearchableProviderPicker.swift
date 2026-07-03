@@ -63,7 +63,7 @@ struct SearchableProviderPicker: View {
         if let provider = allProviders.first(where: { $0.id == selectedProviderID }) {
             return provider.name
         }
-        return self.selectedProviderID.isEmpty ? "Select Provider" : self.selectedProviderID
+        return self.selectedProviderID.isEmpty ? "选择服务商" : self.selectedProviderID
     }
 
     var body: some View {
@@ -84,7 +84,7 @@ struct SearchableProviderPicker: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
-                    TextField("Search providers...", text: self.$searchText)
+                    TextField("搜索服务商...", text: self.$searchText)
                         .textFieldStyle(.plain)
                 }
                 .searchablePickerSearchFieldChrome()
@@ -97,7 +97,7 @@ struct SearchableProviderPicker: View {
                         // Built-in section
                         let builtIns = self.filteredProviders.filter { $0.isBuiltIn }
                         if !builtIns.isEmpty {
-                            Text("BUILT-IN")
+                            Text("内置")
                                 .font(.caption2)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.secondary)
@@ -118,7 +118,7 @@ struct SearchableProviderPicker: View {
                                     .padding(.vertical, 4)
                             }
 
-                            Text("CUSTOM")
+                            Text("自定义")
                                 .font(.caption2)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.secondary)
@@ -132,7 +132,7 @@ struct SearchableProviderPicker: View {
                         }
 
                         if self.filteredProviders.isEmpty {
-                            Text("No providers match '\(self.searchText)'")
+                            Text("未找到匹配“\(self.searchText)”的服务商")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .padding()

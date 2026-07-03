@@ -17,7 +17,7 @@ struct SetupStepView: View {
     let description: String
     let status: SetupStatus
     let action: () -> Void
-    var actionButtonTitle: String = "Configure"
+    var actionButtonTitle: String = "配置"
     var showActionButton: Bool = true
 
     enum SetupStatus {
@@ -72,7 +72,7 @@ struct SetupStepView: View {
 
                 // Action button or status badge
                 if self.status == .completed {
-                    Label("Done", systemImage: "checkmark")
+                    Label("完成", systemImage: "checkmark")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)

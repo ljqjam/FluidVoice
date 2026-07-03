@@ -447,16 +447,28 @@ final class HuggingFaceModelDownloader {
         }
 
         // Sniff the leading bytes in case markup was returned without a markup Content-Type.
-        // Read a small prefix only — model files can be gigabytes.
-        let handle = try FileHandle(forReadingFrom: fileURL)
-        defer { try? handle.close() }
-        let prefix = (try? handle.read(upToCount: 512)) ?? Data()
-        if Self.looksLikeHTML(prefix) {
-            throw Self.invalidContentError(
-                relativePath: relativePath,
-                detail: "the downloaded file is an HTML/markup document, not the expected model data"
-            )
+        // Read a small prefix only — model files can be gigabytes. Plain-text vocab files
+        // (`tokens.txt`) legitimately begin with `<` (`<unk>`/`<s>`), so they are exempt from
+        // the byte-sniff; the Content-Type check above still guards them against proxy pages.
+        if !Self.isTextVocabPath(relativePath) {
+            let handle = try FileHandle(forReadingFrom: fileURL)
+            defer { try? handle.close() }
+            let prefix = (try? handle.read(upToCount: 512)) ?? Data()
+            if Self.looksLikeHTML(prefix) {
+                throw Self.invalidContentError(
+                    relativePath: relativePath,
+                    detail: "the downloaded file is an HTML/markup document, not the expected model data"
+                )
+            }
         }
+    }
+
+    /// Token-vocab text files (e.g. sherpa-onnx `tokens.txt`) legitimately begin with `<`
+    /// (their first entry is `<unk>`/`<s>`/`</s>`), which the HTML byte-sniff would otherwise
+    /// false-positive as a markup page. Such plain-text artifacts are exempt from the byte
+    /// heuristic — no binary/JSON model artifact uses a `.txt` extension.
+    private static func isTextVocabPath(_ path: String) -> Bool {
+        (path as NSString).pathExtension.lowercased() == "txt"
     }
 
     /// Returns `true` if a file already on disk is an HTML/markup payload rather than real
@@ -468,6 +480,9 @@ final class HuggingFaceModelDownloader {
     /// content is inspected, not a `Content-Type`. Returns `false` (treat as valid) on any
     /// read error, so an unreadable file is never deleted on uncertainty.
     static func cachedFileIsMarkup(at fileURL: URL) -> Bool {
+        if Self.isTextVocabPath(fileURL.lastPathComponent) {
+            return false
+        }
         guard let handle = try? FileHandle(forReadingFrom: fileURL) else {
             return false
         }

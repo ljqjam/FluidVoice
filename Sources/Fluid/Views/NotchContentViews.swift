@@ -411,9 +411,9 @@ struct NotchExpandedView: View {
 
     private var processingLabel: String {
         switch self.contentState.mode {
-        case .dictation: return "Transcribing"
-        case .edit, .rewrite, .write: return "Thinking"
-        case .command: return "Working"
+        case .dictation: return "转录中"
+        case .edit, .rewrite, .write: return "思考中"
+        case .command: return "处理中"
         }
     }
 
@@ -515,9 +515,9 @@ struct NotchExpandedView: View {
             appBundleID: self.promptResolutionBundleID
         ) {
             let name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            return name.isEmpty ? "Untitled" : name
+            return name.isEmpty ? "未命名" : name
         }
-        return "Default"
+        return "默认"
     }
 
     private var compactPromptLabel: String {
@@ -679,7 +679,7 @@ struct NotchExpandedView: View {
         let activeDictationSlot = self.activeDictationShortcutSlot
         let privateAILocked = promptMode.normalized == .dictate && PrivateAIProviderPromptFormat.isAvailable(settings: self.settings)
         return VStack(alignment: .leading, spacing: 2) {
-            Text("AI Prompt")
+            Text("AI 提示词")
                 .font(.system(size: 8, weight: .semibold))
                 .foregroundStyle(Color.white.opacity(0.42))
                 .padding(.horizontal, 6)
@@ -694,7 +694,7 @@ struct NotchExpandedView: View {
 
                     if promptMode.normalized == .dictate {
                         self.promptMenuRow(
-                            "Off",
+                            "关闭",
                             rowID: "off",
                             isSelected: self.settings.dictationPromptSelection(for: activeDictationSlot) == .off,
                             isEnabled: true
@@ -706,7 +706,7 @@ struct NotchExpandedView: View {
                     }
 
                     if !privateAILocked {
-                        self.promptMenuRow("Default", rowID: "default", isSelected: defaultSelected) {
+                        self.promptMenuRow("默认", rowID: "default", isSelected: defaultSelected) {
                             if promptMode.normalized == .dictate {
                                 self.contentState.onDictationPromptSelectionRequested?(.default)
                             } else {
@@ -738,7 +738,7 @@ struct NotchExpandedView: View {
                                 ? (self.settings.dictationPromptSelection(for: activeDictationSlot) == .profile(profile.id))
                                 : (self.settings.selectedPromptID(for: promptMode) == profile.id)
                             self.promptMenuRow(
-                                profile.name.isEmpty ? "Untitled" : profile.name,
+                                profile.name.isEmpty ? "未命名" : profile.name,
                                 rowID: profile.id,
                                 isSelected: isSelected
                             ) {
@@ -783,7 +783,7 @@ struct NotchExpandedView: View {
                     .font(.system(size: 8, weight: .bold))
                     .foregroundStyle(self.isHoveringPromptChip ? .white.opacity(0.78) : .white.opacity(0.62))
                 if self.isAppPromptOverrideActive {
-                    Text("App")
+                    Text("应用")
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.82))
                         .padding(.horizontal, 3)
@@ -899,7 +899,7 @@ struct NotchExpandedView: View {
 
             if self.contentState.isAIProcessingFailureVisible && !self.contentState.isProcessing {
                 HStack(spacing: 6) {
-                    Text("AI Enhancement failed")
+                    Text("AI 增强失败")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.82))
                         .lineLimit(1)
@@ -916,7 +916,7 @@ struct NotchExpandedView: View {
                             .frame(width: 16, height: 16)
                     }
                     .buttonStyle(.plain)
-                    .help("Try again")
+                    .help("重试")
 
                     Button {
                         self.contentState.clearAIProcessingFailure()
@@ -927,7 +927,7 @@ struct NotchExpandedView: View {
                             .frame(width: 16, height: 16)
                     }
                     .buttonStyle(.plain)
-                    .help("Dismiss")
+                    .help("关闭")
                 }
                 .foregroundStyle(.white.opacity(0.9))
                 .frame(width: self.previewMaxWidth, alignment: .leading)
@@ -1298,13 +1298,13 @@ struct NotchCommandOutputExpandedView: View {
 
                 // Mode label
                 if self.contentState.isRecordingInExpandedMode {
-                    Text("Listening...")
+                    Text("聆听中…")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(self.commandRed)
                 } else if self.contentState.isCommandProcessing {
-                    ShimmerText(text: "Working...", color: self.commandRed)
+                    ShimmerText(text: "处理中…", color: self.commandRed)
                 } else {
-                    Text("Command")
+                    Text("指令")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(self.commandRed.opacity(0.7))
                 }
@@ -1329,14 +1329,14 @@ struct NotchCommandOutputExpandedView: View {
                 .contentShape(Circle())
                 .onHover { self.isHoveringNewChat = $0 }
                 .disabled(self.contentState.isCommandProcessing)
-                .help("New chat")
+                .help("新对话")
 
                 // Recent Chats Menu
                 Menu {
                     let recentChats = self.contentState.recentChats
                     let currentID = ChatHistoryStore.shared.currentChatID
                     if recentChats.isEmpty {
-                        Text("No recent chats")
+                        Text("暂无最近对话")
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(recentChats) { chat in
@@ -1376,7 +1376,7 @@ struct NotchCommandOutputExpandedView: View {
                 .buttonStyle(.plain)
                 .frame(width: 22, height: 22)
                 .onHover { self.isHoveringRecent = $0 }
-                .help("Recent chats")
+                .help("最近对话")
 
                 // Delete Chat Button - deletes the current chat entirely
                 Button(action: self.onClearChat) {
@@ -1393,7 +1393,7 @@ struct NotchCommandOutputExpandedView: View {
                 .contentShape(Circle())
                 .onHover { self.isHoveringClear = $0 }
                 .disabled(self.contentState.isCommandProcessing)
-                .help("Delete chat")
+                .help("删除对话")
 
                 // Vertical divider
                 Rectangle()
@@ -1415,7 +1415,7 @@ struct NotchCommandOutputExpandedView: View {
                 .buttonStyle(.plain)
                 .contentShape(Circle())
                 .onHover { self.isHoveringDismiss = $0 }
-                .help("Close (Escape)")
+                .help("关闭（Escape）")
             }
         }
         .padding(.horizontal, 12)

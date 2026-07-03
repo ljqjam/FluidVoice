@@ -8,16 +8,16 @@ struct AnalyticsPrivacyView: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Anonymous Analytics")
+                    Text("匿名统计数据")
                         .font(.system(size: 18, weight: .semibold))
-                    Text("What FluidVoice collects when analytics is enabled")
+                    Text("启用统计数据后 FluidVoice 收集的内容")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                Button("Done") { self.dismiss() }
+                Button("完成") { self.dismiss() }
                     .buttonStyle(.bordered)
             }
 
@@ -29,25 +29,25 @@ struct AnalyticsPrivacyView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    self.sectionTitle("We collect")
-                    self.bullet("Basic app/device info (app version, macOS version, CPU family/chip class, etc.)")
-                    self.bullet("Which features were used (for example: dictation, Command Mode etc.)")
-                    self.bullet("Performance metrics such as transcription chunk latency and AI post-processing latency (milliseconds).")
-                    self.bullet("Model/provider metadata and post-processing input length (character count only, not text content).")
-                    self.bullet("Whether something worked and high-level error info.")
+                    self.sectionTitle("我们收集的内容")
+                    self.bullet("基本应用/设备信息（应用版本、macOS 版本、CPU 系列/芯片类别等）")
+                    self.bullet("使用了哪些功能（例如：听写、命令模式等）")
+                    self.bullet("性能指标，如转录块延迟和 AI 后处理延迟（毫秒）。")
+                    self.bullet("模型/提供商元数据及后处理输入长度（仅字符数，不含文本内容）。")
+                    self.bullet("功能是否正常运行及高层次错误信息。")
 
-                    self.sectionTitle("We do NOT collect")
-                    self.bullet("Any transcription text or audio.")
-                    self.bullet("Selected text, rewrite prompts, or AI responses.")
-                    self.bullet("Terminal commands or outputs from Command Mode.")
-                    self.bullet("Window titles, app names, file names/paths, clipboard contents, or anything you type.")
+                    self.sectionTitle("我们不收集的内容")
+                    self.bullet("任何转录文本或音频。")
+                    self.bullet("所选文本、改写提示词或 AI 回复。")
+                    self.bullet("命令模式中的终端命令或输出。")
+                    self.bullet("窗口标题、应用名称、文件名/路径、剪贴板内容或您输入的任何内容。")
 
-                    self.sectionTitle("How it’s used")
-                    self.bullet("To understand which features are being used and where reliability/performance can be improved.")
-                    self.bullet("To measure product health (e.g., active devices, retention) without requiring accounts.")
+                    self.sectionTitle("如何使用这些数据")
+                    self.bullet("了解哪些功能正在被使用，以及可以在哪些方面提升可靠性和性能。")
+                    self.bullet("衡量产品健康度（如活跃设备数、留存率），无需用户注册账号。")
 
-                    self.sectionTitle("Control")
-                    self.bullet("You can disable analytics anytime in Settings → Share Anonymous Analytics.")
+                    self.sectionTitle("控制权")
+                    self.bullet("您可以随时在设置 → 分享匿名统计数据中关闭统计功能。")
                 }
                 .padding(.vertical, 6)
             }
@@ -74,7 +74,7 @@ struct AnalyticsPrivacyView: View {
 
     private var contactInfoText: AttributedString {
         var text = AttributedString(
-            "If you have any concerns we would love to hear about it, please email alticdev@gmail.com or file an issue in our GitHub."
+            "如有任何疑虑，欢迎随时联系我们，请发送邮件至 alticdev@gmail.com 或在我们的 GitHub 提交 Issue。"
         )
 
         if let emailRange = text.range(of: "alticdev@gmail.com") {

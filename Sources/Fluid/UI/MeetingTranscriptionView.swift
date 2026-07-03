@@ -41,11 +41,11 @@ struct MeetingTranscriptionView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(Color.fluidGreen.gradient)
 
-                Text("Meeting Transcription")
+                Text("会议转录")
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("Upload audio or video files to transcribe")
+                Text("上传音频或视频文件以进行转录")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -92,7 +92,7 @@ struct MeetingTranscriptionView: View {
         .background(self.theme.palette.windowBackground)
         .overlay(alignment: .topTrailing) {
             if self.showingCopyConfirmation {
-                Text("Copied!")
+                Text("已复制！")
                     .font(.caption)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
@@ -172,7 +172,7 @@ struct MeetingTranscriptionView: View {
                 }) {
                     HStack {
                         Image(systemName: "waveform")
-                        Text("Transcribe")
+                        Text("转录")
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -189,7 +189,7 @@ struct MeetingTranscriptionView: View {
                         Image(systemName: "arrow.up.doc.fill")
                             .font(.system(size: 32))
 
-                        Text("Choose Audio or Video File")
+                        Text("选择音频或视频文件")
                             .font(.headline)
 
                         Text(MeetingTranscriptionService.supportedFormatsDescription)
@@ -271,7 +271,7 @@ struct MeetingTranscriptionView: View {
             // Header with stats
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Transcription Complete")
+                    Text("转录完成")
                         .font(.headline)
 
                     HStack(spacing: 16) {
@@ -295,7 +295,7 @@ struct MeetingTranscriptionView: View {
                     }) {
                         Image(systemName: "doc.on.doc")
                     }
-                    .help("Copy to clipboard")
+                    .help("复制到剪贴板")
 
                     Button(action: {
                         self.exportResult = result
@@ -303,7 +303,7 @@ struct MeetingTranscriptionView: View {
                     }) {
                         Image(systemName: "square.and.arrow.up")
                     }
-                    .help("Export transcription")
+                    .help("导出转录")
                 }
                 .buttonStyle(.borderless)
             }
@@ -344,11 +344,11 @@ struct MeetingTranscriptionView: View {
     private var recentTranscriptionsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Recent transcriptions")
+                Text("最近的转录")
                     .font(.headline)
                 Spacer()
                 if !self.fileHistoryStore.entries.isEmpty {
-                    Button("Clear all") {
+                    Button("清除全部") {
                         self.fileHistoryStore.clearAll()
                     }
                     .buttonStyle(.plain)
@@ -418,7 +418,7 @@ struct MeetingTranscriptionView: View {
         return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("From history")
+                    Text("来自历史记录")
                         .font(.headline)
                     HStack(spacing: 16) {
                         Label("\(String(format: "%.1f", entry.duration))s", systemImage: "clock")
@@ -433,20 +433,20 @@ struct MeetingTranscriptionView: View {
                     Button(action: { self.copyToClipboard(entry.text) }) {
                         Image(systemName: "doc.on.doc")
                     }
-                    .help("Copy to clipboard")
+                    .help("复制到剪贴板")
                     Button(action: {
                         self.exportResult = result
                         self.showingExportDialog = true
                     }) {
                         Image(systemName: "square.and.arrow.up")
                     }
-                    .help("Export transcription")
+                    .help("导出转录")
                     Button(action: {
                         self.fileHistoryStore.deleteEntry(id: entry.id)
                     }) {
                         Image(systemName: "trash")
                     }
-                    .help("Remove from history")
+                    .help("从历史记录中删除")
                 }
                 .buttonStyle(.borderless)
             }
@@ -491,7 +491,7 @@ struct MeetingTranscriptionView: View {
 
             Spacer()
 
-            Button("Dismiss") {
+            Button("关闭") {
                 self.transcriptionService.reset()
             }
             .buttonStyle(.borderless)
@@ -519,7 +519,7 @@ struct MeetingTranscriptionView: View {
 
             Spacer()
 
-            Button("Dismiss") {
+            Button("关闭") {
                 self.dropErrorMessage = nil
             }
             .buttonStyle(.borderless)
@@ -579,7 +579,7 @@ struct MeetingTranscriptionView: View {
         guard let attributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
               let fileSize = attributes[.size] as? Int64
         else {
-            return "Unknown size"
+            return "大小未知"
         }
 
         let formatter = ByteCountFormatter()

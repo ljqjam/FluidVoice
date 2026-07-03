@@ -75,7 +75,7 @@ struct CommandModeView: View {
     private var headerView: some View {
         HStack {
             HStack(spacing: 8) {
-                Text("Command Mode")
+                Text("指令模式")
                     .font(.title2)
                     .fontWeight(.bold)
 
@@ -98,14 +98,14 @@ struct CommandModeView: View {
                     Image(systemName: "plus")
                 }
                 .buttonStyle(.bordered)
-                .help("New chat")
+                .help("新对话")
                 .disabled(self.service.isProcessing)
 
                 // Recent Chats Menu
                 Menu {
                     let recentChats = self.service.getRecentChats()
                     if recentChats.isEmpty {
-                        Text("No recent chats")
+                        Text("暂无最近对话")
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(recentChats) { chat in
@@ -135,14 +135,14 @@ struct CommandModeView: View {
                 }
                 .menuStyle(.borderlessButton)
                 .frame(width: 32, height: 24)
-                .help("Recent chats")
+                .help("最近对话")
 
                 // Delete Chat Button - deletes the current chat entirely
                 Button(action: { self.showingClearConfirmation = true }) {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
-                .help("Delete chat")
+                .help("删除对话")
                 .disabled(self.service.isProcessing)
             }
 
@@ -152,23 +152,23 @@ struct CommandModeView: View {
 
             // Confirm Before Execute Toggle
             Toggle(isOn: self.$settings.commandModeConfirmBeforeExecute) {
-                Label("Confirm", systemImage: "checkmark.shield")
+                Label("执行前确认", systemImage: "checkmark.shield")
                     .font(.caption)
             }
             .toggleStyle(.checkbox)
-            .help("Ask for confirmation before running commands")
+            .help("执行指令前请求确认")
         }
         .padding()
         .background(self.theme.palette.windowBackground)
         .confirmationDialog(
-            "Delete this chat?",
+            "删除此对话？",
             isPresented: self.$showingClearConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
+            Button("删除", role: .destructive) {
                 self.service.deleteCurrentChat()
             }
-            Button("Cancel", role: .cancel) {}
+            Button("取消", role: .cancel) {}
         }
     }
 
@@ -185,7 +185,7 @@ struct CommandModeView: View {
                 HStack {
                     Image(systemName: "questionmark.circle")
                         .font(.caption)
-                    Text("How to use")
+                    Text("使用方法")
                         .font(.caption)
                     Spacer()
                     Image(systemName: self.showHowTo ? "chevron.up" : "chevron.down")
@@ -206,13 +206,13 @@ struct CommandModeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     // Start section
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Getting Started")
+                        Text("快速入门")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
 
                         HStack(spacing: 4) {
-                            Text("Press")
+                            Text("按")
                                 .font(.caption)
                             Text(self.shortcutDisplay)
                                 .font(.caption)
@@ -221,7 +221,7 @@ struct CommandModeView: View {
                                 .padding(.vertical, 2)
                                 .background(self.theme.palette.cardBackground.opacity(0.8))
                                 .cornerRadius(4)
-                            Text("to open Command Mode, speak your command, then press again to send.")
+                            Text("打开指令模式，说出你的指令，再次按下发送。")
                                 .font(.caption)
                         }
                         .foregroundStyle(.primary.opacity(0.8))
@@ -229,16 +229,16 @@ struct CommandModeView: View {
 
                     // Examples
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Examples")
+                        Text("示例")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            self.howToItem("\"List files in my Downloads folder\"")
-                            self.howToItem("\"Create a folder called Projects on Desktop\"")
-                            self.howToItem("\"What's my IP address?\"")
-                            self.howToItem("\"Open Safari\"")
+                            self.howToItem("\"列出下载文件夹中的文件\"")
+                            self.howToItem("\"在桌面创建名为 Projects 的文件夹\"")
+                            self.howToItem("\"我的 IP 地址是多少？\"")
+                            self.howToItem("\"打开 Safari\"")
                         }
                     }
 
@@ -247,12 +247,12 @@ struct CommandModeView: View {
                         HStack(spacing: 4) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundStyle(.orange)
-                            Text("Caution")
+                            Text("注意")
                                 .fontWeight(.semibold)
                         }
                         .font(.caption)
 
-                        Text("AI can make mistakes. Avoid dangerous commands like deleting important files. Destructive actions will ask for confirmation.")
+                        Text("AI 可能出错，请避免执行删除重要文件等危险指令。破坏性操作将请求确认。")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -328,7 +328,7 @@ struct CommandModeView: View {
 
     private var processingIndicator: some View {
         VStack(alignment: .leading, spacing: 10) {
-            CommandShimmerText(text: "Thinking")
+            CommandShimmerText(text: "思考中")
                 .padding(.horizontal, 12)
 
             if self.settings.showThinkingTokens && !self.service.streamingThinkingText.isEmpty {
@@ -350,13 +350,13 @@ struct CommandModeView: View {
     }
 
     private var currentStepLabel: String {
-        guard let step = service.currentStep else { return "Working..." }
+        guard let step = service.currentStep else { return "处理中…" }
         switch step {
-        case .thinking: return "Thinking..."
-        case let .checking(cmd): return "Checking \(self.truncateCommand(cmd, to: 30))"
-        case let .executing(cmd): return "Running \(self.truncateCommand(cmd, to: 30))"
-        case .verifying: return "Verifying..."
-        case let .completed(success): return success ? "Done" : "Stopped"
+        case .thinking: return "思考中…"
+        case let .checking(cmd): return "检查中 \(self.truncateCommand(cmd, to: 30))"
+        case let .executing(cmd): return "执行中 \(self.truncateCommand(cmd, to: 30))"
+        case .verifying: return "验证中…"
+        case let .completed(success): return success ? "完成" : "已停止"
         }
     }
 
@@ -386,7 +386,7 @@ struct CommandModeView: View {
                     .foregroundStyle(.orange)
                     .font(.title3)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Confirm Execution")
+                    Text("确认执行")
                         .fontWeight(.semibold)
                     if let purpose = pending.purpose {
                         Text(purpose)
@@ -402,7 +402,7 @@ struct CommandModeView: View {
                 HStack {
                     Image(systemName: "terminal.fill")
                         .font(.caption)
-                    Text("Command")
+                    Text("指令")
                         .font(.caption)
                         .fontWeight(.medium)
                     Spacer()
@@ -427,7 +427,7 @@ struct CommandModeView: View {
 
             HStack(spacing: 12) {
                 Button(action: { self.service.cancelPendingCommand() }) {
-                    Label("Cancel", systemImage: "xmark")
+                    Label("取消", systemImage: "xmark")
                 }
                 .buttonStyle(.bordered)
                 .keyboardShortcut(.escape, modifiers: [])
@@ -435,7 +435,7 @@ struct CommandModeView: View {
                 Button(action: {
                     Task { await self.service.confirmAndExecute() }
                 }) {
-                    Label("Run Command", systemImage: "play.fill")
+                    Label("执行指令", systemImage: "play.fill")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.orange)
@@ -462,7 +462,7 @@ struct CommandModeView: View {
 
                     Spacer(minLength: 8)
 
-                    Button("AI Settings") {
+                    Button("AI 设置") {
                         AppNavigationRouter.shared.request(.aiEnhancements)
                     }
                     .font(.caption)
@@ -474,7 +474,7 @@ struct CommandModeView: View {
             }
 
             VStack(alignment: .leading, spacing: 14) {
-                TextField("Type a command or ask a question...", text: self.$inputText, axis: .vertical)
+                TextField("输入指令或提问…", text: self.$inputText, axis: .vertical)
                     .textFieldStyle(.plain)
                     .font(.system(size: 16))
                     .lineLimit(1...4)
@@ -483,12 +483,12 @@ struct CommandModeView: View {
                     }
 
                 HStack(spacing: 10) {
-                    Toggle("Sync", isOn: self.$settings.commandModeLinkedToGlobal)
+                    Toggle("同步", isOn: self.$settings.commandModeLinkedToGlobal)
                         .toggleStyle(.checkbox)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: true, vertical: false)
-                        .help("Use the same provider and model selected in AI Enhancement.")
+                        .help("使用在 AI 增强中选择的提供商和模型。")
 
                     SearchableProviderPicker(
                         builtInProviders: self.verifiedBuiltInProvidersList,
@@ -539,7 +539,7 @@ struct CommandModeView: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(self.service.isProcessing)
-                    .help(self.asr.isRunning ? "Stop voice command" : "Start voice command")
+                    .help(self.asr.isRunning ? "停止语音指令" : "开始语音指令")
 
                     Button(action: self.submitCommand) {
                         Image(systemName: "arrow.up")
@@ -553,7 +553,7 @@ struct CommandModeView: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(!self.canSubmitCommand)
-                    .help("Run command")
+                    .help("执行指令")
                 }
             }
             .padding(.horizontal, 16)
@@ -630,7 +630,7 @@ struct CommandModeView: View {
         ModelRepository.shared.builtInProvidersList(
             includeAppleIntelligence: true,
             appleIntelligenceAvailable: false,
-            appleIntelligenceDisabledReason: "No tools"
+            appleIntelligenceDisabledReason: "无可用工具"
         ).filter { !self.isPrivateAIProviderID($0.id) }
     }
 
@@ -821,7 +821,7 @@ struct MessageBubble: View {
         return VStack(alignment: .leading, spacing: 0) {
             // Minimal header - just status and time
             HStack(spacing: 6) {
-                Text(parsed.success ? "Success" : "Error")
+                Text(parsed.success ? "成功" : "错误")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(parsed.success ? .primary : .secondary)
 

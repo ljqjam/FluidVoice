@@ -223,3 +223,6 @@ sample/
 .codex
 AGENTS.md
 builds/
+
+# sherpa-onnx prebuilt binaries (populated by scripts/setup-sherpa-onnx.sh)
+ThirdParty/SherpaOnnxSPM/Binaries/

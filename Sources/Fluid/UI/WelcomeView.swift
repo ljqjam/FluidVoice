@@ -63,9 +63,9 @@ struct WelcomeView: View {
                             .font(self.theme.typography.titleIcon)
                             .foregroundStyle(self.theme.palette.accent)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text((self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "Getting Started" : "Welcome to FluidVoice")
+                            Text((self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "开始使用" : "欢迎使用 FluidVoice")
                                 .font(self.theme.typography.title)
-                            Text("Talk anywhere. FluidVoice types for you.")
+                            Text("随时随地开口说，FluidVoice 自动为你输入。")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(.secondary)
                         }
@@ -76,7 +76,7 @@ struct WelcomeView: View {
                     ThemedCard(style: .prominent) {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 10) {
-                                Label("Quick Setup", systemImage: "checkmark.circle.fill")
+                                Label("快速设置", systemImage: "checkmark.circle.fill")
                                     .font(self.theme.typography.sectionTitle)
                                     .foregroundStyle(self.theme.palette.accent)
 
@@ -86,7 +86,7 @@ struct WelcomeView: View {
                                     self.settings.resetOnboardingProgress()
                                     self.playgroundUsed = false
                                 } label: {
-                                    Label("Run Onboarding Again", systemImage: "arrow.counterclockwise")
+                                    Label("重新运行新手引导", systemImage: "arrow.counterclockwise")
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.small)
@@ -96,28 +96,28 @@ struct WelcomeView: View {
                                 SetupStepView(
                                     step: 1,
                                     // Consider model step complete if ready OR downloaded (even if not loaded)
-                                    title: (self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "Voice Model Ready" : "Download Voice Model",
+                                    title: (self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "语音模型已就绪" : "下载语音模型",
                                     description: self.asr.isAsrReady
-                                        ? "Speech recognition model is loaded and ready"
+                                        ? "语音识别模型已加载并就绪"
                                         : (
                                             self.asr.modelsExistOnDisk
-                                                ? "Model downloaded, will load when needed"
-                                                : "Download the AI model for offline voice transcription (~500MB)"
+                                                ? "模型已下载，将在需要时加载"
+                                                : "下载离线语音转录 AI 模型（约 500MB）"
                                         ),
                                     status: (self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? .completed : .pending,
                                     action: {
                                         self.selectedSidebarItem = .voiceEngine
                                     },
-                                    actionButtonTitle: "Go to Voice Engine",
+                                    actionButtonTitle: "前往语音引擎",
                                     showActionButton: !(self.asr.isAsrReady || self.asr.modelsExistOnDisk)
                                 )
 
                                 SetupStepView(
                                     step: 2,
-                                    title: self.asr.micStatus == .authorized ? "Microphone Permission Granted" : "Grant Microphone Permission",
+                                    title: self.asr.micStatus == .authorized ? "麦克风权限已授予" : "授予麦克风权限",
                                     description: self.asr.micStatus == .authorized
-                                        ? "FluidVoice has access to your microphone"
-                                        : "Allow FluidVoice to access your microphone for voice input",
+                                        ? "FluidVoice 已获得麦克风访问权限"
+                                        : "允许 FluidVoice 访问麦克风以进行语音输入",
                                     status: self.asr.micStatus == .authorized ? .completed : .pending,
                                     action: {
                                         if self.asr.micStatus == .notDetermined {
@@ -126,43 +126,43 @@ struct WelcomeView: View {
                                             self.asr.openSystemSettingsForMic()
                                         }
                                     },
-                                    actionButtonTitle: self.asr.micStatus == .notDetermined ? "Grant Access" : "Open Settings",
+                                    actionButtonTitle: self.asr.micStatus == .notDetermined ? "授权访问" : "打开设置",
                                     showActionButton: self.asr.micStatus != .authorized
                                 )
 
                                 SetupStepView(
                                     step: 3,
-                                    title: self.accessibilityEnabled ? "Accessibility Access Enabled" : "Enable Accessibility Access",
+                                    title: self.accessibilityEnabled ? "无障碍访问已启用" : "启用无障碍访问",
                                     description: self.accessibilityEnabled
-                                        ? "Accessibility permission granted for typing into apps"
-                                        : "Drag \(self.appDisplayName) into the Accessibility apps list as shown",
+                                        ? "已授予无障碍权限，可向应用输入文字"
+                                        : "如图所示，将 \(self.appDisplayName) 拖入无障碍应用列表",
                                     status: self.accessibilityEnabled ? .completed : .pending,
                                     action: {
                                         self.openAccessibilitySettings()
                                     },
-                                    actionButtonTitle: "Open Settings",
+                                    actionButtonTitle: "打开设置",
                                     showActionButton: !self.accessibilityEnabled
                                 )
 
                                 SetupStepView(
                                     step: 4,
-                                    title: self.isAIEnhancementReady ? "AI Enhancement Configured" : "Set Up AI Enhancement (Optional)",
+                                    title: self.isAIEnhancementReady ? "AI 增强已配置" : "配置 AI 增强（可选）",
                                     description: self.isAIEnhancementReady
-                                        ? "AI-powered text enhancement is ready to use"
-                                        : "Configure API keys for AI-powered text enhancement",
+                                        ? "AI 文本增强功能已就绪"
+                                        : "配置 API 密钥以启用 AI 文本增强",
                                     status: self.isAIEnhancementReady ? .completed : .pending,
                                     action: {
                                         self.selectedSidebarItem = .aiEnhancements
                                     },
-                                    actionButtonTitle: "Configure AI"
+                                    actionButtonTitle: "配置 AI"
                                 )
 
                                 SetupStepView(
                                     step: 5,
-                                    title: self.playgroundUsed ? "Setup Tested Successfully" : "Test Your Setup",
+                                    title: self.playgroundUsed ? "设置测试成功" : "测试你的设置",
                                     description: self.playgroundUsed
-                                        ? "You've successfully tested voice transcription"
-                                        : "Try the playground below to test your complete setup",
+                                        ? "你已成功测试语音转录"
+                                        : "在下方的测试区试用，以验证完整设置",
                                     status: self.playgroundUsed ? .completed : .pending,
                                     action: {
                                         withAnimation(.easeInOut(duration: 0.25)) {
@@ -170,7 +170,7 @@ struct WelcomeView: View {
                                         }
                                         self.isTranscriptionFocused.wrappedValue = true
                                     },
-                                    actionButtonTitle: "Go to Playground",
+                                    actionButtonTitle: "前往测试区",
                                     showActionButton: !self.playgroundUsed
                                 )
                                 .id("playground-step-\(self.playgroundUsed)")
@@ -185,9 +185,9 @@ struct WelcomeView: View {
                             HStack {
                                 Label {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Test Playground")
+                                        Text("测试区")
                                             .font(self.theme.typography.sectionTitle)
-                                        Text("Click record, speak, and see your transcription")
+                                        Text("点击录制，开口说话，查看转录结果")
                                             .font(self.theme.typography.caption)
                                             .foregroundStyle(.secondary)
                                     }
@@ -203,12 +203,12 @@ struct WelcomeView: View {
                                         Circle()
                                             .fill(.red)
                                             .frame(width: 6, height: 6)
-                                        Text("Recording...")
+                                        Text("录音中...")
                                             .font(self.theme.typography.captionStrong)
                                             .foregroundStyle(.red)
                                     }
                                 } else if !self.asr.finalText.isEmpty {
-                                    Text("\(self.asr.finalText.count) characters")
+                                    Text("\(self.asr.finalText.count) 个字符")
                                         .font(self.theme.typography.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -249,7 +249,7 @@ struct WelcomeView: View {
                                     } label: {
                                         HStack(spacing: 8) {
                                             Image(systemName: self.asr.isRunning ? "stop.fill" : "mic.fill")
-                                            Text(self.asr.isRunning ? "Stop Recording" : "Start Recording")
+                                            Text(self.asr.isRunning ? "停止录音" : "开始录音")
                                         }
                                         .frame(maxWidth: 220)
                                     }
@@ -294,14 +294,14 @@ struct WelcomeView: View {
                                                 Text("Listening... Speak now!")
                                                     .font(self.theme.typography.bodySmallStrong)
                                                     .foregroundStyle(self.theme.palette.accent)
-                                                Text("Transcription will appear when you stop recording")
+                                                Text("停止录音后将显示转录内容")
                                                     .font(self.theme.typography.caption)
                                                     .foregroundStyle(self.theme.palette.accent.opacity(0.7))
                                             } else if self.asr.finalText.isEmpty {
                                                 Image(systemName: "text.bubble")
                                                     .font(self.theme.typography.titleIcon)
                                                     .foregroundStyle(.secondary.opacity(0.5))
-                                                Text("Press record or your hotkey to begin")
+                                                Text("按下录制按钮或快捷键以开始")
                                                     .font(self.theme.typography.caption)
                                                     .foregroundStyle(.secondary)
                                             }
@@ -315,13 +315,13 @@ struct WelcomeView: View {
                                                 NSPasteboard.general.clearContents()
                                                 NSPasteboard.general.setString(self.asr.finalText, forType: .string)
                                             } label: {
-                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                                Label("复制文本", systemImage: "doc.on.doc")
                                             }
                                             .buttonStyle(.borderedProminent)
                                             .tint(self.theme.palette.accent)
                                             .controlSize(.small)
 
-                                            Button("Clear & Test Again") {
+                                            Button("清除并重新测试") {
                                                 self.asr.finalText = ""
                                             }
                                             .buttonStyle(.bordered)
@@ -342,13 +342,13 @@ struct WelcomeView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             DisclosureGroup {
                                 VStack(alignment: .leading, spacing: 10) {
-                                    self.howToStep(number: 1, title: "Start Recording", description: "Press your hotkey (default: Right Option/Alt) or click the button")
-                                    self.howToStep(number: 2, title: "Speak Clearly", description: "Speak naturally - works best in quiet environments")
-                                    self.howToStep(number: 3, title: "Auto-Type Result", description: "Transcription is automatically typed into your focused app")
+                                    self.howToStep(number: 1, title: "开始录音", description: "按下快捷键（默认：右 Option/Alt）或点击按钮")
+                                    self.howToStep(number: 2, title: "清晰说话", description: "自然说话——安静环境效果最佳")
+                                    self.howToStep(number: 3, title: "自动输入结果", description: "转录内容将自动输入到当前聚焦的应用中")
                                 }
                                 .padding(.top, 8)
                             } label: {
-                                Label("How to Use", systemImage: "play.fill")
+                                Label("使用方法", systemImage: "play.fill")
                                     .font(self.theme.typography.sectionTitle)
                                     .foregroundStyle(self.theme.palette.accent)
                             }
@@ -360,7 +360,7 @@ struct WelcomeView: View {
                                     .padding(.top, 8)
                             } label: {
                                 HStack(spacing: 8) {
-                                    Label("Command Mode", systemImage: "terminal.fill")
+                                    Label("命令模式", systemImage: "terminal.fill")
                                         .font(self.theme.typography.sectionTitle)
                                         .foregroundStyle(self.commandModeColor)
                                     self.featureBadge("New", color: self.commandModeColor)
@@ -375,7 +375,7 @@ struct WelcomeView: View {
                                     .padding(.top, 8)
                             } label: {
                                 HStack(spacing: 8) {
-                                    Label("Edit Mode", systemImage: "pencil.and.outline")
+                                    Label("编辑模式", systemImage: "pencil.and.outline")
                                         .font(self.theme.typography.sectionTitle)
                                         .foregroundStyle(self.editModeColor)
                                     self.featureBadge("New", color: self.editModeColor)
@@ -406,13 +406,13 @@ struct WelcomeView: View {
     private var commandModeGuide: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Control your Mac with voice commands. Execute terminal commands, open apps, and more.")
+                Text("通过语音命令控制 Mac，执行终端命令、打开应用等。")
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
-                Button("Open") {
+                Button("打开") {
                     self.selectedSidebarItem = .commandMode
                 }
                 .buttonStyle(.bordered)
@@ -420,21 +420,21 @@ struct WelcomeView: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Getting Started")
+                Text("开始使用")
                     .font(self.theme.typography.bodySmallStrong)
                     .foregroundStyle(self.commandModeColor)
 
                 HStack(spacing: 4) {
-                    Text("Press")
+                    Text("按下")
                     self.keyboardBadge(self.commandModeShortcutDisplay)
-                    Text("to open, speak your command, then press again to send.")
+                    Text("打开后说出命令，再次按下发送。")
                 }
                 .font(self.theme.typography.caption)
                 .foregroundStyle(.primary.opacity(0.8))
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Examples")
+                Text("示例")
                     .font(self.theme.typography.bodySmallStrong)
                     .foregroundStyle(self.commandModeColor)
                 self.commandModeExample(icon: "folder", text: "\"List files in my Downloads folder\"")
@@ -447,7 +447,7 @@ struct WelcomeView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(self.theme.typography.captionSmall)
                     .foregroundStyle(self.commandModeColor)
-                Text("AI can make mistakes. Avoid destructive commands.")
+                Text("AI 可能出错，请避免执行破坏性命令。")
                     .font(self.theme.typography.caption)
                     .foregroundStyle(.secondary)
             }
@@ -457,13 +457,13 @@ struct WelcomeView: View {
     private var editModeGuide: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("AI-powered editing assistant. Write fresh content or edit selected text with voice.")
+                Text("AI 驱动的编辑助手，通过语音撰写新内容或编辑选中文字。")
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
-                Button("Open AI Settings") {
+                Button("打开 AI 设置") {
                     self.selectedSidebarItem = .aiEnhancements
                 }
                 .buttonStyle(.bordered)
@@ -472,14 +472,14 @@ struct WelcomeView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Create New Text")
+                    Text("创建新文本")
                         .font(self.theme.typography.bodySmallStrong)
                         .foregroundStyle(self.editModeColor)
 
                     HStack(spacing: 4) {
-                        Text("Press")
+                        Text("按下")
                         self.keyboardBadge(self.writeModeShortcutDisplay)
-                        Text("and speak what you want to write.")
+                        Text("并说出你想写的内容。")
                     }
                     .font(self.theme.typography.caption)
                     .foregroundStyle(.primary.opacity(0.8))
@@ -489,14 +489,14 @@ struct WelcomeView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Edit Selected Text")
+                    Text("编辑选中文本")
                         .font(self.theme.typography.bodySmallStrong)
                         .foregroundStyle(self.editModeColor)
 
                     HStack(spacing: 4) {
-                        Text("Select text first, then press")
+                        Text("先选中文本，再按下")
                         self.keyboardBadge(self.writeModeShortcutDisplay)
-                        Text("and speak your instruction.")
+                        Text("并说出你的指令。")
                     }
                     .font(self.theme.typography.caption)
                     .foregroundStyle(.primary.opacity(0.8))
@@ -648,34 +648,34 @@ struct OnboardingFlowView: View {
         var title: String {
             switch self {
             case .landing:
-                return "Welcome"
+                return "欢迎"
             case .language:
-                return "Choose Language"
+                return "选择语言"
             case .voiceModel:
-                return "Choose Voice Engine"
+                return "选择语音引擎"
             case .permissions:
-                return "Enable Access"
+                return "启用访问权限"
             case .aiEnhancement:
-                return "Set Up AI Enhancement"
+                return "配置 AI 增强"
             case .playground:
-                return "Try FluidVoice"
+                return "试用 FluidVoice"
             }
         }
 
         var subtitle: String {
             switch self {
             case .landing:
-                return "Talk anywhere. FluidVoice types for you."
+                return "随时随地开口说，FluidVoice 自动为你输入。"
             case .language:
-                return "Pick the language you speak most."
+                return "选择你最常用的语言。"
             case .voiceModel:
-                return "Choose the best local engine for your language."
+                return "为你的语言选择最合适的本地引擎。"
             case .permissions:
-                return "Allow FluidVoice to listen and type into other apps."
+                return "允许 FluidVoice 聆听并向其他应用输入文字。"
             case .aiEnhancement:
-                return "Optional: Configure AI post-processing or skip this step."
+                return "可选：配置 AI 后处理，或跳过此步骤。"
             case .playground:
-                return "Use your dictation shortcut once before finishing setup."
+                return "完成设置前，请先使用一次听写快捷键。"
             }
         }
     }
@@ -766,7 +766,7 @@ struct OnboardingFlowView: View {
     }
 
     private var recommendedModelReasonText: String {
-        "Recommended for \(self.selectedOnboardingLanguage.displayName). You can see more options if needed."
+        "适合 \(self.selectedOnboardingLanguage.displayName) 的推荐引擎，如需更多选项可查看。"
     }
 
     private var isRecommendedModelDownloaded: Bool {
@@ -856,13 +856,13 @@ struct OnboardingFlowView: View {
     private var primaryButtonTitle: String {
         switch self.step {
         case .landing:
-            return "Next"
+            return "下一步"
         case .language:
-            return "Continue"
+            return "继续"
         case .aiEnhancement:
-            return "Finish Setup"
+            return "完成设置"
         default:
-            return "Continue"
+            return "继续"
         }
     }
 
@@ -908,7 +908,7 @@ struct OnboardingFlowView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Welcome to FluidVoice")
+            Text("欢迎使用 FluidVoice")
                 .font(self.theme.typography.title)
                 .foregroundStyle(self.theme.palette.primaryText)
 
@@ -917,7 +917,7 @@ struct OnboardingFlowView: View {
                 .foregroundStyle(self.theme.palette.secondaryText)
 
             HStack {
-                Text("Step \(self.step.rawValue + 1) of \(Step.allCases.count)")
+                Text("第 \(self.step.rawValue + 1) 步，共 \(Step.allCases.count) 步")
                     .font(self.theme.typography.captionStrong)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -958,12 +958,12 @@ struct OnboardingFlowView: View {
                 VStack(alignment: .center, spacing: self.theme.metrics.onboardingSurface.landing.sectionSpacing) {
                     FluidOnboardingLandingHero(
                         eyebrow: "",
-                        title: "Just speak.",
-                        accentTitle: "We'll handle the rest.",
-                        firstDetail: "Accurate. Fast. Private. Free.",
-                        secondDetail: "Built for creators, thinkers, and builders."
+                        title: "开口说话。",
+                        accentTitle: "剩下的交给我们。",
+                        firstDetail: "精准。快速。私密。免费。",
+                        secondDetail: "专为创作者、思考者和构建者打造。"
                     ) {
-                        FluidOnboardingLandingPrimaryButton(title: "Next") {
+                        FluidOnboardingLandingPrimaryButton(title: "下一步") {
                             self.goNext()
                         }
                         .frame(
@@ -1043,14 +1043,14 @@ struct OnboardingFlowView: View {
                             FluidOnboardingCompactAppIconMark(size: 66)
                                 .padding(.bottom, 22)
 
-                            Text("What language will\nyou speak most?")
+                            Text("你最常用\n哪种语言？")
                                 .font(.system(size: 28, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
                                 .lineSpacing(4)
                                 .padding(.bottom, 18)
 
-                            Text("We'll show the best voice engines for it.")
+                            Text("我们将为你推荐最合适的语音引擎。")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(Color.white.opacity(0.62))
                                 .padding(.bottom, 26)
@@ -1076,7 +1076,7 @@ struct OnboardingFlowView: View {
                                     .padding(.top, 18)
                             }
 
-                            Text("You can change this later in Voice Engine settings.")
+                            Text("你可以稍后在语音引擎设置中更改。")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(Color.white.opacity(0.44))
                                 .padding(.top, 18)
@@ -1087,7 +1087,7 @@ struct OnboardingFlowView: View {
                     }
 
                     self.cinematicFooter(
-                        continueTitle: "Continue",
+                        continueTitle: "继续",
                         canContinue: self.canContinue
                     ) {
                         self.handlePrimaryAction()
@@ -1184,7 +1184,7 @@ struct OnboardingFlowView: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(language.displayName)
-        .accessibilityValue(isSelected ? "Selected" : "")
+        .accessibilityValue(isSelected ? "已选择" : "")
     }
 
     private var otherLanguageCard: some View {
@@ -1210,7 +1210,7 @@ struct OnboardingFlowView: View {
                     .foregroundStyle(isSelected ? FluidOnboardingLandingColors.blue : Color.white.opacity(self.isShowingAllLanguages ? 0.78 : 0.72))
                     .frame(width: 22)
 
-                Text(isSelected ? self.selectedOnboardingLanguage.displayName : "Other")
+                Text(isSelected ? self.selectedOnboardingLanguage.displayName : "其他")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
@@ -1242,8 +1242,8 @@ struct OnboardingFlowView: View {
         .onHover { isHovered in
             self.setHoveredLanguage(isHovered ? "other" : nil)
         }
-        .accessibilityLabel("Other languages")
-        .accessibilityValue(self.isShowingAllLanguages ? "Expanded" : "Collapsed")
+        .accessibilityLabel("其他语言")
+        .accessibilityValue(self.isShowingAllLanguages ? "已展开" : "已折叠")
     }
 
     private var allLanguagesPicker: some View {
@@ -1256,7 +1256,7 @@ struct OnboardingFlowView: View {
                 TextField(
                     "",
                     text: self.$languageSearchText,
-                    prompt: Text("Search supported languages")
+                    prompt: Text("搜索支持的语言")
                         .foregroundStyle(Color.white.opacity(0.42))
                 )
                 .textFieldStyle(.plain)
@@ -1343,7 +1343,7 @@ struct OnboardingFlowView: View {
 
         return HStack {
             self.cinematicFooterButton(
-                title: "Back",
+                title: "返回",
                 kind: .back,
                 isEnabled: canNavigateBack
             ) {
@@ -1503,7 +1503,7 @@ struct OnboardingFlowView: View {
                             FluidOnboardingCompactAppIconMark(size: 66)
                                 .padding(.bottom, 22)
 
-                            Text("Choose your\nvoice engine")
+                            Text("选择你的\n语音引擎")
                                 .font(.system(size: 28, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
@@ -1567,7 +1567,7 @@ struct OnboardingFlowView: View {
                             .frame(width: 608)
 
                             if self.isModelPreparationInProgress {
-                                Label("First setup can take a few minutes. Too long? Cancel and retry.", systemImage: "clock.arrow.circlepath")
+                                Label("首次设置可能需要几分钟。等待过久？取消后重试。", systemImage: "clock.arrow.circlepath")
                                     .font(self.theme.typography.captionStrong)
                                     .foregroundStyle(Color.white.opacity(0.58))
                                     .labelStyle(.titleAndIcon)
@@ -1581,7 +1581,7 @@ struct OnboardingFlowView: View {
                                     .padding(.top, 14)
                             }
 
-                            Text("You can switch models later in Voice Engine settings.")
+                            Text("你可以稍后在语音引擎设置中切换模型。")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(Color.white.opacity(0.44))
                                 .padding(.top, self.isModelPreparationInProgress ? 8 : 18)
@@ -1592,7 +1592,7 @@ struct OnboardingFlowView: View {
                     }
 
                     self.cinematicFooter(
-                        continueTitle: "Continue",
+                        continueTitle: "继续",
                         canContinue: self.canContinue
                     ) {
                         self.handlePrimaryAction()
@@ -1627,14 +1627,14 @@ struct OnboardingFlowView: View {
                             FluidOnboardingCompactAppIconMark(size: 66)
                                 .padding(.bottom, 22)
 
-                            Text("Let FluidVoice\nlisten and type")
+                            Text("允许 FluidVoice\n聆听并输入")
                                 .font(.system(size: 28, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
                                 .lineSpacing(4)
                                 .padding(.bottom, 16)
 
-                            Text("Two quick permissions make dictation work anywhere.")
+                            Text("只需两项权限，即可在任何地方使用听写。")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(Color.white.opacity(0.62))
                                 .padding(.bottom, 28)
@@ -1642,10 +1642,10 @@ struct OnboardingFlowView: View {
                             VStack(spacing: 14) {
                                 self.permissionRow(
                                     stepNumber: 1,
-                                    title: self.isMicrophoneReady ? "Microphone is ready" : "Allow microphone",
+                                    title: self.isMicrophoneReady ? "麦克风已就绪" : "允许使用麦克风",
                                     subtitle: self.isMicrophoneReady
-                                        ? "FluidVoice can hear your dictation."
-                                        : "macOS will ask once. Click Allow to start dictating.",
+                                        ? "FluidVoice 可以听到你的听写内容。"
+                                        : "macOS 将请求一次授权，点击允许即可开始听写。",
                                     systemImage: "mic.fill",
                                     isReady: self.isMicrophoneReady,
                                     actionTitle: self.microphoneActionButtonTitle
@@ -1666,7 +1666,7 @@ struct OnboardingFlowView: View {
                                 }
 
                                 if !self.isAccessibilityReady {
-                                    Text("Already enabled it? FluidVoice will update when macOS confirms access.")
+                                    Text("已经启用了？macOS 确认权限后 FluidVoice 将自动更新。")
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundStyle(Color.white.opacity(0.42))
                                         .padding(.top, 2)
@@ -1680,7 +1680,7 @@ struct OnboardingFlowView: View {
                     }
 
                     self.cinematicFooter(
-                        continueTitle: "Continue",
+                        continueTitle: "继续",
                         canContinue: self.canContinue
                     ) {
                         self.handlePrimaryAction()
@@ -1741,7 +1741,7 @@ struct OnboardingFlowView: View {
                             FluidOnboardingCompactAppIconMark(size: 66)
                                 .padding(.bottom, 22)
 
-                            Text("FluidVoice is ready.")
+                            Text("FluidVoice 已就绪。")
                                 .font(.system(size: 28, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
@@ -1750,7 +1750,7 @@ struct OnboardingFlowView: View {
                                 .padding(.horizontal, 32)
                                 .padding(.bottom, 14)
 
-                            Text("Now let's try it out.")
+                            Text("现在来试用一下。")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(Color.white.opacity(0.62))
                                 .padding(.bottom, 28)
@@ -1775,12 +1775,12 @@ struct OnboardingFlowView: View {
                     }
 
                     self.cinematicFooter(
-                        continueTitle: "Continue",
+                        continueTitle: "继续",
                         canContinue: self.canContinue,
                         continueAction: {
                             self.handlePrimaryAction()
                         },
-                        skipTitle: "Skip",
+                        skipTitle: "跳过",
                         canSkip: !self.asr.isRunning && !self.isRecordingAnyShortcut,
                         skipAction: {
                             self.settings.onboardingPlaygroundSkipped = true
@@ -1807,19 +1807,19 @@ struct OnboardingFlowView: View {
     private var microphoneActionButtonTitle: String {
         switch self.asr.micStatus {
         case .notDetermined:
-            return "Allow"
+            return "允许"
         case .denied, .restricted:
-            return "Open Settings"
+            return "打开设置"
         default:
-            return "Allow"
+            return "允许"
         }
     }
 
     private var accessibilityPermissionTitle: String {
         if self.isAccessibilityReady {
-            return "Typing access is ready"
+            return "文字输入权限已就绪"
         }
-        return self.accessibilitySetupInProgress ? "Finish Accessibility Access" : "Enable Accessibility Access"
+        return self.accessibilitySetupInProgress ? "完成无障碍访问设置" : "启用无障碍访问"
     }
 
     private var accessibilityPermissionSubtitle: String {
@@ -1827,9 +1827,9 @@ struct OnboardingFlowView: View {
             return "\(self.appDisplayName) can place text into the app you're using."
         }
         if self.accessibilitySetupInProgress {
-            return "Use the floating guide to drag \(self.appDisplayName) into the Accessibility apps list."
+            return "使用浮动引导，将 \(self.appDisplayName) 拖入无障碍应用列表。"
         }
-        return "Open Settings, then use the floating guide to add \(self.appDisplayName)."
+        return "打开设置，然后使用浮动引导添加 \(self.appDisplayName)。"
     }
 
     private var appDisplayName: String {
@@ -1838,13 +1838,13 @@ struct OnboardingFlowView: View {
 
     private var accessibilityPermissionStatusTitle: String {
         if self.isAccessibilityReady {
-            return "Ready"
+            return "已就绪"
         }
-        return self.accessibilitySetupInProgress ? "In Settings" : "Needed"
+        return self.accessibilitySetupInProgress ? "设置中" : "需要设置"
     }
 
     private var accessibilityPermissionActionTitle: String {
-        self.accessibilitySetupInProgress ? "Show Guide" : "Open Settings"
+        self.accessibilitySetupInProgress ? "显示引导" : "打开设置"
     }
 
     private var otherModelRoutesToggleButton: some View {
@@ -1852,7 +1852,7 @@ struct OnboardingFlowView: View {
             self.toggleOtherModelRoutes()
         } label: {
             HStack(spacing: 6) {
-                Text(self.isShowingOtherModelRoutes ? "Hide other models" : "Show other models")
+                Text(self.isShowingOtherModelRoutes ? "隐藏其他模型" : "显示其他模型")
 
                 Image(systemName: self.isShowingOtherModelRoutes ? "chevron.up" : "chevron.down")
                     .font(.system(size: 8, weight: .bold))
@@ -1870,7 +1870,7 @@ struct OnboardingFlowView: View {
         }
         .buttonStyle(.plain)
         .focusable(false)
-        .accessibilityLabel(self.isShowingOtherModelRoutes ? "Hide other models" : "Show other models")
+        .accessibilityLabel(self.isShowingOtherModelRoutes ? "隐藏其他模型" : "显示其他模型")
     }
 
     private func toggleOtherModelRoutes() {
@@ -1903,15 +1903,15 @@ struct OnboardingFlowView: View {
 
     private func onboardingModelActionButtonTitle(isPreparing: Bool, isDownloaded: Bool, isReady: Bool) -> String {
         if isPreparing {
-            return self.asr.isLoadingModel ? "Loading..." : "Downloading..."
+            return self.asr.isLoadingModel ? "加载中..." : "下载中..."
         }
         if isReady {
-            return "Active now"
+            return "当前已激活"
         }
         if isDownloaded {
-            return "Activate"
+            return "激活"
         }
-        return "Download & Activate"
+        return "下载并激活"
     }
 
     private func prepareOnboardingRoute(_ route: VoiceEngineLanguageRoute) {
@@ -2027,7 +2027,7 @@ struct OnboardingFlowView: View {
                     .foregroundStyle(Color.white.opacity(0.62))
                     .frame(width: 22)
 
-                Text("Download size")
+                Text("下载大小")
                     .font(self.theme.typography.bodySmallStrong)
                     .foregroundStyle(Color.white.opacity(0.62))
 
@@ -2047,7 +2047,7 @@ struct OnboardingFlowView: View {
                     if isPreparing {
                         self.onboardingModelActionButton(
                             id: "\(route.id)-cancel",
-                            title: self.asr.isCancellingModelPreparation ? "Cancelling…" : "Cancel",
+                            title: self.asr.isCancellingModelPreparation ? "取消中…" : "取消",
                             systemImage: "xmark",
                             tone: .secondary,
                             width: 104,
@@ -2084,7 +2084,7 @@ struct OnboardingFlowView: View {
 
                     self.onboardingModelActionButton(
                         id: "\(route.id)-uninstall",
-                        title: "Delete",
+                        title: "删除",
                         systemImage: "trash",
                         tone: .destructive,
                         width: 124,
@@ -2139,7 +2139,7 @@ struct OnboardingFlowView: View {
                 color: .yellow,
                 secondaryColor: .orange,
                 icon: "bolt.fill",
-                label: "Speed"
+                label: "速度"
             )
 
             self.onboardingModelMetricRow(
@@ -2147,7 +2147,7 @@ struct OnboardingFlowView: View {
                 color: Color.fluidGreen,
                 secondaryColor: .cyan,
                 icon: "target",
-                label: "Accuracy"
+                label: "准确率"
             )
         }
         .padding(.vertical, 2)
@@ -2163,7 +2163,7 @@ struct OnboardingFlowView: View {
                         .controlSize(.small)
                         .fixedSize()
 
-                    Text("Cancelling...")
+                    Text("取消中...")
                         .font(self.theme.typography.captionStrong)
                         .foregroundStyle(Color.white.opacity(0.62))
                 }
@@ -2172,7 +2172,7 @@ struct OnboardingFlowView: View {
                     .tint(FluidOnboardingLandingColors.blue)
 
                 HStack(spacing: 6) {
-                    Text("Downloading \(Int(progress * 100))%")
+                    Text("下载中 \(Int(progress * 100))%")
                         .font(self.theme.typography.captionStrong)
                         .foregroundStyle(Color.white.opacity(0.56))
                         .lineLimit(1)
@@ -2186,8 +2186,8 @@ struct OnboardingFlowView: View {
 
                     Text(
                         isUninstalling
-                            ? "Deleting..."
-                            : "Loading model..."
+                            ? "删除中..."
+                            : "加载模型中..."
                     )
                     .font(self.theme.typography.captionStrong)
                     .foregroundStyle(Color.white.opacity(0.62))
@@ -2424,7 +2424,7 @@ struct OnboardingFlowView: View {
         action: @escaping () -> Void
     ) -> some View {
         let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
-        let resolvedStatusTitle = statusTitle ?? (isReady ? "Ready" : "Needed")
+        let resolvedStatusTitle = statusTitle ?? (isReady ? "已就绪" : "需要设置")
 
         return HStack(spacing: 14) {
             ZStack {
@@ -2474,7 +2474,7 @@ struct OnboardingFlowView: View {
             Spacer()
 
             if !isReady {
-                let actionIcon = ["Open Settings", "Show Guide"].contains(actionTitle) ? "arrow.up.right" : "hand.tap.fill"
+                let actionIcon = ["打开设置", "显示引导"].contains(actionTitle) ? "arrow.up.right" : "hand.tap.fill"
                 let buttonID = "permission-\(stepNumber)"
 
                 self.onboardingPillButton(

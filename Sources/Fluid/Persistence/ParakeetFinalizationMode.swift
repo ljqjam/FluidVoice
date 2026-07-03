@@ -9,18 +9,18 @@ enum ParakeetFinalizationMode: String, CaseIterable, Codable, Identifiable {
     var displayName: String {
         switch self {
         case .stableFullFinal:
-            return "Standard"
+            return "标准"
         case .tokenTimedChunkMerge:
-            return "Fast"
+            return "快速"
         }
     }
 
     var detailText: String {
         switch self {
         case .stableFullFinal:
-            return "Most reliable."
+            return "最为可靠。"
         case .tokenTimedChunkMerge:
-            return "Faster, but maybe inaccurate."
+            return "更快速，但可能不够准确。"
         }
     }
 }

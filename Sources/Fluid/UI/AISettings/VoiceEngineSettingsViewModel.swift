@@ -136,7 +136,7 @@ final class VoiceEngineSettingsViewModel: ObservableObject {
                 DebugLogger.shared.info("Model activation cancelled: \(model.displayName)", source: "AISettingsView")
             } catch {
                 DebugLogger.shared.error("Failed to prepare model after activation: \(error)", source: "AISettingsView")
-                self.asr.errorTitle = "Model Activation Failed"
+                self.asr.errorTitle = "模型激活失败"
                 self.asr.errorMessage = error.localizedDescription
                 self.asr.showError = true
             }
@@ -154,7 +154,7 @@ final class VoiceEngineSettingsViewModel: ObservableObject {
                 DebugLogger.shared.info("Model download cancelled: \(model.displayName)", source: "VoiceEngineVM")
             } catch {
                 DebugLogger.shared.error("Failed to download model \(model.displayName): \(error)", source: "VoiceEngineVM")
-                self.asr.errorTitle = "Model Download Failed"
+                self.asr.errorTitle = "模型下载失败"
                 self.asr.errorMessage = error.localizedDescription
                 self.asr.showError = true
             }
@@ -209,25 +209,25 @@ final class VoiceEngineSettingsViewModel: ObservableObject {
         let model = self.settings.selectedSpeechModel
         switch model {
         case .appleSpeech:
-            return "Apple Speech (Legacy) uses built-in macOS speech recognition. No model download required, works on Intel and Apple Silicon."
+            return "Apple Speech（旧版）使用 macOS 内置语音识别，无需下载模型，支持 Intel 和 Apple Silicon。"
         case .appleSpeechAnalyzer:
-            return "Apple Speech uses advanced on-device recognition with fast, accurate transcription. Requires macOS 26+."
+            return "Apple Speech 使用先进的本地识别技术，转录快速准确，需要 macOS 26+。"
         case .parakeetTDT:
-            return "Parakeet TDT v3 uses CoreML and Neural Engine for fastest transcription (25 languages) on Apple Silicon."
+            return "Parakeet TDT v3 在 Apple Silicon 上利用 CoreML 和神经网络引擎实现最快转录速度，支持 25 种语言。"
         case .parakeetTDTv2:
-            return "Parakeet TDT v2 is an English-only model optimized for accuracy and consistency on Apple Silicon."
+            return "Parakeet TDT v2 是仅支持英语的模型，在 Apple Silicon 上以准确性和一致性为优化目标。"
         case .parakeetRealtime:
-            return "Parakeet Flash uses FluidAudio's true streaming EOU pipeline for low-latency English dictation. Best when you want words to appear live as you speak."
+            return "Parakeet Flash 使用 FluidAudio 的真实流式 EOU 管线，实现低延迟英语听写，说话时文字实时显示效果最佳。"
         case .qwen3Asr:
-            return "Qwen3 ASR is a multilingual FluidAudio model with strong quality, but higher memory usage. Requires macOS 15+."
+            return "Qwen3 ASR 是 FluidAudio 的多语言模型，质量出色但内存占用较高，需要 macOS 15+。"
         case .cohereTranscribeSixBit:
-            return "Cohere Transcribe downloads a CoreML pipeline from Hugging Face and caches it locally. Select the language manually before dictation. Best on Apple Silicon with 8GB+ RAM."
+            return "Cohere Transcribe 从 Hugging Face 下载 CoreML 管线并在本地缓存，听写前请手动选择语言，适合配备 8GB+ 内存的 Apple Silicon。"
         case .nemotronOffline:
-            return "Nemotron 3.5 Multilingual is slower but more accurate. Supports around 40 languages with auto or manual language selection. Best on Apple Silicon with 8GB+ RAM."
+            return "Nemotron 3.5 多语言版速度较慢但更准确，支持约 40 种语言并可自动或手动选择语言，适合配备 8GB+ 内存的 Apple Silicon。"
         case .nemotronStreaming, .nemotronStreaming320:
-            return "Nemotron Speech 3.5 Streaming Capable uses NVIDIA's streaming CoreML pipeline. Supports around 40 languages with auto or manual language selection."
+            return "Nemotron Speech 3.5 流式版使用 NVIDIA 的流式 CoreML 管线，支持约 40 种语言并可自动或手动选择语言。"
         default:
-            return "Whisper models support 99 languages and work on any Mac."
+            return "Whisper 模型支持 99 种语言，适用于任何 Mac。"
         }
     }
 
@@ -238,7 +238,7 @@ final class VoiceEngineSettingsViewModel: ObservableObject {
             DebugLogger.shared.info("Model download cancelled", source: "AISettingsView")
         } catch {
             DebugLogger.shared.error("Failed to download models: \(error)", source: "AISettingsView")
-            self.asr.errorTitle = "Model Download Failed"
+            self.asr.errorTitle = "模型下载失败"
             self.asr.errorMessage = error.localizedDescription
             self.asr.showError = true
         }

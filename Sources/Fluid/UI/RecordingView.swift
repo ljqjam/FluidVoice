@@ -29,10 +29,10 @@ struct RecordingView: View {
                                 .foregroundStyle(.white)
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Voice Dictation")
+                                Text("语音听写")
                                     .font(.title2)
                                     .fontWeight(.bold)
-                                Text("AI-powered speech recognition")
+                                Text("AI 驱动的语音识别")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -48,7 +48,7 @@ struct RecordingView: View {
                                     .fill(self.asr.isRunning ? .red : self.asr.isAsrReady ? Color.fluidGreen : .secondary)
                                     .frame(width: 8, height: 8)
 
-                                Text(self.asr.isRunning ? "Recording..." : self.asr.isAsrReady ? "Ready to record" : "Model not ready")
+                                Text(self.asr.isRunning ? "录音中..." : self.asr.isAsrReady ? "已就绪" : "模型未就绪")
                                     .font(.subheadline)
                                     .foregroundStyle(self.asr.isRunning ? .red : self.asr.isAsrReady ? Color.fluidGreen : .secondary)
                             }
@@ -66,7 +66,7 @@ struct RecordingView: View {
                                 HStack {
                                     Image(systemName: self.asr.isRunning ? "stop.fill" : "mic.fill")
                                         .font(.system(size: 16, weight: .semibold))
-                                    Text(self.asr.isRunning ? "Stop Recording" : "Start Recording")
+                                    Text(self.asr.isRunning ? "停止录音" : "开始录音")
                                 }
                                 .frame(maxWidth: .infinity)
                             }

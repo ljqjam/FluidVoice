@@ -63,53 +63,53 @@ struct PrivateAIModelDownloadProgress: Sendable, Equatable {
 
 enum PrivateAIModelDownloadProgressText {
     static func buttonTitle(for progress: PrivateAIModelDownloadProgress?) -> String {
-        if progress?.isComplete == true { return "Verifying" }
-        guard let fraction = progress?.fractionCompleted else { return "Downloading" }
-        return "Downloading \(Int(fraction * 100))%"
+        if progress?.isComplete == true { return "正在验证" }
+        guard let fraction = progress?.fractionCompleted else { return "下载中" }
+        return "下载中 \(Int(fraction * 100))%"
     }
 
     static func statusText(for progress: PrivateAIModelDownloadProgress?) -> String {
         guard let progress else {
-            return "Starting download. This can take a few minutes."
+            return "正在开始下载，可能需要几分钟。"
         }
         if progress.isComplete {
-            return "Verifying download. This can take a moment."
+            return "正在验证下载，请稍候。"
         }
         guard progress.hasWrittenBytes else {
-            return "Downloading. This can take a few minutes."
+            return "下载中，可能需要几分钟。"
         }
         guard let fraction = progress.fractionCompleted else {
-            return "Downloading. This can take a few minutes."
+            return "下载中，可能需要几分钟。"
         }
-        return "Downloading \(Int(fraction * 100))%. This can take a few minutes."
+        return "下载中 \(Int(fraction * 100))%，可能需要几分钟。"
     }
 
     static func byteText(for progress: PrivateAIModelDownloadProgress?) -> String? {
         guard let progress else { return nil }
 
         if progress.isComplete {
-            return "\(Self.byteCountText(progress.totalBytesWritten)) downloaded"
+            return "已下载 \(Self.byteCountText(progress.totalBytesWritten))"
         }
 
         guard progress.hasWrittenBytes else {
             guard let expected = progress.totalBytesExpected, expected > 0 else { return nil }
-            return "\(Self.byteCountText(expected)) download"
+            return "\(Self.byteCountText(expected)) 下载"
         }
 
         let written = Self.byteCountText(progress.totalBytesWritten)
         guard let expected = progress.totalBytesExpected, expected > 0 else {
-            return "\(written) downloaded"
+            return "已下载 \(written)"
         }
 
         return "\(written) of \(Self.byteCountText(expected))"
     }
 
     static func detailText(for progress: PrivateAIModelDownloadProgress?) -> String {
-        guard let progress else { return "Starting download..." }
+        guard let progress else { return "正在开始下载…" }
         if progress.isComplete {
-            return "Verifying download..."
+            return "正在验证下载…"
         }
-        guard let byteText = Self.byteText(for: progress) else { return "Downloading..." }
+        guard let byteText = Self.byteText(for: progress) else { return "下载中…" }
         guard progress.hasWrittenBytes else { return byteText }
         guard let fraction = progress.fractionCompleted else { return byteText }
         return "\(byteText) (\(Int(fraction * 100))%)"

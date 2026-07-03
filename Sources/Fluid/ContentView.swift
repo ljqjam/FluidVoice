@@ -24,13 +24,13 @@ enum AIProcessingError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noVerifiedProvider:
-            return "No verified AI provider selected"
+            return "未选择已验证的 AI 提供商"
         case let .missingAPIKey(provider):
-            return "API key not set for \(provider)"
+            return "未设置 \(provider) 的 API 密钥"
         case let .missingModel(provider):
-            return "No model selected for \(provider)"
+            return "未为 \(provider) 选择模型"
         case .emptyResponse:
-            return "AI returned an empty response"
+            return "AI 返回了空响应"
         }
     }
 
@@ -53,6 +53,7 @@ enum SidebarItem: Hashable {
     case aiEnhancements
     case preferences
     case meetingTools
+    case liveMeeting
     case customDictionary
     case stats
     case history
@@ -84,21 +85,21 @@ enum ShortcutRecordingTarget: Hashable {
     var title: String {
         switch self {
         case .primaryDictation:
-            return "Primary Dictation Shortcut"
+            return "主听写快捷键"
         case .secondaryDictation:
-            return "Secondary Dictation Shortcut"
+            return "次要听写快捷键"
         case .command:
-            return "Command Mode"
+            return "指令模式"
         case .edit:
-            return "Edit Mode"
+            return "编辑模式"
         case .cancel:
-            return "Cancel Recording"
+            return "取消录音"
         case .pasteLast:
-            return "Paste Last Transcription"
+            return "粘贴上次转录"
         case .dictationPrompt:
-            return "Prompt Shortcut"
+            return "提示词快捷键"
         case .newPrompt:
-            return "New Prompt Shortcut"
+            return "新提示词快捷键"
         }
     }
 
@@ -332,8 +333,8 @@ struct ContentView: View {
                         Button(action: self.openIssueReportingPage) {
                             Image(systemName: "ladybug.fill")
                         }
-                        .help("Report an issue")
-                        .accessibilityLabel("Report an issue")
+                        .help("反馈问题")
+                        .accessibilityLabel("反馈问题")
                     }
                 }
             }
@@ -346,7 +347,7 @@ struct ContentView: View {
                     set: { self.asr.showError = $0 }
                 )
             ) {
-                Button("OK", role: .cancel) {}
+                Button("好", role: .cancel) {}
             } message: {
                 Text(self.asr.errorMessage)
             }
@@ -998,7 +999,7 @@ struct ContentView: View {
     private func shortcutConflictMessage(for shortcut: HotkeyShortcut, target: ShortcutRecordingTarget) -> String? {
         if shortcut.isMouseShortcut {
             guard target.allowsMouseShortcut else {
-                return "Mouse clicks can only be assigned to Primary Dictation or Paste Last Transcription"
+                return "鼠标点击只能分配给主听写或粘贴上次转录"
             }
 
             if shortcut.isUnmodifiedLeftOrRightClick, let mouseButton = shortcut.mouseButton {
@@ -1009,10 +1010,10 @@ struct ContentView: View {
         let replacingPrimaryIndex = target.primaryDictationReplacementIndex
         for (index, configuredShortcut) in self.primaryDictationShortcuts.enumerated() where replacingPrimaryIndex != index {
             if configuredShortcut == shortcut {
-                return "Duplicate with Primary Dictation Shortcut"
+                return "与主听写快捷键重复"
             }
             if shortcut.conflictsWith(configuredShortcut) {
-                return "Overlaps Primary Dictation Shortcut — use a different modifier key"
+                return "与主听写快捷键冲突——请使用不同的修饰键"
             }
         }
 
@@ -1028,19 +1029,19 @@ struct ContentView: View {
 
         for (otherTarget, configuredShortcut) in configuredShortcuts where otherTarget != target {
             if configuredShortcut == shortcut {
-                return "Duplicate with \(otherTarget.title)"
+                return "与\(otherTarget.title)重复"
             }
             if shortcut.conflictsWith(configuredShortcut) {
-                return "Overlaps \(otherTarget.title) — use a different modifier key"
+                return "与\(otherTarget.title)冲突——请使用不同的修饰键"
             }
         }
         for (otherTarget, configuredShortcut) in optionalConfiguredShortcuts where otherTarget != target {
             guard let configuredShortcut else { continue }
             if configuredShortcut == shortcut {
-                return "Duplicate with \(otherTarget.title)"
+                return "与\(otherTarget.title)重复"
             }
             if shortcut.conflictsWith(configuredShortcut) {
-                return "Overlaps \(otherTarget.title) — use a different modifier key"
+                return "与\(otherTarget.title)冲突——请使用不同的修饰键"
             }
         }
 
@@ -1167,33 +1168,34 @@ struct ContentView: View {
     private var sidebarView: some View {
         List(selection: self.$selectedSidebarItem) {
             Section {
-                self.sidebarNavigationLink(.preferences, title: "Settings", systemImage: "gearshape.fill")
-                self.sidebarNavigationLink(.voiceEngine, title: "Voice Engine", systemImage: "waveform")
-                self.sidebarNavigationLink(.aiEnhancements, title: "AI Enhancement", systemImage: "brain")
-                self.sidebarNavigationLink(.customDictionary, title: "Custom Dictionary", systemImage: "text.book.closed.fill")
+                self.sidebarNavigationLink(.preferences, title: "设置", systemImage: "gearshape.fill")
+                self.sidebarNavigationLink(.voiceEngine, title: "语音引擎", systemImage: "waveform")
+                self.sidebarNavigationLink(.aiEnhancements, title: "AI 增强", systemImage: "brain")
+                self.sidebarNavigationLink(.customDictionary, title: "自定义词典", systemImage: "text.book.closed.fill")
             } header: {
-                self.sidebarSectionHeader("Configure")
+                self.sidebarSectionHeader("配置")
             }
 
             Section {
-                self.sidebarNavigationLink(.commandMode, title: "Command Mode", systemImage: "terminal.fill")
-                self.sidebarNavigationLink(.meetingTools, title: "File Transcription", systemImage: "doc.text.fill")
+                self.sidebarNavigationLink(.commandMode, title: "指令模式", systemImage: "terminal.fill")
+                self.sidebarNavigationLink(.liveMeeting, title: "实时会议", systemImage: "mic.and.signal.meter.fill")
+                self.sidebarNavigationLink(.meetingTools, title: "文件转录", systemImage: "doc.text.fill")
             } header: {
-                self.sidebarSectionHeader("Use")
+                self.sidebarSectionHeader("使用")
             }
 
             Section {
-                self.sidebarNavigationLink(.history, title: "History", systemImage: "clock.arrow.circlepath")
-                self.sidebarNavigationLink(.stats, title: "Stats", systemImage: "chart.bar.fill")
+                self.sidebarNavigationLink(.history, title: "历史记录", systemImage: "clock.arrow.circlepath")
+                self.sidebarNavigationLink(.stats, title: "统计", systemImage: "chart.bar.fill")
             } header: {
-                self.sidebarSectionHeader("Activity")
+                self.sidebarSectionHeader("动态")
             }
 
             Section {
-                self.sidebarNavigationLink(.welcome, title: "Getting Started", systemImage: "house.fill")
-                self.sidebarNavigationLink(.feedback, title: "Feedback", systemImage: "envelope.fill")
+                self.sidebarNavigationLink(.welcome, title: "快速入门", systemImage: "house.fill")
+                self.sidebarNavigationLink(.feedback, title: "反馈", systemImage: "envelope.fill")
             } header: {
-                self.sidebarSectionHeader("Help")
+                self.sidebarSectionHeader("帮助")
             }
         }
         .listStyle(.sidebar)
@@ -1226,8 +1228,8 @@ struct ContentView: View {
         } label: {
             Image(systemName: self.settings.themePreference.systemImageName)
         }
-        .help("Theme: \(self.settings.themePreference.displayName)")
-        .accessibilityLabel("Theme")
+        .help("主题：\(self.settings.themePreference.displayName)")
+        .accessibilityLabel("主题")
     }
 
     private func nextThemePreference(after preference: SettingsStore.ThemePreference) -> SettingsStore.ThemePreference {
@@ -1276,6 +1278,8 @@ struct ContentView: View {
             return AnyView(self.preferencesView)
         case .meetingTools:
             return AnyView(self.meetingToolsView)
+        case .liveMeeting:
+            return AnyView(LiveMeetingTranscriptionView(asrService: self.asr))
         case .customDictionary:
             return AnyView(CustomDictionaryView())
         case .stats:
@@ -1353,7 +1357,7 @@ struct ContentView: View {
                         .foregroundStyle(self.asr.micStatus == .authorized ? self.theme.palette.primaryText : self.theme.palette.warning)
 
                     if self.asr.micStatus != .authorized {
-                        Text("Microphone access is required for voice recording")
+                        Text("语音录制需要麦克风访问权限")
                             .font(self.theme.typography.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -1386,7 +1390,7 @@ struct ContentView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "mic.fill")
-                        Text("Grant Access")
+                        Text("授予权限")
                             .fontWeight(.medium)
                     }
                 }
@@ -1398,7 +1402,7 @@ struct ContentView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "gear")
-                        Text("Open Settings")
+                        Text("打开设置")
                             .fontWeight(.medium)
                     }
                 }
@@ -1414,7 +1418,7 @@ struct ContentView: View {
                 Image(systemName: "info.circle.fill")
                     .foregroundStyle(self.theme.palette.accent)
                     .font(self.theme.typography.caption)
-                Text("How to enable microphone access:")
+                Text("如何启用麦克风访问权限：")
                     .font(self.theme.typography.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
@@ -1422,12 +1426,12 @@ struct ContentView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 if self.asr.micStatus == .notDetermined {
-                    self.instructionStep(number: "1", text: "Click **Grant Access** above")
-                    self.instructionStep(number: "2", text: "Choose **Allow** in the system dialog")
+                    self.instructionStep(number: "1", text: "点击上方的**授予权限**")
+                    self.instructionStep(number: "2", text: "在系统对话框中选择**允许**")
                 } else if self.asr.micStatus == .denied {
-                    self.instructionStep(number: "1", text: "Click **Open Settings** above")
-                    self.instructionStep(number: "2", text: "Find **FluidVoice** in the microphone list")
-                    self.instructionStep(number: "3", text: "Toggle **FluidVoice ON** to allow access")
+                    self.instructionStep(number: "1", text: "点击上方的**打开设置**")
+                    self.instructionStep(number: "2", text: "在麦克风列表中找到 **FluidVoice**")
+                    self.instructionStep(number: "3", text: "将 **FluidVoice** 开关打开以允许访问")
                 }
             }
             .padding(.leading, 4)
@@ -4108,7 +4112,7 @@ private struct AccessibilitySettingsFloatingGuideView: View {
                         value: self.isArrowRaised
                     )
 
-                Text("Drag \(self.appName) into the Accessibility apps list as shown")
+                Text("将 \(self.appName) 拖入如图所示的辅助功能应用列表")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.78))
                     .lineLimit(1)
@@ -4127,7 +4131,7 @@ private struct AccessibilitySettingsFloatingGuideView: View {
                 }
                 .buttonStyle(.plain)
                 .focusable(false)
-                .help("Close guide")
+                .help("关闭引导")
             }
 
             HStack(spacing: 12) {
@@ -4143,7 +4147,7 @@ private struct AccessibilitySettingsFloatingGuideView: View {
                 }
                 .buttonStyle(.plain)
                 .focusable(false)
-                .help("Return to \(self.appName)")
+                .help("返回 \(self.appName)")
 
                 Image(nsImage: self.appIcon)
                     .resizable()
@@ -4184,7 +4188,7 @@ private struct AccessibilitySettingsFloatingGuideView: View {
             .onDrag {
                 NSItemProvider(object: self.appURL as NSURL)
             }
-            .accessibilityLabel("Drag \(self.appName) to the Accessibility list")
+            .accessibilityLabel("将 \(self.appName) 拖入辅助功能列表")
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -4277,18 +4281,18 @@ private struct TodayStatsToolbarButton: View {
             HStack(spacing: 4) {
                 Image(systemName: hasActivity ? "waveform" : "chart.bar.fill")
                 if hasActivity {
-                    Text("\(summary.words) words")
+                    Text("\(summary.words) 词")
                     Text("·")
                         .foregroundStyle(.secondary)
                     Text(timeSaved)
                 } else {
-                    Text("Today")
+                    Text("今日")
                 }
             }
             .font(.system(size: 12, weight: .medium))
         }
-        .help(hasActivity ? "Today: \(summary.words) words · \(timeSaved) saved - view stats" : "View your stats")
-        .accessibilityLabel("Today stats")
+        .help(hasActivity ? "今日：\(summary.words) 词 · 节省 \(timeSaved) — 查看统计" : "查看统计数据")
+        .accessibilityLabel("今日统计")
     }
 }
 

@@ -53,19 +53,19 @@ extension AIEnhancementSettingsView {
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Prompt Profiles")
+                    Text("提示词配置文件")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(self.theme.palette.primaryText)
-                    Text("Choose the prompt behavior for dictation.")
+                    Text("选择听写时的提示词行为。")
                         .font(.caption)
                         .foregroundStyle(self.theme.palette.secondaryText)
                 }
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                self.promptProfilesHelpRow("Built-in is the normal prompt. Assign any prompt as Primary to use it with your main hotkey.")
-                self.promptProfilesHelpRow("\(PrivateAIProviderFeature.displayName) uses its own local prompt.")
-                self.promptProfilesHelpRow("Custom prompts can be assigned globally, by app, or by shortcut.")
+                self.promptProfilesHelpRow("内置为默认提示词。将任意提示词设为主要，即可通过主快捷键触发。")
+                self.promptProfilesHelpRow("\(PrivateAIProviderFeature.displayName) 使用其自带的本地提示词。")
+                self.promptProfilesHelpRow("自定义提示词可按全局、应用或快捷键分配。")
             }
         }
         .padding(14)
@@ -149,7 +149,7 @@ extension AIEnhancementSettingsView {
                         }
                         .buttonStyle(SquareIconButtonStyle())
                         .disabled(!isEnabled)
-                        .help("Configure")
+                        .help("配置")
                     }
 
                     if let onDelete {
@@ -162,7 +162,7 @@ extension AIEnhancementSettingsView {
                         }
                         .buttonStyle(SquareIconButtonStyle(foreground: .red, borderColor: .red.opacity(0.5)))
                         .disabled(!isEnabled)
-                        .help("Delete")
+                        .help("删除")
                     } else {
                         Color.clear
                             .frame(width: AISettingsLayout.providerRowControlHeight, height: AISettingsLayout.providerRowControlHeight)
@@ -295,7 +295,7 @@ extension AIEnhancementSettingsView {
                 self.promptConfigChip(
                     systemImage: "cpu",
                     text: modelPicker.selectedModel.isEmpty
-                        ? (modelPicker.providerName.isEmpty ? "No model" : modelPicker.summary)
+                        ? (modelPicker.providerName.isEmpty ? "无模型" : modelPicker.summary)
                         : modelPicker.selectedModel,
                     tone: tone
                 )
@@ -311,7 +311,7 @@ extension AIEnhancementSettingsView {
             } else {
                 self.promptConfigChip(
                     systemImage: "keyboard",
-                    text: "No shortcut",
+                    text: "无快捷键",
                     tone: self.theme.palette.tertiaryText,
                     isGhost: true
                 )
@@ -370,7 +370,7 @@ extension AIEnhancementSettingsView {
         tone: Color
     ) -> some View {
         if assignments == nil, isSelected {
-            Text("Selected")
+            Text("已选中")
                 .font(.caption2)
                 .fontWeight(.semibold)
                 .padding(.horizontal, 8)
@@ -380,7 +380,7 @@ extension AIEnhancementSettingsView {
         }
 
         if mode.normalized == .edit {
-            Text("Context: Auto")
+            Text("上下文：自动")
                 .font(.caption2)
                 .fontWeight(.semibold)
                 .padding(.horizontal, 8)
@@ -549,7 +549,7 @@ extension AIEnhancementSettingsView {
         let providerID = self.promptEditorProviderIDDraft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !providerID.isEmpty else {
             return PromptCardModelPicker(
-                summary: "Choose provider first",
+                summary: "请先选择服务商",
                 selectedModel: "",
                 models: [],
                 providerName: "",
@@ -637,14 +637,14 @@ extension AIEnhancementSettingsView {
         }()
         let hasShortcut = self.promptEditorShortcutDraft != nil
 
-        return self.promptEditorConfigRow(title: "Custom shortcut", description: "Optional shortcut just for this prompt.") {
+        return self.promptEditorConfigRow(title: "自定义快捷键", description: "仅用于此提示词的可选快捷键。") {
             HStack(spacing: 8) {
                 HStack(spacing: 6) {
                     if isRecording {
                         Image(systemName: "keyboard")
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(.orange)
-                        Text("Press shortcut...")
+                        Text("请按快捷键...")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(.orange)
                             .lineLimit(1)
@@ -660,7 +660,7 @@ extension AIEnhancementSettingsView {
                         Image(systemName: "keyboard")
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(self.theme.palette.tertiaryText)
-                        Text("None")
+                        Text("无")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(self.theme.palette.tertiaryText)
                     }
@@ -681,7 +681,7 @@ extension AIEnhancementSettingsView {
                         self.activeShortcutRecordingTarget = .dictationPrompt(configurationKey)
                     }
                 } label: {
-                    Text(isRecording ? "Recording..." : "Change")
+                    Text(isRecording ? "录制中..." : "更改")
                         .font(.system(size: 12, weight: .semibold))
                         .lineLimit(1)
                         .frame(width: 70, height: AISettingsLayout.controlHeight)
@@ -700,7 +700,7 @@ extension AIEnhancementSettingsView {
                             self.activeShortcutRecordingTarget = nil
                         }
                     } label: {
-                        Text("Clear")
+                        Text("清除")
                             .font(.system(size: 12, weight: .semibold))
                             .lineLimit(1)
                             .frame(width: 70, height: AISettingsLayout.controlHeight)
@@ -716,11 +716,11 @@ extension AIEnhancementSettingsView {
     }
 
     private var promptEditorProviderRow: some View {
-        self.promptEditorConfigRow(title: "AI provider", description: "Verified providers only.") {
+        self.promptEditorConfigRow(title: "AI 服务商", description: "仅限已验证的服务商。") {
             Menu {
                 let providers = self.viewModel.verifiedPromptProviders()
                 if providers.isEmpty {
-                    Text("No verified providers")
+                    Text("暂无已验证的服务商")
                 } else {
                     ForEach(providers) { provider in
                         Button {
@@ -757,7 +757,7 @@ extension AIEnhancementSettingsView {
     }
 
     private var promptEditorModelRow: some View {
-        self.promptEditorConfigRow(title: "Model", description: "Used for this prompt.") {
+        self.promptEditorConfigRow(title: "模型", description: "用于此提示词的模型。") {
             HStack(spacing: 8) {
                 SearchableModelPicker(
                     models: self.viewModel.models(for: self.promptEditorProviderIDDraft),
@@ -772,7 +772,7 @@ extension AIEnhancementSettingsView {
                     isRefreshing: self.viewModel.refreshingProviderID == self.promptEditorProviderIDDraft,
                     disabled: !self.canFetchModels(for: self.promptEditorProviderIDDraft),
                     opacity: self.canFetchModels(for: self.promptEditorProviderIDDraft) ? 1 : 0.45,
-                    help: "Refresh model list"
+                    help: "刷新模型列表"
                 ) {
                     Task { await self.viewModel.fetchModels(for: self.promptEditorProviderIDDraft) }
                 }
@@ -964,8 +964,8 @@ extension AIEnhancementSettingsView {
 
                     Text(
                         isSelectedAppsOnly
-                            ? "Custom prompts only run in apps listed in App Overrides."
-                            : "Custom prompts run based on your shortcut or the app you're in."
+                            ? "自定义提示词仅在“应用覆盖”列表中的应用内运行。"
+                            : "自定义提示词将根据你的快捷键或当前应用触发。"
                     )
                     .font(.caption2)
                     .foregroundStyle(self.theme.palette.secondaryText)
@@ -976,7 +976,7 @@ extension AIEnhancementSettingsView {
                         let defaultSelection = SettingsStore.DictationPromptSelection.default
                         self.promptProfileCard(
                             cardKey: "\(mode.normalized.rawValue)-default",
-                            title: mode.normalized == .dictate ? "Built-in Default" : "Default \(self.friendlyModeName(mode))",
+                            title: mode.normalized == .dictate ? "内置默认" : "默认\(self.friendlyModeName(mode))",
                             subtitle: "",
                             mode: mode,
                             isSelected: mode.normalized == .dictate
@@ -994,7 +994,7 @@ extension AIEnhancementSettingsView {
                                 let profileSelection = SettingsStore.DictationPromptSelection.profile(profile.id)
                                 self.promptProfileCard(
                                     cardKey: "\(profile.mode.normalized.rawValue)-\(profile.id)",
-                                    title: profile.name.isEmpty ? "Untitled Prompt" : profile.name,
+                                    title: profile.name.isEmpty ? "未命名提示词" : profile.name,
                                     subtitle: "",
                                     mode: profile.mode,
                                     isSelected: self.viewModel.selectedPromptID(for: profile.mode) == profile.id,
@@ -1022,7 +1022,7 @@ extension AIEnhancementSettingsView {
             Image(systemName: "lock.fill")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.secondary)
-            Text("\(PrivateAIProviderFeature.displayName) uses its own built-in system prompt. Switch to another provider to create custom prompts.")
+            Text("\(PrivateAIProviderFeature.displayName) 使用其自带的内置系统提示词。切换到其他服务商以创建自定义提示词。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -1043,7 +1043,7 @@ extension AIEnhancementSettingsView {
     private func promptModeHintRow(mode: SettingsStore.PromptMode) -> some View {
         HStack {
             if mode.normalized == .dictate {
-                Text("Default uses the main dictation shortcut. Add a custom shortcut only when a prompt needs one.")
+                Text("默认使用主听写快捷键。仅在提示词需要时添加自定义快捷键。")
                     .font(.caption2)
                     .foregroundStyle(self.theme.palette.secondaryText)
                     .lineLimit(1)
@@ -1058,12 +1058,12 @@ extension AIEnhancementSettingsView {
         HStack(alignment: .center, spacing: 10) {
             HStack(spacing: 4) {
                 self.promptRoutingScopeButton(
-                    title: "All apps",
+                    title: "全部应用",
                     scope: .allApps,
                     mode: mode
                 )
                 self.promptRoutingScopeButton(
-                    title: "Selected apps only",
+                    title: "仅限所选应用",
                     scope: .selectedAppsOnly,
                     mode: mode
                 )
@@ -1086,7 +1086,7 @@ extension AIEnhancementSettingsView {
                 Button {
                     self.viewModel.openNewPromptEditor(prefillMode: .dictate)
                 } label: {
-                    Label("Add Prompt", systemImage: "plus")
+                    Label("添加提示词", systemImage: "plus")
                         .font(.system(size: 12, weight: .semibold))
                         .frame(minWidth: AISettingsLayout.actionMinWidth, minHeight: AISettingsLayout.controlHeight)
                 }
@@ -1144,8 +1144,8 @@ extension AIEnhancementSettingsView {
 
             Text(
                 mode.normalized == .dictate
-                    ? "No default enhancement. Add app overrides to use prompts in selected apps."
-                    : "Default edit stays built-in. App overrides can use custom prompts."
+                    ? "无默认增强。添加应用覆盖以在所选应用中使用提示词。"
+                    : "默认编辑保持内置。应用覆盖可使用自定义提示词。"
             )
             .font(.caption2)
             .foregroundStyle(self.theme.palette.secondaryText)
@@ -1169,12 +1169,12 @@ extension AIEnhancementSettingsView {
         let verified = self.editModeVerifiedProviders
 
         return HStack(alignment: .center, spacing: 10) {
-            Text("Edit model")
+            Text("编辑模型")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(self.theme.palette.secondaryText)
 
             if self.isEditModeLinkedToPrivateAI {
-                Toggle("Sync", isOn: self.editModeLinkedToGlobalBinding)
+                Toggle("同步", isOn: self.editModeLinkedToGlobalBinding)
                     .toggleStyle(.checkbox)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -1191,7 +1191,7 @@ extension AIEnhancementSettingsView {
                     Image(systemName: "clock")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
-                    Text("\(PrivateAIProviderFeature.displayName) for Edit Mode is coming soon")
+                    Text("\(PrivateAIProviderFeature.displayName) 编辑模式即将推出")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -1201,7 +1201,7 @@ extension AIEnhancementSettingsView {
                     Image(systemName: "info.circle")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
-                    Text("No verified chat provider")
+                    Text("暂无已验证的对话服务商")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -1210,7 +1210,7 @@ extension AIEnhancementSettingsView {
                 let providerID = self.activeEditModeProviderID
                 let models = self.viewModel.models(for: providerID)
                 Group {
-                    Toggle("Sync", isOn: self.editModeLinkedToGlobalBinding)
+                    Toggle("同步", isOn: self.editModeLinkedToGlobalBinding)
                         .toggleStyle(.checkbox)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -1223,7 +1223,7 @@ extension AIEnhancementSettingsView {
                             }
                         }
 
-                    Text("Provider")
+                    Text("服务商")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -1237,7 +1237,7 @@ extension AIEnhancementSettingsView {
                     .frame(width: AISettingsLayout.promptInlinePickerWidth)
                     .disabled(self.settings.rewriteModeLinkedToGlobal)
 
-                    Text("Model")
+                    Text("模型")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -1281,7 +1281,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "app.dashed")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(self.theme.palette.secondaryText)
-                Text("App Overrides")
+                Text("应用覆盖")
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(self.theme.palette.secondaryText)
 
@@ -1289,7 +1289,7 @@ extension AIEnhancementSettingsView {
 
                 Menu {
                     if appTargets.isEmpty {
-                        Text("No unassigned running apps")
+                        Text("无未分配的正在运行的应用")
                     } else {
                         ForEach(appTargets) { target in
                             Button(self.appBindingTargetMenuTitle(target)) {
@@ -1304,11 +1304,11 @@ extension AIEnhancementSettingsView {
 
                     Divider()
 
-                    Button("Choose App…") {
+                    Button("选择应用…") {
                         self.viewModel.addAppPromptBindingFromFilePicker(for: mode)
                     }
                 } label: {
-                    Text("+ Add App")
+                    Text("+ 添加应用")
                 }
                 .fluidCompactButton(isReady: true)
                 .frame(minHeight: AISettingsLayout.controlHeight)
@@ -1317,7 +1317,7 @@ extension AIEnhancementSettingsView {
             }
 
             if bindings.isEmpty {
-                Text("No app overrides yet. Add one to use a different prompt for a specific app.")
+                Text("暂无应用覆盖。添加后可为特定应用使用不同的提示词。")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
@@ -1365,20 +1365,20 @@ extension AIEnhancementSettingsView {
 
                 HStack(spacing: 8) {
                     Menu {
-                        Button("Default") {
+                        Button("默认") {
                             self.viewModel.setPromptID(nil, for: binding)
                         }
 
                         Divider()
 
-                        Button("Create New Prompt…") {
+                        Button("新建提示词…") {
                             self.viewModel.openNewPromptEditor(prefillMode: mode)
                         }
 
                         if !modeProfiles.isEmpty {
                             Divider()
                             ForEach(modeProfiles) { profile in
-                                Button(profile.name.isEmpty ? "Untitled Prompt" : profile.name) {
+                                Button(profile.name.isEmpty ? "未命名提示词" : profile.name) {
                                     self.viewModel.setPromptID(profile.id, for: binding)
                                 }
                             }
@@ -1413,7 +1413,7 @@ extension AIEnhancementSettingsView {
                     }
                     .buttonStyle(SquareIconButtonStyle(foreground: .red, borderColor: .red.opacity(0.5)))
                     .disabled(!isEnabled)
-                    .help("Remove app-specific override")
+                    .help("移除应用专属覆盖")
                 }
                 .fixedSize(horizontal: true, vertical: false)
             }
@@ -1618,9 +1618,9 @@ extension AIEnhancementSettingsView {
     private func friendlyModeName(_ mode: SettingsStore.PromptMode) -> String {
         switch mode.normalized {
         case .dictate:
-            return "Dictate"
+            return "听写"
         case .edit, .write, .rewrite:
-            return "Edit Text"
+            return "编辑文本"
         }
     }
 
@@ -1630,19 +1630,19 @@ extension AIEnhancementSettingsView {
                 VStack(alignment: .leading, spacing: 2) {
                     Text({
                         switch mode {
-                        case let .defaultPrompt(promptMode): return "Default \(self.friendlyModeName(promptMode)) Prompt"
-                        case let .newPrompt(prefillMode): return "New \(self.friendlyModeName(prefillMode)) Prompt"
-                        case .edit: return "Edit Prompt"
+                        case let .defaultPrompt(promptMode): return "\(self.friendlyModeName(promptMode))的默认提示词"
+                        case let .newPrompt(prefillMode): return "新建\(self.friendlyModeName(prefillMode))提示词"
+                        case .edit: return "编辑提示词"
                         case .privateAI: return PrivateAIProviderFeature.displayName
                         }
                     }())
                         .font(.headline)
                     if mode.isPrivateAI {
-                        Text("Built-in system prompt. Only the shortcut can be customized.")
+                        Text("内置系统提示词，仅可自定义快捷键。")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else if mode.isDefault {
-                        Text("This is the built-in prompt. Create a custom prompt to override it.")
+                        Text("这是内置提示词。创建自定义提示词以覆盖它。")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -1656,11 +1656,11 @@ extension AIEnhancementSettingsView {
 
             if !mode.isPrivateAI {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Name")
+                    Text("名称")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     let isDefaultNameLocked = mode.isDefault
-                    TextField("Prompt name", text: self.$viewModel.draftPromptName)
+                    TextField("提示词名称", text: self.$viewModel.draftPromptName)
                         .textFieldStyle(.roundedBorder)
                         .disabled(isDefaultNameLocked)
                 }
@@ -1668,7 +1668,7 @@ extension AIEnhancementSettingsView {
 
             if !mode.isPrivateAI {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Prompt")
+                    Text("提示词")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     PromptTextView(
@@ -1696,11 +1696,11 @@ extension AIEnhancementSettingsView {
 
             if self.viewModel.draftPromptMode != .dictate {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Selected text is added automatically when text is selected.")
+                    Text("选中文本时，所选内容将自动添加至上下文。")
                         .font(.caption)
                         .foregroundStyle(self.theme.palette.secondaryText)
 
-                    Text("Context block added automatically:")
+                    Text("自动添加的上下文块：")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
 
@@ -1726,7 +1726,7 @@ extension AIEnhancementSettingsView {
                     HStack(spacing: 8) {
                         Image(systemName: "waveform")
                             .foregroundStyle(self.theme.palette.accent)
-                        Text("Test")
+                        Text("测试")
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         Spacer()
@@ -1746,18 +1746,18 @@ extension AIEnhancementSettingsView {
                             }
                         }
                     )) {
-                        Text("Enable Test Mode (Hotkey: \(hotkeyDisplay))")
+                        Text("启用测试模式（快捷键：\(hotkeyDisplay)）")
                             .font(.caption)
                     }
                     .toggleStyle(.switch)
                     .disabled(!canTest)
 
                     if !canTest {
-                        Text("Testing is disabled because AI post-processing is not configured.")
+                        Text("测试已禁用，因为 AI 后处理尚未配置。")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     } else if self.promptTest.isActive {
-                        Text("Press the hotkey to start/stop recording. The transcription will be post-processed using your draft prompt and shown below (nothing will be typed into other apps).")
+                        Text("按下快捷键开始/停止录音。转录内容将使用草稿提示词进行后处理并显示在下方（不会输入到其他应用）。")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -1766,7 +1766,7 @@ extension AIEnhancementSettingsView {
                         if self.promptTest.isProcessing {
                             HStack(spacing: 8) {
                                 ProgressView().controlSize(.small).fixedSize()
-                                Text("Processing…")
+                                Text("处理中…")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -1780,7 +1780,7 @@ extension AIEnhancementSettingsView {
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Raw transcription")
+                            Text("原始转录")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                             TextEditor(text: Binding(
@@ -1801,7 +1801,7 @@ extension AIEnhancementSettingsView {
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Post-processed output")
+                            Text("后处理输出")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                             TextEditor(text: Binding(
@@ -1832,7 +1832,7 @@ extension AIEnhancementSettingsView {
                         )
                 )
             } else if self.promptTest.isActive {
-                Text("Prompt test mode is available only for Dictate prompts.")
+                Text("提示词测试模式仅适用于听写提示词。")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .onAppear { self.promptTest.deactivate() }
@@ -1843,7 +1843,7 @@ extension AIEnhancementSettingsView {
                    let promptMode = mode.mode,
                    self.viewModel.hasDefaultPromptOverride(for: promptMode)
                 {
-                    Button("Reset to Built-in") {
+                    Button("恢复内置") {
                         self.viewModel.resetDefaultPromptOverride(for: promptMode)
                         self.viewModel.openDefaultPromptViewer(for: promptMode)
                         self.preparePromptEditorConfigurationDraft(mode: .defaultPrompt(mode: promptMode))
@@ -1854,14 +1854,14 @@ extension AIEnhancementSettingsView {
 
                 Spacer(minLength: 0)
 
-                Button("Cancel") {
+                Button("取消") {
                     self.restorePromptEditorConfigurationDraft(mode: mode)
                     self.viewModel.closePromptEditor()
                 }
                 .fluidButton(.compact, size: .compact)
                 .frame(minWidth: AISettingsLayout.actionMinWidth, minHeight: AISettingsLayout.controlHeight)
 
-                Button("Save") {
+                Button("保存") {
                     self.applyPromptEditorConfigurationDraft(mode: mode)
                     self.viewModel.savePromptEditor(mode: mode)
                 }

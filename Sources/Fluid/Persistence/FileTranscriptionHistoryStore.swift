@@ -133,6 +133,9 @@ final class FileTranscriptionHistoryStore: ObservableObject {
     }
 
     func deleteEntry(id: UUID) {
+        if let entry = self.entries.first(where: { $0.id == id }) {
+            MeetingTranscriptExporter.delete(displayName: entry.fileName)
+        }
         self.entries.removeAll { $0.id == id }
         if self.selectedEntryID == id {
             self.selectedEntryID = self.entries.first?.id
@@ -144,6 +147,7 @@ final class FileTranscriptionHistoryStore: ObservableObject {
         self.entries.removeAll()
         self.selectedEntryID = nil
         self.saveEntries()
+        MeetingTranscriptExporter.deleteAll()
         DebugLogger.shared.info("Cleared all file transcription history", source: "FileTranscriptionHistoryStore")
     }
 

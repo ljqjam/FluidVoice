@@ -50,7 +50,7 @@ struct VoiceEngineLanguageRoute: Identifiable, Equatable {
     var badgeText: String? {
         switch self.model {
         case .parakeetTDT, .parakeetTDTv2:
-            return "Optimized for FluidVoice"
+            return "FluidVoice 优化"
         default:
             return nil
         }

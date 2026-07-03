@@ -33,9 +33,9 @@ struct FeedbackView: View {
                             .font(.system(size: 32))
                             .foregroundStyle(self.theme.palette.accent)
                         VStack(alignment: .leading) {
-                            Text("Send Feedback")
+                            Text("发送反馈")
                                 .font(.system(size: 28, weight: .bold))
-                            Text("Help us improve FluidVoice")
+                            Text("帮助我们改进 FluidVoice")
                                 .font(.system(size: 16))
                                 .foregroundStyle(.secondary)
                         }
@@ -52,11 +52,11 @@ struct FeedbackView: View {
                                 .foregroundStyle(.pink)
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("We'd love to hear from you!")
+                                Text("期待听到你的声音！")
                                     .font(.system(size: 18, weight: .semibold))
                                     .foregroundStyle(self.theme.palette.primaryText)
 
-                                Text("Your feedback helps us make FluidVoice even better")
+                                Text("你的反馈帮助我们让 FluidVoice 更加出色")
                                     .font(.system(size: 14))
                                     .foregroundStyle(self.theme.palette.secondaryText)
                             }
@@ -71,11 +71,11 @@ struct FeedbackView: View {
                                 .foregroundStyle(.yellow)
 
                             VStack(alignment: .leading, spacing: 6) {
-                                Text("Loving FluidVoice?")
+                                Text("喜欢 FluidVoice 吗？")
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundStyle(self.theme.palette.primaryText)
 
-                                Text("Give us a star on GitHub, or support continued free development to help make local dictation even better.")
+                                Text("在 GitHub 上给我们点个星，或赞助我们以支持持续免费开发，让本地听写更加完善。")
                                     .font(.system(size: 13))
                                     .foregroundStyle(self.theme.palette.secondaryText)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -88,7 +88,7 @@ struct FeedbackView: View {
                                     Link(destination: githubURL) {
                                         HStack(spacing: 8) {
                                             Image(systemName: "star.fill")
-                                            Text("Star on GitHub")
+                                            Text("在 GitHub 上加星")
                                                 .fontWeight(.semibold)
                                         }
                                         .font(.system(size: 14))
@@ -103,7 +103,7 @@ struct FeedbackView: View {
                                     Link(destination: sponsorURL) {
                                         HStack(spacing: 8) {
                                             Image(systemName: "heart.fill")
-                                            Text("Support FluidVoice")
+                                            Text("支持 FluidVoice")
                                                 .fontWeight(.semibold)
                                         }
                                         .font(.system(size: 14))
@@ -112,7 +112,7 @@ struct FeedbackView: View {
                                     }
                                     .fluidButton(.glass, size: .medium)
                                     .buttonHoverEffect()
-                                    .help("Sponsor Altic on GitHub")
+                                    .help("在 GitHub 上赞助 Altic")
                                 }
                             }
                         }
@@ -124,7 +124,7 @@ struct FeedbackView: View {
                 ThemedCard(style: .standard, hoverEffect: false) {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Email")
+                            Text("邮箱")
                                 .font(.headline)
                                 .fontWeight(.semibold)
 
@@ -132,7 +132,7 @@ struct FeedbackView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .font(.system(size: 14))
 
-                            Text("Feedback")
+                            Text("反馈")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .padding(.top, 8)
@@ -149,7 +149,7 @@ struct FeedbackView: View {
                                 .overlay(
                                     Group {
                                         if self.feedbackText.isEmpty {
-                                            Text("Share your thoughts, report bugs, or suggest features...")
+                                            Text("分享你的想法、反馈问题或建议新功能...")
                                                 .font(.subheadline)
                                                 .foregroundStyle(.secondary)
                                                 .padding(.leading, 4)
@@ -159,7 +159,7 @@ struct FeedbackView: View {
                                 )
 
                             // Debug logs option
-                            Toggle("Include debug logs", isOn: self.$includeDebugLogs)
+                            Toggle("包含调试日志", isOn: self.$includeDebugLogs)
                                 .toggleStyle(GlassToggleStyle())
 
                             // Send Button
@@ -179,7 +179,7 @@ struct FeedbackView: View {
                                         } else {
                                             Image(systemName: "paperplane.fill")
                                         }
-                                        Text(self.isSendingFeedback ? "Sending..." : "Send Feedback")
+                                        Text(self.isSendingFeedback ? "发送中..." : "发送反馈")
                                             .fontWeight(.semibold)
                                     }
                                     .padding(.horizontal, 20)
@@ -202,18 +202,18 @@ struct FeedbackView: View {
         .onAppear {
             self.appear = true
         }
-        .alert("Feedback Sent", isPresented: self.$showFeedbackConfirmation) {
-            Button("OK") {}
+        .alert("反馈已发送", isPresented: self.$showFeedbackConfirmation) {
+            Button("好") {}
         } message: {
-            Text("Thank you for helping us improve FluidVoice.")
+            Text("感谢你帮助我们改进 FluidVoice。")
         }
-        .alert("Feedback Failed", isPresented: self.$showFeedbackError) {
-            Button("Try Again") {
+        .alert("反馈发送失败", isPresented: self.$showFeedbackError) {
+            Button("重试") {
                 Task {
                     await self.sendFeedback()
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button("取消", role: .cancel) {}
         } message: {
             Text(self.feedbackErrorMessage)
         }
@@ -245,7 +245,7 @@ struct FeedbackView: View {
                 self.includeDebugLogs = false
             } else {
                 // Show error to user - inputs are preserved for retry
-                self.feedbackErrorMessage = "We couldn't send your feedback. Please check your internet connection and try again."
+                self.feedbackErrorMessage = "无法发送你的反馈，请检查网络连接后重试。"
                 self.showFeedbackError = true
             }
         }

@@ -23,7 +23,7 @@ struct CustomDictionaryView: View {
     @State private var showAddBoostSheet = false
     @State private var editingBoostTerm: EditableBoostTerm?
 
-    @State private var boostStatusMessage = "Add custom words for better Parakeet recognition."
+    @State private var boostStatusMessage = "添加自定义词汇以提升 Parakeet 识别效果。"
     @State private var boostHasError = false
     @State private var vocabBoostingEnabled: Bool = SettingsStore.shared.vocabularyBoostingEnabled
     @State private var isBoostingInfoPresented = false
@@ -34,7 +34,7 @@ struct CustomDictionaryView: View {
     @State private var lastTrainingOutput = ""
     @State private var lastTrainingOutputIsCovered = false
     @State private var consecutiveCoveredCaptures = 0
-    @State private var trainingStatusMessage = "Type the correct text."
+    @State private var trainingStatusMessage = "请输入正确文本。"
     @State private var trainingHasError = false
     @State private var isTrainingActive = false
     @State private var isTrainingStarting = false
@@ -53,13 +53,13 @@ struct CustomDictionaryView: View {
 
     private var trainingProgressText: String {
         let count = self.trainingSampleCount
-        return "\(count) \(count == 1 ? "sample" : "samples") · up to \(CustomDictionaryTrainingMerge.maxSamples)"
+        return "\(count) 个样本 · 最多 \(CustomDictionaryTrainingMerge.maxSamples) 个"
     }
 
     private var shouldShowTrainingStatus: Bool {
         self.trainingHasError || (
             !self.trainingStatusMessage.isEmpty &&
-                self.trainingStatusMessage != "Type the correct text."
+                self.trainingStatusMessage != "请输入正确文本。"
         )
     }
 
@@ -70,38 +70,38 @@ struct CustomDictionaryView: View {
 
     private var trainingRecorderTitle: String {
         if self.trainingStopRequestedDuringStart {
-            return "Stopping..."
+            return "正在停止…"
         }
         if self.isTrainingProcessing {
-            return "Working..."
+            return "正在处理…"
         }
         if self.isTrainingStarting {
-            return "Starting..."
+            return "正在启动…"
         }
         if self.isTrainingRecording {
-            return "Listening..."
+            return "正在聆听…"
         }
         if self.normalizedTrainingReplacement.isEmpty {
-            return "Record sample"
+            return "录制示例"
         }
-        return self.trainingVariants.isEmpty ? "Say it once" : "Say it again"
+        return self.trainingVariants.isEmpty ? "说一遍" : "再说一遍"
     }
 
     private var trainingRecorderDetail: String {
         self.normalizedTrainingReplacement.isEmpty
-            ? "Type the correct text first."
-            : "Keep trying until FluidVoice understands you 3 times in a row."
+            ? "请先输入正确文本。"
+            : "请持续尝试，直到 FluidVoice 连续 3 次正确识别。"
     }
 
     private var trainingRecorderStatusText: String {
-        guard !self.lastTrainingOutput.isEmpty else { return "Record to check" }
+        guard !self.lastTrainingOutput.isEmpty else { return "录音以检测" }
         if self.trainingAlreadyCorrectWithoutReplacement {
-            return "Already correct"
+            return "已正确识别"
         }
         if self.trainingFinalOutputIsReady {
-            return "Ready to add"
+            return "已准备就绪"
         }
-        return "\(self.trainingReadinessProgress)/\(CustomDictionaryTrainingMerge.readyCoveredCount) understood"
+        return "\(self.trainingReadinessProgress)/\(CustomDictionaryTrainingMerge.readyCoveredCount) 已识别"
     }
 
     private var trainingRecorderStatusColor: Color {
@@ -176,7 +176,7 @@ struct CustomDictionaryView: View {
     }
 
     private var trainedReplacementButtonTitle: String {
-        self.trainingAlreadyCorrectWithoutReplacement ? "No Replacement Needed" : "Add Replacement"
+        self.trainingAlreadyCorrectWithoutReplacement ? "无需替换" : "添加替换"
     }
 
     private var shouldEmphasizeTrainedReplacementButton: Bool {
@@ -264,9 +264,9 @@ struct CustomDictionaryView: View {
             self.settingsIconTile(systemName: "text.book.closed.fill")
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Custom Dictionary")
+                Text("自定义词典")
                     .font(self.theme.typography.title)
-                Text("Correct recurring mistakes and teach the voice engine the words you use.")
+                Text("纠正反复出现的错误，让语音引擎学习您常用的词汇。")
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(self.theme.palette.secondaryText)
             }
@@ -275,12 +275,12 @@ struct CustomDictionaryView: View {
 
             HStack(spacing: self.theme.metrics.spacing.sm) {
                 Button(action: self.importDictionary) {
-                    Label("Import", systemImage: "square.and.arrow.down")
+                    Label("导入", systemImage: "square.and.arrow.down")
                 }
                 .fluidButton(.compact, size: .compact)
 
                 Button(action: self.exportDictionary) {
-                    Label("Export", systemImage: "square.and.arrow.up")
+                    Label("导出", systemImage: "square.and.arrow.up")
                 }
                 .fluidButton(.compact, size: .compact)
             }
@@ -320,9 +320,9 @@ struct CustomDictionaryView: View {
                     self.settingsIconTile(systemName: "mic.fill")
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Teach Words")
+                        Text("教学单词")
                             .font(self.theme.typography.sectionTitle)
-                        Text("Show FluidVoice the right spelling, by voice or by typing.")
+                        Text("通过语音或手动输入，向 FluidVoice 展示正确的拼写。")
                             .font(self.theme.typography.caption)
                             .foregroundStyle(self.theme.palette.secondaryText)
                     }
@@ -380,7 +380,7 @@ struct CustomDictionaryView: View {
 
     private var trainReplacementComposer: some View {
         VStack(alignment: .leading, spacing: self.theme.metrics.spacing.sm) {
-            TextField("Type the correct text, e.g. FluidVoice", text: self.$trainingReplacement)
+            TextField("输入正确文本，例如 FluidVoice", text: self.$trainingReplacement)
                 .textFieldStyle(.roundedBorder)
                 .disabled(self.isTrainingRecording || self.isTrainingProcessing)
                 .onChange(of: self.trainingReplacement) { oldValue, newValue in
@@ -446,7 +446,7 @@ struct CustomDictionaryView: View {
             }
 
             if !self.manualDuplicateTriggers.isEmpty {
-                Label("Already used: \(self.manualDuplicateTriggers.joined(separator: ", "))", systemImage: "exclamationmark.triangle.fill")
+                Label("已被使用：\(self.manualDuplicateTriggers.joined(separator: ", "))", systemImage: "exclamationmark.triangle.fill")
                     .font(self.theme.typography.caption)
                     .foregroundStyle(self.theme.palette.warning)
             }
@@ -472,7 +472,7 @@ struct CustomDictionaryView: View {
             Button {
                 self.addManualReplacementIfValid()
             } label: {
-                Label("Add Replacement", systemImage: "plus")
+                Label("添加替换", systemImage: "plus")
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
             }
@@ -484,12 +484,12 @@ struct CustomDictionaryView: View {
 
     private var manualTriggerField: some View {
         VStack(alignment: .leading, spacing: self.theme.metrics.spacing.sm) {
-            Text("When FluidVoice hears")
+            Text("当 FluidVoice 听到")
                 .font(self.theme.typography.captionStrong)
             TextField("fluid voice, fluid boys", text: self.$manualTriggersText)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { self.addManualReplacementIfValid() }
-            Text("Separate multiple versions with commas.")
+            Text("多个版本请用逗号分隔。")
                 .font(self.theme.typography.caption)
                 .foregroundStyle(self.theme.palette.secondaryText)
         }
@@ -497,12 +497,12 @@ struct CustomDictionaryView: View {
 
     private var manualReplacementField: some View {
         VStack(alignment: .leading, spacing: self.theme.metrics.spacing.sm) {
-            Text("Change it to")
+            Text("替换为")
                 .font(self.theme.typography.captionStrong)
             TextField("FluidVoice", text: self.$manualReplacement)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { self.addManualReplacementIfValid() }
-            Text("This is what appears in your transcription.")
+            Text("这是最终出现在转录结果中的内容。")
                 .font(self.theme.typography.caption)
                 .foregroundStyle(self.theme.palette.secondaryText)
         }
@@ -527,7 +527,7 @@ struct CustomDictionaryView: View {
                         .foregroundStyle(self.trainingRecorderStatusColor)
                         .lineLimit(1)
 
-                    Text("· \(self.trainingProgressText) recorded")
+                    Text("· 已录制 \(self.trainingProgressText)")
                         .font(self.theme.typography.caption)
                         .foregroundStyle(self.theme.palette.tertiaryText)
                         .lineLimit(1)
@@ -545,7 +545,7 @@ struct CustomDictionaryView: View {
                     }
                 }
             } label: {
-                Label(self.isTrainingRecording ? "Stop" : "Record", systemImage: self.isTrainingRecording ? "stop.fill" : "mic.fill")
+                Label(self.isTrainingRecording ? "停止" : "录音", systemImage: self.isTrainingRecording ? "stop.fill" : "mic.fill")
             }
             .fluidButton(self.isTrainingRecording ? .destructive : .accent, size: .small)
             .disabled(!self.canUseTrainingRecorderButton)
@@ -613,7 +613,7 @@ struct CustomDictionaryView: View {
 
     private var trainingHeardSection: some View {
         HStack(spacing: self.theme.metrics.spacing.sm) {
-            Text("Captured")
+            Text("已捕获")
                 .font(self.theme.typography.captionStrong)
                 .foregroundStyle(self.theme.palette.secondaryText)
 
@@ -654,7 +654,7 @@ struct CustomDictionaryView: View {
     private var trainingFinalOutputPanel: some View {
         HStack(alignment: .center, spacing: self.theme.metrics.spacing.md) {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Final output")
+                Text("最终输出")
                     .font(self.theme.typography.captionStrong)
                     .foregroundStyle(self.theme.palette.secondaryText)
 
@@ -664,7 +664,7 @@ struct CustomDictionaryView: View {
                     .lineLimit(1)
 
                 if !self.lastTrainingOutput.isEmpty, self.lastTrainingOutput.caseInsensitiveCompare(self.trainingFinalOutputText) != .orderedSame {
-                    Text("Heard: \(self.lastTrainingOutput)")
+                    Text("识别为：\(self.lastTrainingOutput)")
                         .font(self.theme.typography.caption)
                         .foregroundStyle(self.theme.palette.tertiaryText)
                         .lineLimit(1)
@@ -705,7 +705,7 @@ struct CustomDictionaryView: View {
                 if self.isTrainingActive || !self.trainingVariants.isEmpty || !self.normalizedTrainingReplacement.isEmpty {
                     Spacer()
 
-                    Button("Clear") {
+                    Button("清除") {
                         self.resetTraining()
                     }
                     .fluidButton(.compact, size: .compact)
@@ -728,7 +728,7 @@ struct CustomDictionaryView: View {
 
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 6) {
-                            Text("Your Dictionary")
+                            Text("我的词典")
                                 .font(self.theme.typography.sectionTitle)
                             if !self.entries.isEmpty {
                                 Text("(\(self.entries.count))")
@@ -736,7 +736,7 @@ struct CustomDictionaryView: View {
                                     .foregroundStyle(self.theme.palette.tertiaryText)
                             }
                         }
-                        Text("Words and phrases FluidVoice will correct automatically.")
+                        Text("FluidVoice 会自动纠正的词汇和短语。")
                             .font(self.theme.typography.caption)
                             .foregroundStyle(self.theme.palette.secondaryText)
                     }
@@ -758,15 +758,15 @@ struct CustomDictionaryView: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .help(self.isDictionaryExpanded ? "Collapse dictionary" : "Expand dictionary")
-                    .accessibilityLabel(self.isDictionaryExpanded ? "Collapse dictionary" : "Expand dictionary")
+                    .help(self.isDictionaryExpanded ? "收起词典" : "展开词典")
+                    .accessibilityLabel(self.isDictionaryExpanded ? "收起词典" : "展开词典")
                 }
 
                 if self.isDictionaryExpanded {
                     if self.entries.isEmpty {
                         self.dictionaryEmptyState(
-                            title: "No replacements yet",
-                            detail: "Use Train Replacement or Manual Add above to create your first one."
+                            title: "暂无替换规则",
+                            detail: "请使用上方的“语音训练”或“手动添加”来创建第一条规则。"
                         )
                         .frame(maxWidth: 760)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -803,7 +803,7 @@ struct CustomDictionaryView: View {
 
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 6) {
-                            Text("Custom Words")
+                            Text("自定义词汇")
                                 .font(self.theme.typography.sectionTitle)
                             if !self.boostTerms.isEmpty {
                                 Text("(\(self.boostTerms.count))")
@@ -811,18 +811,18 @@ struct CustomDictionaryView: View {
                                     .foregroundStyle(self.theme.palette.tertiaryText)
                             }
                         }
-                        Text("Help the Parakeet voice engine recognize names, products, and uncommon terms.")
+                        Text("帮助 Parakeet 语音引擎识别姓名、产品名称及不常见词汇。")
                             .font(self.theme.typography.caption)
                             .foregroundStyle(self.theme.palette.secondaryText)
                     }
 
                     Spacer()
 
-                    Toggle("Boosting", isOn: self.$vocabBoostingEnabled)
+                    Toggle("词汇增强", isOn: self.$vocabBoostingEnabled)
                         .font(self.theme.typography.captionStrong)
                         .toggleStyle(.switch)
                         .controlSize(.mini)
-                        .help("Improve recognition of your custom words when using Parakeet.")
+                        .help("在使用 Parakeet 时提升自定义词汇的识别准确率。")
                         .onChange(of: self.vocabBoostingEnabled) { _, newValue in
                             SettingsStore.shared.vocabularyBoostingEnabled = newValue
                         }
@@ -835,7 +835,7 @@ struct CustomDictionaryView: View {
                             .frame(width: 32, height: 32)
                     }
                     .buttonStyle(SquareIconButtonStyle())
-                    .help("About Vocabulary Boosting")
+                    .help("关于词汇增强")
                     .popover(isPresented: self.$isBoostingInfoPresented, arrowEdge: .top) {
                         self.boostingInfoPopover
                     }
@@ -843,15 +843,15 @@ struct CustomDictionaryView: View {
                     Button {
                         self.showAddBoostSheet = true
                     } label: {
-                        Label("Add Word", systemImage: "plus")
+                        Label("添加单词", systemImage: "plus")
                     }
                     .fluidButton(.accent, size: .small)
                 }
 
                 if self.boostTerms.isEmpty {
                     self.dictionaryEmptyState(
-                        title: "No custom words yet",
-                        detail: "Add a name or term that needs a little extra recognition help."
+                        title: "暂无自定义词汇",
+                        detail: "添加需要额外识别支持的名称或词汇。"
                     ) {
                         self.showAddBoostSheet = true
                     }
@@ -886,19 +886,19 @@ struct CustomDictionaryView: View {
             HStack(spacing: 8) {
                 Image(systemName: "testtube.2")
                     .foregroundStyle(self.theme.palette.accent)
-                Text("Vocabulary Boosting · Alpha")
+                Text("词汇增强 · 内测版")
                     .font(self.theme.typography.bodySmallStrong)
             }
 
-            Text("Vocabulary Boosting is an experimental feature that helps Parakeet recognize your custom words.")
+            Text("词汇增强是一项实验性功能，可帮助 Parakeet 识别您的自定义词汇。")
                 .font(self.theme.typography.caption)
                 .foregroundStyle(self.theme.palette.secondaryText)
 
-            Text("It can add close to a second to transcription time.")
+            Text("启用后可能会使转录时间增加约一秒。")
                 .font(self.theme.typography.caption)
                 .foregroundStyle(self.theme.palette.secondaryText)
 
-            Text("If recognition gets worse, the model behaves unexpectedly, or you notice other issues after enabling it, turn Boosting off.")
+            Text("若启用后识别效果变差、模型表现异常或出现其他问题，请关闭词汇增强。")
                 .font(self.theme.typography.caption)
                 .foregroundStyle(self.theme.palette.secondaryText)
         }
@@ -927,7 +927,7 @@ struct CustomDictionaryView: View {
             if let action {
                 Spacer()
 
-                Button("Add", action: action)
+                Button("添加", action: action)
                     .fluidButton(.compact, size: .compact)
             }
         }
@@ -955,8 +955,8 @@ struct CustomDictionaryView: View {
         self.entries.insert(entry, at: 0)
         self.saveEntries()
         self.showReplacementConfirmation(
-            title: "Replacement added",
-            detail: "It is at the top of the list."
+            title: "已添加替换",
+            detail: "已置于列表顶部。"
         )
     }
 
@@ -998,7 +998,7 @@ struct CustomDictionaryView: View {
             self.isTrainingRecording = false
             self.trainingStopRequestedDuringStart = false
             self.trainingHasError = true
-            self.trainingStatusMessage = "Couldn't start recording. Check microphone access and try again."
+            self.trainingStatusMessage = "无法开始录音，请检查麦克风权限后重试。"
             return
         }
 
@@ -1041,7 +1041,7 @@ struct CustomDictionaryView: View {
             self.lastTrainingOutputIsCovered = false
             self.consecutiveCoveredCaptures = 0
             self.trainingHasError = true
-            self.trainingStatusMessage = "Nothing heard. Try again."
+            self.trainingStatusMessage = "未检测到声音，请重试。"
             return
         }
 
@@ -1054,10 +1054,10 @@ struct CustomDictionaryView: View {
             self.trainingHasError = false
             if self.consecutiveCoveredCaptures >= CustomDictionaryTrainingMerge.readyCoveredCount {
                 self.trainingStatusMessage = self.trainingVariants.isEmpty
-                    ? "Looks good already. No replacement needed."
-                    : "Looks ready. Add this replacement when you're ready."
+                    ? "识别已准确，无需替换。"
+                    : "已准备就绪，可以添加此替换规则。"
             } else {
-                self.trainingStatusMessage = "Covered. Try a couple more."
+                self.trainingStatusMessage = "已覆盖，再试几次。"
             }
             return
         }
@@ -1072,9 +1072,9 @@ struct CustomDictionaryView: View {
             if self.consecutiveCoveredCaptures >= CustomDictionaryTrainingMerge.readyCoveredCount {
                 self.trainingStatusMessage = "Looks ready. Add this replacement when you're ready."
             } else if wasAlreadySaved {
-                self.trainingStatusMessage = "Covered by your dictionary."
+                self.trainingStatusMessage = "已被您的词典覆盖。"
             } else {
-                self.trainingStatusMessage = "Already captured. Try a couple more."
+                self.trainingStatusMessage = "已捕获，再试几次。"
             }
             return
         }
@@ -1083,7 +1083,7 @@ struct CustomDictionaryView: View {
             self.lastTrainingOutputIsCovered = false
             self.consecutiveCoveredCaptures = 0
             self.trainingHasError = false
-            self.trainingStatusMessage = "Max samples reached. Add it or clear one."
+            self.trainingStatusMessage = "已达最大样本数，请添加或清除。"
             return
         }
 
@@ -1094,7 +1094,7 @@ struct CustomDictionaryView: View {
         if self.trainingSampleCount >= CustomDictionaryTrainingMerge.maxSamples || self.trainingVariants.count >= CustomDictionaryTrainingMerge.maxSamples {
             self.trainingStatusMessage = "Max samples reached. Add it or clear one."
         } else {
-            self.trainingStatusMessage = "New pronunciation captured. Add replacement to cover it."
+            self.trainingStatusMessage = "已捕获新发音，请添加替换规则。"
         }
     }
 
@@ -1112,8 +1112,8 @@ struct CustomDictionaryView: View {
         self.saveEntries()
         self.resetTraining()
         self.showReplacementConfirmation(
-            title: updatesExisting ? "Replacement updated" : "Recorded",
-            detail: updatesExisting ? "Your variants are ready." : "Replacement added at the top."
+            title: updatesExisting ? "替换已更新" : "已录制",
+            detail: updatesExisting ? "变体已准备就绪。" : "替换规则已添加至顶部。"
         )
     }
 
@@ -1142,7 +1142,7 @@ struct CustomDictionaryView: View {
         }
     }
 
-    private func resetTraining(statusMessage: String = "Type the correct text.") {
+    private func resetTraining(statusMessage: String = "请输入正确文本。") {
         self.trainingReplacement = ""
         self.trainingVariants = []
         self.trainingSampleCount = 0
@@ -1170,11 +1170,11 @@ struct CustomDictionaryView: View {
         self.consecutiveCoveredCaptures = 0
         self.isTrainingActive = false
         if newKey.isEmpty {
-            self.trainingStatusMessage = "Type the correct text."
+            self.trainingStatusMessage = "请输入正确文本。"
         } else if self.trainingVariants.isEmpty {
             self.trainingStatusMessage = ""
         } else {
-            self.trainingStatusMessage = "Loaded \(self.trainingVariants.count) saved \(self.trainingVariants.count == 1 ? "capture" : "captures")."
+            self.trainingStatusMessage = "已加载 \(self.trainingVariants.count) 个已保存的发音样本。"
         }
         self.trainingHasError = false
     }
@@ -1229,11 +1229,11 @@ struct CustomDictionaryView: View {
     private func loadBoostTerms() {
         do {
             self.boostTerms = try ParakeetVocabularyStore.shared.loadUserBoostTerms()
-            self.boostStatusMessage = "Loaded \(self.boostTerms.count) custom words."
+            self.boostStatusMessage = "已加载 \(self.boostTerms.count) 个自定义词汇。"
             self.boostHasError = false
         } catch {
             self.boostTerms = []
-            self.boostStatusMessage = "Couldn't load custom words: \(error.localizedDescription)"
+            self.boostStatusMessage = "无法加载自定义词汇：\(error.localizedDescription)"
             self.boostHasError = true
         }
     }
@@ -1241,10 +1241,10 @@ struct CustomDictionaryView: View {
     private func saveBoostTerms() {
         do {
             try ParakeetVocabularyStore.shared.saveUserBoostTerms(self.boostTerms)
-            self.boostStatusMessage = "Saved \(self.boostTerms.count) custom words."
+            self.boostStatusMessage = "已保存 \(self.boostTerms.count) 个自定义词汇。"
             self.boostHasError = false
         } catch {
-            self.boostStatusMessage = "Couldn't save custom words: \(error.localizedDescription)"
+            self.boostStatusMessage = "无法保存自定义词汇：\(error.localizedDescription)"
             self.boostHasError = true
         }
     }
@@ -1263,11 +1263,11 @@ struct CustomDictionaryView: View {
             try data.write(to: url, options: .atomic)
 
             self.presentInfoAlert(
-                title: "Dictionary Exported",
-                message: "Saved \(document.replacements.count) replacement rules and \(document.customWords.count) custom words."
+                title: "词典已导出",
+                message: "已保存 \(document.replacements.count) 条替换规则和 \(document.customWords.count) 个自定义词汇。"
             )
         } catch {
-            self.presentErrorAlert(title: "Dictionary Export Failed", message: error.localizedDescription)
+            self.presentErrorAlert(title: "词典导出失败", message: error.localizedDescription)
         }
     }
 
@@ -1290,26 +1290,26 @@ struct CustomDictionaryView: View {
             self.loadBoostTerms()
 
             self.presentInfoAlert(
-                title: "Dictionary Imported",
-                message: "Now using \(summary.replacementCount) replacement rules and \(summary.customWordCount) custom words."
+                title: "词典已导入",
+                message: "现已使用 \(summary.replacementCount) 条替换规则和 \(summary.customWordCount) 个自定义词汇。"
             )
         } catch {
-            self.presentErrorAlert(title: "Dictionary Import Failed", message: error.localizedDescription)
+            self.presentErrorAlert(title: "词典导入失败", message: error.localizedDescription)
         }
     }
 
     private func confirmDictionaryImport(_ document: DictionaryTransferDocument) -> DictionaryTransferImportMode? {
         let confirm = NSAlert()
-        confirm.messageText = "Import this dictionary?"
+        confirm.messageText = "是否导入此词典？"
         confirm.informativeText = """
-        Found \(document.replacements.count) replacement rules and \(document.customWords.count) custom words.
+        发现 \(document.replacements.count) 条替换规则和 \(document.customWords.count) 个自定义词汇。
 
-        Merge adds them to your current dictionary. Replace clears the current dictionary first.
+        "合并"将其添加到当前词典；"替换"会先清空当前词典再导入。
         """
         confirm.alertStyle = .warning
-        confirm.addButton(withTitle: "Merge")
-        confirm.addButton(withTitle: "Replace")
-        confirm.addButton(withTitle: "Cancel")
+        confirm.addButton(withTitle: "合并")
+        confirm.addButton(withTitle: "替换")
+        confirm.addButton(withTitle: "取消")
 
         switch confirm.runModal() {
         case .alertFirstButtonReturn:
@@ -1383,9 +1383,9 @@ private enum DictionaryComposerMode: CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .train:
-            return "Train by Voice"
+            return "语音训练"
         case .manual:
-            return "Add Manually"
+            return "手动添加"
         }
     }
 
@@ -1401,9 +1401,9 @@ private enum DictionaryComposerMode: CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .train:
-            return "Say it a few times so FluidVoice can catch the versions it hears."
+            return "多说几遍，让 FluidVoice 捕捉其识别到的版本。"
         case .manual:
-            return "Type the misheard text and the spelling you want."
+            return "输入误识别文本及您期望的正确拼写。"
         }
     }
 }
@@ -1670,7 +1670,7 @@ private struct TrainingVariantChip: View {
                     .foregroundStyle(self.theme.palette.tertiaryText)
             }
             .buttonStyle(.plain)
-            .help("Remove \(self.variant)")
+            .help("移除 \(self.variant)")
         }
         .frame(maxWidth: 165)
         .padding(.horizontal, 7)
@@ -1724,9 +1724,9 @@ private enum BoostStrengthPreset: String, CaseIterable, Identifiable {
 
     var hint: String {
         switch self {
-        case .mild: return "Very light nudge with minimal impact."
-        case .balanced: return "Best default for most names and product terms."
-        case .strong: return "Use when this word should win more often in noisy audio."
+        case .mild: return "非常轻微的权重调整，影响极小。"
+        case .balanced: return "适合大多数名称和产品词汇的默认选项。"
+        case .strong: return "当需要在嘈杂音频中更频繁地识别此词时使用。"
         }
     }
 
@@ -1780,7 +1780,7 @@ struct BoostTermRow: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(SquareIconButtonStyle())
-                .help("Configure \(self.term.text)")
+                .help("配置 \(self.term.text)")
 
                 Button(role: .destructive) {
                     self.onDelete()
@@ -1790,7 +1790,7 @@ struct BoostTermRow: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(SquareIconButtonStyle(foreground: .red, borderColor: .red))
-                .help("Delete \(self.term.text)")
+                .help("删除 \(self.term.text)")
             }
         }
         .padding(.horizontal, self.theme.metrics.spacing.md)
@@ -1832,11 +1832,11 @@ struct AddBoostTermSheet: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Add Custom Word")
+                Text("添加自定义词汇")
                     .font(.headline)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Preferred Word or Phrase")
+                    Text("首选词汇或短语")
                         .font(.subheadline.weight(.medium))
                     TextField("FluidVoice", text: self.$termText)
                         .textFieldStyle(.roundedBorder)
@@ -1844,9 +1844,9 @@ struct AddBoostTermSheet: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Word Priority")
+                    Text("词汇优先级")
                         .font(.subheadline.weight(.medium))
-                    Picker("Word Priority", selection: self.$strength) {
+                    Picker("词汇优先级", selection: self.$strength) {
                         ForEach(BoostStrengthPreset.allCases) { preset in
                             Text(preset.rawValue).tag(preset)
                         }
@@ -1858,16 +1858,16 @@ struct AddBoostTermSheet: View {
                 }
 
                 if self.isDuplicate {
-                    Text("This term already exists.")
+                    Text("该词汇已存在。")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
 
                 HStack {
-                    Button("Cancel") { self.dismiss() }
+                    Button("取消") { self.dismiss() }
                         .buttonStyle(.bordered)
                     Spacer()
-                    Button("Save") { self.saveIfValid() }
+                    Button("保存") { self.saveIfValid() }
                         .buttonStyle(.borderedProminent)
                         .disabled(!self.canSave)
                         .keyboardShortcut(.return, modifiers: [])
@@ -1924,7 +1924,7 @@ struct EditBoostTermSheet: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Edit Custom Word")
+                Text("编辑自定义词汇")
                     .font(.headline)
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -2028,7 +2028,7 @@ struct DictionaryEntryRow: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(SquareIconButtonStyle())
-                .help("Configure replacement")
+                .help("配置替换规则")
 
                 Button(role: .destructive) {
                     self.onDelete()
@@ -2038,7 +2038,7 @@ struct DictionaryEntryRow: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(SquareIconButtonStyle(foreground: .red, borderColor: .red))
-                .help("Delete replacement")
+                .help("删除替换规则")
             }
         }
         .padding(.horizontal, self.theme.metrics.spacing.md)
@@ -2080,10 +2080,10 @@ struct AddDictionaryEntrySheet: View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
             HStack {
-                Text("Add Dictionary Entry")
+                Text("添加词典条目")
                     .font(.headline)
                 Spacer()
-                Button("Cancel") { self.dismiss() }
+                Button("取消") { self.dismiss() }
                     .buttonStyle(.bordered)
             }
 
@@ -2091,9 +2091,9 @@ struct AddDictionaryEntrySheet: View {
 
             // Triggers input
             VStack(alignment: .leading, spacing: 6) {
-                Text("Misheard Words (triggers)")
+                Text("误识别词汇（触发词）")
                     .font(.subheadline.weight(.medium))
-                Text("Enter words separated by commas. These are what the transcription might hear.")
+                Text("请输入以逗号分隔的词汇，这些是转录可能识别到的内容。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 TextField("fluid voice, fluid boys", text: self.$triggersText)
@@ -2105,7 +2105,7 @@ struct AddDictionaryEntrySheet: View {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
-                        Text("Duplicate triggers: \(self.duplicateTriggers.joined(separator: ", "))")
+                        Text("重复的触发词：\(self.duplicateTriggers.joined(separator: ", "))")
                             .foregroundStyle(.orange)
                     }
                     .font(.caption)
@@ -2114,9 +2114,9 @@ struct AddDictionaryEntrySheet: View {
 
             // Replacement input
             VStack(alignment: .leading, spacing: 6) {
-                Text("Correct Spelling (replacement)")
+                Text("正确拼写（替换）")
                     .font(.subheadline.weight(.medium))
-                Text("This is what will appear in the final transcription.")
+                Text("这是最终出现在转录结果中的内容。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 TextField("FluidVoice", text: self.$replacement)
@@ -2129,7 +2129,7 @@ struct AddDictionaryEntrySheet: View {
             // Preview
             if !self.triggersText.isEmpty && !self.replacement.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Preview")
+                    Text("预览")
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
 
@@ -2172,7 +2172,7 @@ struct AddDictionaryEntrySheet: View {
             // Save button
             HStack {
                 Spacer()
-                Button("Add Replacement") { self.saveIfValid() }
+                Button("添加替换") { self.saveIfValid() }
                     .buttonStyle(.borderedProminent)
                     .tint(self.theme.palette.accent)
                     .disabled(!self.canSave)
@@ -2230,7 +2230,7 @@ struct EditDictionaryEntrySheet: View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
             HStack {
-                Text("Edit Dictionary Entry")
+                Text("编辑词典条目")
                     .font(.headline)
                 Spacer()
                 Button("Cancel") { self.dismiss() }
@@ -2322,7 +2322,7 @@ struct EditDictionaryEntrySheet: View {
             // Save button
             HStack {
                 Spacer()
-                Button("Save Changes") { self.saveIfValid() }
+                Button("保存更改") { self.saveIfValid() }
                     .buttonStyle(.borderedProminent)
                     .tint(self.theme.palette.accent)
                     .disabled(!self.canSave)

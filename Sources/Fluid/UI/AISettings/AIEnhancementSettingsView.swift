@@ -9,9 +9,9 @@ enum AIEnhancementConfigurationSection: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .providers:
-            return "AI Providers"
+            return "AI 服务商"
         case .advancedPrompts:
-            return "Advanced Prompts"
+            return "高级提示词"
         }
     }
 
@@ -110,22 +110,22 @@ struct AIEnhancementSettingsView: View {
                 self.viewModel.presentKeychainAccessAlert(message: self.viewModel.keychainPermissionMessage)
                 self.viewModel.showKeychainPermissionAlert = false
             }
-            .alert("Delete Prompt?", isPresented: self.$viewModel.showingDeletePromptConfirm) {
-                Button("Delete", role: .destructive) {
+            .alert("删除提示词？", isPresented: self.$viewModel.showingDeletePromptConfirm) {
+                Button("删除", role: .destructive) {
                     self.viewModel.deletePendingPrompt()
                 }
-                Button("Cancel", role: .cancel) {
+                Button("取消", role: .cancel) {
                     self.viewModel.clearPendingDeletePrompt()
                 }
             } message: {
                 if self.viewModel.pendingDeletePromptName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text("This cannot be undone.")
+                    Text("此操作无法撤销。")
                 } else {
-                    Text("Delete “\(self.viewModel.pendingDeletePromptName)”? This cannot be undone.")
+                    Text("删除“\(self.viewModel.pendingDeletePromptName)”？此操作无法撤销。")
                 }
             }
             .alert(
-                "Couldn't Add App Override",
+                "无法添加应用覆盖",
                 isPresented: Binding(
                     get: { !self.viewModel.appPromptBindingErrorMessage.isEmpty },
                     set: { isPresented in
@@ -135,7 +135,7 @@ struct AIEnhancementSettingsView: View {
                     }
                 )
             ) {
-                Button("OK", role: .cancel) {
+                Button("好", role: .cancel) {
                     self.viewModel.appPromptBindingErrorMessage = ""
                 }
             } message: {

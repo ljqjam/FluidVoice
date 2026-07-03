@@ -313,24 +313,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 // If we get here, an update was found; SimpleUpdater will relaunch on success
                 // Show a quick heads-up before app restarts
                 self.showUpdateAlert(
-                    title: "Update Found!",
-                    message: "A new version is available and will be installed now."
+                    title: "发现更新！",
+                    message: "新版本即将安装。"
                 )
             } catch {
                 if let pmkError = error as? PMKError, pmkError.isCancelled {
                     DebugLogger.shared.info("App is already up-to-date", source: "AppDelegate")
                     let isBeta = SettingsStore.shared.betaReleasesEnabled
                     self.showUpdateAlert(
-                        title: isBeta ? "No Beta Updates" : "No Updates",
+                        title: isBeta ? "暂无测试版更新" : "已是最新版本",
                         message: isBeta
-                            ? "You're already running the latest build available in the beta channel."
+                            ? "您已运行测试渠道中的最新版本。"
                             : "You're already running the latest version of Fluid!"
                     )
                 } else {
                     DebugLogger.shared.error("Update check failed: \(error)", source: "AppDelegate")
                     self.showUpdateAlert(
-                        title: "Update Check Failed",
-                        message: "Unable to check for updates. Please try again later.\n\nError: \(error.localizedDescription)"
+                        title: "更新检查失败",
+                        message: "无法检查更新，请稍后重试。\n\n错误：\(error.localizedDescription)"
                     )
                 }
             }
@@ -401,11 +401,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         DebugLogger.shared.info("Showing update notification for version \(version)", source: "AppDelegate")
 
         let alert = NSAlert()
-        alert.messageText = "Update Available"
-        alert.informativeText = "FluidVoice \(version) is now available. Would you like to install it now?\n\nThe app will restart automatically after installation."
+        alert.messageText = "发现新版本"
+        alert.informativeText = "FluidVoice \(version) 现已发布，是否立即安装？\n\n安装完成后应用将自动重启。"
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Install Now")
-        alert.addButton(withTitle: "Later")
+        alert.addButton(withTitle: "立即安装")
+        alert.addButton(withTitle: "稍后")
 
         let response = alert.runModal()
 
@@ -426,7 +426,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "好")
         alert.runModal()
     }
 }

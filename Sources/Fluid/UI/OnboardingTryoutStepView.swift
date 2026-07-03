@@ -121,7 +121,7 @@ struct OnboardingTryoutStepView: View {
         if self.exampleTexts.isEmpty {
             return "Say anything you'd want to dictate in \(self.language.displayName)."
         }
-        return "Try this, or say anything you'd want to dictate."
+        return "试试这句话，或说任何你想听写的内容。"
     }
 
     private var hasText: Bool {
@@ -134,16 +134,16 @@ struct OnboardingTryoutStepView: View {
 
     private var placeholderText: String {
         if self.isReady {
-            return "Click here to test FluidVoice"
+            return "点击此处测试 FluidVoice"
         }
-        return self.isRunning ? "Listening..." : "Your dictation will appear here..."
+        return self.isRunning ? "正在聆听..." : "你的听写内容将显示在此处..."
     }
 
     var body: some View {
         VStack(spacing: 12) {
             self.keyboardCard
 
-            Text(self.footerHint ?? "Feels slow or inaccurate? Go back and try another model for \(self.language.displayName).")
+            Text(self.footerHint ?? "感觉速度慢或不准确？返回并为 \(self.language.displayName) 尝试其他模型。")
                 .font(self.theme.typography.captionStrong)
                 .foregroundStyle(Color.white.opacity(0.44))
                 .multilineTextAlignment(.center)
@@ -202,13 +202,13 @@ struct OnboardingTryoutStepView: View {
                 )
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Dictation shortcut \(self.shortcutDisplay). Press once to start. Press again to stop.")
+        .accessibilityLabel("听写快捷键 \(self.shortcutDisplay)。按一次开始，再按一次停止。")
     }
 
     private var changeShortcutButton: some View {
         let shape = Capsule()
         let isEnabled = !self.isRunning
-        let title = self.isRecordingShortcut ? "Cancel" : "Change"
+        let title = self.isRecordingShortcut ? "取消" : "更改"
         let fillOpacity = isEnabled ? (self.isChangeHovered ? 0.11 : 0.07) : 0.045
         let foregroundOpacity = isEnabled ? (self.isChangeHovered ? 0.94 : 0.78) : 0.42
         let ringOpacity = self.isChangeHovered && isEnabled ? 0.50 : 0
@@ -253,7 +253,7 @@ struct OnboardingTryoutStepView: View {
     }
 
     private var actionHintRow: some View {
-        Text("Press once to start. Press again to stop.")
+        Text("按一次开始，再按一次停止。")
             .font(self.theme.typography.captionStrong)
             .foregroundStyle(Color.white.opacity(0.62))
             .multilineTextAlignment(.center)
@@ -276,7 +276,7 @@ struct OnboardingTryoutStepView: View {
                     self.examplePill(example)
                 }
             } else {
-                self.examplePill("Say anything in \(self.language.displayName).")
+                self.examplePill("用 \(self.language.displayName) 说任何内容。")
             }
 
             ZStack(alignment: .topLeading) {
@@ -363,7 +363,7 @@ struct OnboardingTryoutStepView: View {
             )
             .scaleEffect(isPressed ? 0.965 : 1)
             .offset(y: isPressed ? 4 : 0)
-            .accessibilityLabel("Current shortcut \(text)")
+            .accessibilityLabel("当前快捷键 \(text)")
     }
 
     private func examplePill(_ text: String) -> some View {

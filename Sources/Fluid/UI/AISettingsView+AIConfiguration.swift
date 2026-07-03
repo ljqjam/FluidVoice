@@ -94,11 +94,11 @@ extension AIEnhancementSettingsView {
             .frame(width: 34, height: 34)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("AI Enhancement")
+                Text("AI 增强")
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(self.theme.palette.primaryText)
-                Text("Set up providers and prompt behavior separately.")
+                Text("分别配置服务商与提示词行为。")
                     .font(.caption)
                     .foregroundStyle(self.theme.palette.secondaryText)
             }
@@ -170,9 +170,9 @@ extension AIEnhancementSettingsView {
 
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Providers")
+                    Text("服务商")
                         .font(.system(size: 14, weight: .semibold))
-                    Text("Configure local models and API providers.")
+                    Text("配置本地模型和 API 服务商。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -183,7 +183,7 @@ extension AIEnhancementSettingsView {
                     HStack(spacing: 5) {
                         Image(systemName: self.viewModel.showHelp ? "questionmark.circle.fill" : "questionmark.circle")
                             .font(.system(size: 14))
-                        Text("Help")
+                        Text("帮助")
                             .font(.caption)
                             .fontWeight(.medium)
                     }
@@ -211,11 +211,11 @@ extension AIEnhancementSettingsView {
     private var aiSetupSummaryBar: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 12) {
-                self.aiSetupSummaryItem(icon: "cpu", text: "Local models run on Mac")
+                self.aiSetupSummaryItem(icon: "cpu", text: "本地模型在 Mac 上运行")
                 self.aiSetupSummaryDivider
-                self.aiSetupSummaryItem(icon: "cloud", text: "Cloud models use provider APIs")
+                self.aiSetupSummaryItem(icon: "cloud", text: "云端模型使用服务商 API")
                 self.aiSetupSummaryDivider
-                self.aiSetupSummaryItem(icon: "keyboard", text: "Shortcuts choose when prompts run")
+                self.aiSetupSummaryItem(icon: "keyboard", text: "快捷键决定提示词的触发时机")
             }
 
             VStack(alignment: .leading, spacing: 7) {
@@ -254,7 +254,7 @@ extension AIEnhancementSettingsView {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(.orange)
                 .font(.system(size: 16))
-            Text("API key required for AI enhancement to work")
+            Text("AI 增强需要 API 密钥才能正常运行")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.orange)
             Spacer()
@@ -272,16 +272,16 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "lightbulb.fill")
                     .font(.system(size: 14))
                     .foregroundStyle(.yellow)
-                Text("Quick Start Guide")
+                Text("快速入门指南")
                     .font(.system(size: 13, weight: .semibold))
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                self.helpStep("1", "Choose a provider", "building.2")
-                self.helpStep("2", "Add an API key if needed", "key")
-                self.helpStep("3", "Pick the model you want", "cpu")
-                self.helpStep("4", "Verify the connection", "checkmark.shield")
-                self.helpStep("5", "Set Dictate to Off, Default, or a custom prompt", "text.bubble")
+                self.helpStep("1", "选择服务商", "building.2")
+                self.helpStep("2", "按需添加 API 密钥", "key")
+                self.helpStep("3", "选择所需模型", "cpu")
+                self.helpStep("4", "验证连接", "checkmark.shield")
+                self.helpStep("5", "将听写设为关闭、默认或自定义提示词", "text.bubble")
             }
         }
         .padding(14)
@@ -347,7 +347,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "square.grid.2x2")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(self.theme.palette.secondaryText)
-                Text("All providers")
+                Text("全部服务商")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(self.theme.palette.secondaryText)
                 Text("(\(count))")
@@ -359,7 +359,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
-                TextField("Search providers", text: self.$providerSearchText)
+                TextField("搜索服务商", text: self.$providerSearchText)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12))
             }
@@ -381,7 +381,7 @@ extension AIEnhancementSettingsView {
                                 .id(item.id)
                         }
                         if filteredItems.isEmpty, !query.isEmpty {
-                            Text("No providers match \"\(query)\"")
+                            Text("没有匹配 \"\(query)\" 的服务商")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .padding(.vertical, 12)
@@ -420,7 +420,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Color.fluidGreen)
-                Text("Verified providers")
+                Text("已验证服务商")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(self.theme.palette.secondaryText)
                 Text("(\(count))")
@@ -434,10 +434,10 @@ extension AIEnhancementSettingsView {
                         .font(.system(size: 14))
                         .foregroundStyle(.secondary)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("No verified providers yet")
+                        Text("暂无已验证的服务商")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(.secondary)
-                        Text("Set up a provider below and verify its connection")
+                        Text("请在下方配置服务商并验证连接")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
@@ -619,20 +619,20 @@ extension AIEnhancementSettingsView {
 
     private func providerStatus(for item: ProviderItem) -> (text: String, color: Color, icon: String) {
         if item.id == "apple-intelligence-disabled" {
-            return ("Unavailable", .secondary, "lock.slash")
+            return ("不可用", .secondary, "lock.slash")
         }
         if item.id == "apple-intelligence" {
-            return ("On-device", .secondary, "lock.shield")
+            return ("本地运行", .secondary, "lock.shield")
         }
         switch self.viewModel.connectionStatus(for: item.id) {
         case .success:
-            return ("Connection verified", Color.fluidGreen, "checkmark.circle.fill")
+            return ("连接已验证", Color.fluidGreen, "checkmark.circle.fill")
         case .failed:
-            return ("Connection failed", .red, "exclamationmark.circle.fill")
+            return ("连接失败", .red, "exclamationmark.circle.fill")
         case .testing:
-            return ("Verifying...", self.theme.palette.accent, "arrow.triangle.2.circlepath")
+            return ("验证中...", self.theme.palette.accent, "arrow.triangle.2.circlepath")
         case .unknown:
-            return ("Connection not tested", .orange, "exclamationmark.circle.fill")
+            return ("连接未测试", .orange, "exclamationmark.circle.fill")
         }
     }
 
@@ -667,7 +667,7 @@ extension AIEnhancementSettingsView {
 
         return VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Text("Model")
+                Text("模型")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                     .frame(width: 50, alignment: .leading)
@@ -680,7 +680,7 @@ extension AIEnhancementSettingsView {
                     controlHeight: AISettingsLayout.providerRowControlHeight
                 )
 
-                self.companionIconButton(systemName: "folder", help: "Open downloaded model folder") {
+                self.companionIconButton(systemName: "folder", help: "打开已下载模型的文件夹") {
                     self.revealPrivateAIModelFolder()
                 }
             }
@@ -724,7 +724,7 @@ extension AIEnhancementSettingsView {
                                     .controlSize(.mini)
                                     .fixedSize()
                             }
-                            Text(isDownloading ? Self.downloadButtonText(progress: downloadProgress) : "Download & Verify")
+                            Text(isDownloading ? Self.downloadButtonText(progress: downloadProgress) : "下载并验证")
                                 .font(.system(size: 11, weight: .semibold))
                         }
                     }
@@ -734,7 +734,7 @@ extension AIEnhancementSettingsView {
                     HStack(spacing: 6) {
                         Image(systemName: "info.circle")
                             .font(.caption)
-                        Text("Install the selected model to enable verification")
+                        Text("请安装所选模型以启用验证")
                             .font(.caption)
                     }
                     .foregroundStyle(.secondary)
@@ -747,7 +747,7 @@ extension AIEnhancementSettingsView {
                                 .controlSize(.mini)
                                 .fixedSize()
                         }
-                        Text(isTesting ? "Loading..." : "Verify")
+                        Text(isTesting ? "加载中..." : "验证")
                             .font(.system(size: 11, weight: .semibold))
                     }
                 }
@@ -928,7 +928,7 @@ extension AIEnhancementSettingsView {
 
     private func downloadPrivateAIModel(_ model: PrivateAIRegisteredModel) {
         guard model.canDownload else {
-            self.privateAILoadState = .failed(modelID: model.id, message: "Download URL is not configured yet.")
+            self.privateAILoadState = .failed(modelID: model.id, message: "下载链接尚未配置。")
             return
         }
 
@@ -963,7 +963,7 @@ extension AIEnhancementSettingsView {
                     self.privateAILoadState = .loaded(modelID: model.id, latencyMilliseconds: latencyMilliseconds)
                 } else {
                     let message = self.viewModel.connectionErrorMessage.isEmpty
-                        ? "Model downloaded, but verification failed."
+                        ? "模型已下载，但验证失败。"
                         : self.viewModel.connectionErrorMessage
                     self.privateAILoadState = .failed(modelID: model.id, message: message)
                 }
@@ -989,7 +989,7 @@ extension AIEnhancementSettingsView {
                 self.privateAILoadState = .loaded(modelID: model.id, latencyMilliseconds: latencyMilliseconds)
             } else {
                 let message = self.viewModel.connectionErrorMessage.isEmpty
-                    ? "Model verification failed."
+                    ? "模型验证失败。"
                     : self.viewModel.connectionErrorMessage
                 self.privateAILoadState = .failed(modelID: model.id, message: message)
             }
@@ -1012,21 +1012,21 @@ extension AIEnhancementSettingsView {
     ) -> PrivateAIProviderModelStatus {
         if self.privateAILoadState.isDownloading(model.id) {
             return PrivateAIProviderModelStatus(
-                detail: "Downloading model.",
+                detail: "正在下载模型。",
                 color: self.theme.palette.accent
             )
         }
 
         if self.privateAILoadState.isLoading(model.id) {
             return PrivateAIProviderModelStatus(
-                detail: "Loading...",
+                detail: "加载中...",
                 color: self.theme.palette.accent
             )
         }
 
         if self.privateAILoadState.isLoaded(model.id) {
             return PrivateAIProviderModelStatus(
-                detail: "Dictation-only model.",
+                detail: "仅限听写的模型。",
                 color: Color.fluidGreen
             )
         }
@@ -1047,27 +1047,27 @@ extension AIEnhancementSettingsView {
 
         if PrivateAIIntegrationService.isModelInstalled(model) {
             return PrivateAIProviderModelStatus(
-                detail: "Ready to verify.",
+                detail: "准备验证。",
                 color: Color.fluidGreen
             )
         }
 
         if PrivateAIIntegrationService.isLocalRuntimeConfigured {
             return PrivateAIProviderModelStatus(
-                detail: "Local model configured.",
+                detail: "本地模型已配置。",
                 color: Color.fluidGreen
             )
         }
 
         if model.canDownload {
             return PrivateAIProviderModelStatus(
-                detail: "Model not downloaded.",
+                detail: "模型尚未下载。",
                 color: self.theme.palette.accent
             )
         }
 
         return PrivateAIProviderModelStatus(
-            detail: "Model unavailable.",
+            detail: "模型不可用。",
             color: .orange
         )
     }
@@ -1100,7 +1100,7 @@ extension AIEnhancementSettingsView {
 
     private func loadPrivateAIModel(_ model: PrivateAIRegisteredModel) {
         guard PrivateAIIntegrationService.isModelInstalled(model) else {
-            self.privateAILoadState = .failed(modelID: model.id, message: "Model file is not installed.")
+            self.privateAILoadState = .failed(modelID: model.id, message: "模型文件未安装。")
             return
         }
 
@@ -1117,7 +1117,7 @@ extension AIEnhancementSettingsView {
                 default:
                     self.privateAILoadState = .failed(
                         modelID: model.id,
-                        message: status.message ?? "Model did not report ready."
+                        message: status.message ?? "模型未报告就绪。"
                     )
                 }
             } catch {
@@ -1223,7 +1223,7 @@ extension AIEnhancementSettingsView {
                     Image(systemName: "lock.slash")
                         .font(.system(size: 14))
                         .foregroundStyle(.secondary)
-                    Text("Apple Intelligence is unavailable on this device. Enable it in System Settings → Apple Intelligence & Siri.")
+                    Text("此设备上 Apple Intelligence 不可用。请在系统设置 → Apple Intelligence 与 Siri 中启用。")
                         .font(.system(size: 13))
                         .foregroundStyle(.secondary)
                 }
@@ -1275,7 +1275,7 @@ extension AIEnhancementSettingsView {
                         Image(systemName: "lock.shield.fill")
                             .font(.system(size: 14))
                             .foregroundStyle(Color.fluidGreen)
-                        Text("Apple Intelligence runs on-device and does not require an API key.")
+                        Text("Apple Intelligence 在本地运行，无需 API 密钥。")
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                     }
@@ -1284,7 +1284,7 @@ extension AIEnhancementSettingsView {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 14))
                             .foregroundStyle(.orange)
-                        Text("Output quality can be poor and inconsistent. Use it at your discretion.")
+                        Text("输出质量可能较差且不稳定，请酌情使用。")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(.secondary)
                     }
@@ -1300,7 +1300,7 @@ extension AIEnhancementSettingsView {
                         )
                 )
                 if !isVerified {
-                    Button("Verify") {
+                    Button("验证") {
                         self.viewModel.verifyAppleIntelligence()
                     }
                     .fluidButton(.glass, size: .compact)
@@ -1312,11 +1312,11 @@ extension AIEnhancementSettingsView {
                             Image(systemName: "textformat")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text("Provider Name")
+                            Text("服务商名称")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
-                        TextField("Custom Provider", text: nameBinding)
+                        TextField("自定义服务商", text: nameBinding)
                             .textFieldStyle(.roundedBorder)
                             .font(.system(size: 13))
                     }
@@ -1326,7 +1326,7 @@ extension AIEnhancementSettingsView {
                             Image(systemName: "link")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text("Base URL")
+                            Text("基础 URL")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
@@ -1337,11 +1337,11 @@ extension AIEnhancementSettingsView {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("API Key")
+                    Text("API 密钥")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
                     HStack(alignment: .center, spacing: 8) {
-                        SecureField("Enter API key", text: apiKeyBinding)
+                        SecureField("输入你的 API 密钥", text: apiKeyBinding)
                             .textFieldStyle(.roundedBorder)
                             .font(.system(size: 13))
                             .frame(maxWidth: 200)
@@ -1372,7 +1372,7 @@ extension AIEnhancementSettingsView {
                 }
 
                 HStack(spacing: 8) {
-                    Text("Model")
+                    Text("模型")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
                         .frame(width: 50, alignment: .leading)
@@ -1389,7 +1389,7 @@ extension AIEnhancementSettingsView {
                         isRefreshing: isRefreshing,
                         disabled: isRefreshing || !canFetchModels,
                         opacity: canFetchModels ? 1 : 0.45,
-                        help: "Refresh model list"
+                        help: "刷新模型列表"
                     ) {
                         self.activateProvider(item.id)
                         Task { await self.viewModel.fetchModelsForCurrentProvider() }
@@ -1441,7 +1441,7 @@ extension AIEnhancementSettingsView {
                                 Image(systemName: "checkmark.shield")
                                     .font(.system(size: 12))
                             }
-                            Text(self.viewModel.isTestingConnection ? "Verifying..." : "Verify Connection")
+                            Text(self.viewModel.isTestingConnection ? "验证中..." : "验证连接")
                                 .font(.system(size: 13, weight: .semibold))
                         }
                     }
@@ -1451,7 +1451,7 @@ extension AIEnhancementSettingsView {
                     HStack(spacing: 6) {
                         Image(systemName: "info.circle")
                             .font(.caption)
-                        Text(hasModels ? "Select a model to enable verification" : "Refresh models to enable verification")
+                        Text(hasModels ? "选择模型以启用验证" : "刷新模型以启用验证")
                             .font(.caption)
                     }
                     .foregroundStyle(.secondary)
@@ -1467,7 +1467,7 @@ extension AIEnhancementSettingsView {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "trash")
-                            Text("Delete Provider")
+                            Text("删除服务商")
                         }
                         .font(.caption)
                     }
@@ -1520,10 +1520,10 @@ extension AIEnhancementSettingsView {
                 .frame(width: 40, height: 40)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Add Custom Provider")
+                    Text("添加自定义服务商")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(self.theme.palette.primaryText)
-                    Text("OpenAI-compatible endpoint")
+                    Text("兼容 OpenAI 的接口")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -1607,7 +1607,7 @@ extension AIEnhancementSettingsView {
                         .foregroundStyle(Color.fluidGreen)
 
                     if isSelected {
-                        Text("Active")
+                        Text("使用中")
                             .font(.caption2)
                             .fontWeight(.semibold)
                             .padding(.horizontal, 8)
@@ -1686,13 +1686,13 @@ extension AIEnhancementSettingsView {
                                 self.viewModel.setEditingAPIKey(true, for: item.id)
                             }
                         }) {
-                            Text("Edit")
+                            Text("编辑")
                                 .font(.system(size: 12, weight: .semibold))
                                 .frame(width: actionColumnWidth, height: AISettingsLayout.providerRowControlHeight)
                         }
                         .buttonStyle(SquareIconButtonStyle())
                         .frame(width: actionColumnWidth, height: AISettingsLayout.providerRowControlHeight)
-                        .help("Edit provider")
+                        .help("编辑服务商")
                     }
                 }
                 .fixedSize(horizontal: true, vertical: false)
@@ -1926,7 +1926,7 @@ extension AIEnhancementSettingsView {
             foreground: hasEnabledConfig ? self.theme.palette.accent : nil,
             borderColor: hasEnabledConfig ? self.theme.palette.accent.opacity(0.6) : nil
         ))
-        .help("Configure reasoning parameters")
+        .help("配置推理参数")
     }
 
     var promptsStepContent: some View {
@@ -1935,7 +1935,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "text.bubble.fill")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(self.theme.palette.accent)
-                Text("Advanced Prompts")
+                Text("高级提示词")
                     .font(.system(size: 14, weight: .semibold))
                     .lineLimit(1)
                     .truncationMode(.tail)
@@ -1950,7 +1950,7 @@ extension AIEnhancementSettingsView {
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .help("About prompt profiles")
+                .help("关于提示词配置文件")
                 .popover(isPresented: self.$isPromptProfilesHelpPresented, arrowEdge: .top) {
                     self.promptProfilesHelpPopover
                 }
@@ -2155,7 +2155,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "pencil.circle.fill")
                     .font(.system(size: 14))
                     .foregroundStyle(self.theme.palette.accent)
-                Text("Edit Provider")
+                Text("编辑服务商")
                     .font(.system(size: 14, weight: .semibold))
                 Spacer()
             }
@@ -2168,11 +2168,11 @@ extension AIEnhancementSettingsView {
                                 Image(systemName: "textformat")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                Text("Name")
+                                Text("名称")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundStyle(.secondary)
                             }
-                            TextField("Provider name", text: self.$viewModel.editProviderName)
+                            TextField("服务商名称", text: self.$viewModel.editProviderName)
                                 .textFieldStyle(.roundedBorder)
                                 .font(.system(size: 13))
                         }
@@ -2183,11 +2183,11 @@ extension AIEnhancementSettingsView {
                                 Image(systemName: "link")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                Text("Base URL")
+                                Text("基础 URL")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundStyle(.secondary)
                             }
-                            TextField("e.g., http://localhost:11434/v1", text: self.$viewModel.editProviderBaseURL)
+                            TextField("例如：http://localhost:11434/v1", text: self.$viewModel.editProviderBaseURL)
                                 .textFieldStyle(.roundedBorder)
                                 .font(.system(size: 13, design: .monospaced))
                         }
@@ -2199,12 +2199,12 @@ extension AIEnhancementSettingsView {
                         Image(systemName: "key")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text("API Key")
+                        Text("API 密钥")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.secondary)
                     }
                     HStack(alignment: .center, spacing: 8) {
-                        SecureField("Enter API key", text: apiKeyBinding)
+                        SecureField("输入你的 API 密钥", text: apiKeyBinding)
                             .textFieldStyle(.roundedBorder)
                             .font(.system(size: 13))
                             .frame(maxWidth: 200)
@@ -2247,7 +2247,7 @@ extension AIEnhancementSettingsView {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Save")
+                        Text("保存")
                     }
                 }
                 .fluidButton(.glass, size: .compact)
@@ -2255,7 +2255,7 @@ extension AIEnhancementSettingsView {
                     (self.viewModel.editProviderName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
                         self.viewModel.editProviderBaseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
 
-                Button("Cancel") {
+                Button("取消") {
                     self.viewModel.clearEditProviderDraft()
                 }
                 .fluidButton(.compact, size: .compact)
@@ -2263,7 +2263,7 @@ extension AIEnhancementSettingsView {
 
             HStack(spacing: 10) {
                 if isVerified {
-                    Button("Reset Verification") {
+                    Button("重置验证") {
                         self.viewModel.resetVerification(for: self.viewModel.selectedProviderID)
                         self.viewModel.clearEditProviderDraft()
                     }
@@ -2278,7 +2278,7 @@ extension AIEnhancementSettingsView {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "trash")
-                            Text("Delete Provider")
+                            Text("删除服务商")
                         }
                         .font(.caption)
                     }
@@ -2309,10 +2309,10 @@ extension AIEnhancementSettingsView {
     var appleIntelligenceBadge: some View {
         HStack(spacing: 8) {
             Image(systemName: "apple.logo").font(.system(size: 14))
-            Text("On-Device").fontWeight(.medium)
+            Text("本地运行").fontWeight(.medium)
             Text("•").foregroundStyle(.secondary)
             Image(systemName: "lock.shield.fill").font(.system(size: 12))
-            Text("Private").fontWeight(.medium)
+            Text("隐私").fontWeight(.medium)
         }
         .font(.caption).foregroundStyle(Color.fluidGreen)
         .padding(.horizontal, 12).padding(.vertical, 8)
@@ -2325,8 +2325,8 @@ extension AIEnhancementSettingsView {
 
     var appleIntelligenceModelRow: some View {
         HStack(spacing: 12) {
-            self.formLabel("Model:")
-            Text("System Language Model").foregroundStyle(.secondary).font(.system(.body))
+            self.formLabel("模型：")
+            Text("系统语言模型").foregroundStyle(.secondary).font(.system(.body))
             Spacer()
         }
     }
@@ -2347,14 +2347,14 @@ extension AIEnhancementSettingsView {
 
             if !ModelRepository.shared.isBuiltIn(self.viewModel.selectedProviderID) {
                 Button(action: { self.viewModel.deleteSelectedModel() }) {
-                    HStack(spacing: 4) { Image(systemName: "trash"); Text("Delete") }.font(.caption)
+                    HStack(spacing: 4) { Image(systemName: "trash"); Text("删除") }.font(.caption)
                 }
                 .fluidCompactButton(foreground: .red, borderColor: .red.opacity(0.6))
                 .frame(minWidth: AISettingsLayout.compactActionMinWidth, minHeight: AISettingsLayout.controlHeight)
             }
 
             if !self.viewModel.showingAddModel {
-                Button("+ Add Model") {
+                Button("+ 添加模型") {
                     self.viewModel.showingAddModel = true
                     self.viewModel.newModelName = ""
                 }
@@ -2365,7 +2365,7 @@ extension AIEnhancementSettingsView {
             Button(action: { self.viewModel.openReasoningConfig() }) {
                 HStack(spacing: 4) {
                     Image(systemName: self.viewModel.hasReasoningConfigForCurrentModel() ? "brain.fill" : "brain")
-                    Text("Reasoning")
+                    Text("推理")
                 }
                 .font(.caption)
             }
@@ -2383,18 +2383,18 @@ extension AIEnhancementSettingsView {
 
     var addModelSection: some View {
         HStack(spacing: 8) {
-            TextField("Enter model name", text: self.$viewModel.newModelName)
+            TextField("输入模型名称", text: self.$viewModel.newModelName)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit {
                     if !self.viewModel.newModelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         self.viewModel.addNewModel()
                     }
                 }
-            Button("Add") { self.viewModel.addNewModel() }
+            Button("添加") { self.viewModel.addNewModel() }
                 .fluidCompactButton(isReady: true)
                 .frame(minWidth: AISettingsLayout.compactActionMinWidth, minHeight: AISettingsLayout.controlHeight)
                 .disabled(self.viewModel.newModelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            Button("Cancel") {
+            Button("取消") {
                 self.viewModel.showingAddModel = false
                 self.viewModel.newModelName = ""
             }
@@ -2410,7 +2410,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "brain.head.profile")
                     .font(.system(size: 14))
                     .foregroundStyle(self.theme.palette.accent)
-                Text("Reasoning for \(self.viewModel.selectedModel)")
+                Text("\(self.viewModel.selectedModel) 的推理配置")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(self.theme.palette.primaryText)
                 Spacer()
@@ -2420,14 +2420,14 @@ extension AIEnhancementSettingsView {
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .help("Close")
+                .help("关闭")
             }
 
             HStack(spacing: 16) {
                 Toggle("", isOn: self.$viewModel.editingReasoningEnabled)
                     .toggleStyle(.switch)
                     .controlSize(.small)
-                Text(self.viewModel.editingReasoningEnabled ? "Enabled" : "Disabled")
+                Text(self.viewModel.editingReasoningEnabled ? "已启用" : "已禁用")
                     .font(.caption)
                     .foregroundStyle(self.viewModel.editingReasoningEnabled ? self.theme.palette.accent : .secondary)
             }
@@ -2436,7 +2436,7 @@ extension AIEnhancementSettingsView {
                 VStack(alignment: .leading, spacing: 8) {
                     // Parameter type picker
                     HStack(spacing: 12) {
-                        Text("Parameter")
+                        Text("参数")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .frame(width: 70, alignment: .trailing)
@@ -2471,7 +2471,7 @@ extension AIEnhancementSettingsView {
                         )) {
                             Text("reasoning_effort").tag("reasoning_effort")
                             Text("enable_thinking").tag("enable_thinking")
-                            Text("Custom...").tag("custom")
+                            Text("自定义...").tag("custom")
                         }
                         .pickerStyle(.menu)
                         .labelsHidden()
@@ -2483,11 +2483,11 @@ extension AIEnhancementSettingsView {
                         self.viewModel.editingReasoningParamName != "enable_thinking"
                     {
                         HStack(spacing: 12) {
-                            Text("Name")
+                            Text("名称")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 70, alignment: .trailing)
-                            TextField("e.g., thinking_budget", text: self.$viewModel.editingReasoningParamName)
+                            TextField("例如：thinking_budget", text: self.$viewModel.editingReasoningParamName)
                                 .textFieldStyle(.roundedBorder)
                                 .font(.caption)
                                 .frame(width: 140)
@@ -2496,7 +2496,7 @@ extension AIEnhancementSettingsView {
 
                     // Value picker/field
                     HStack(spacing: 12) {
-                        Text("Value")
+                        Text("值")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .frame(width: 70, alignment: .trailing)
@@ -2521,7 +2521,7 @@ extension AIEnhancementSettingsView {
                             .labelsHidden()
                             .frame(width: 100)
                         } else {
-                            TextField("value", text: self.$viewModel.editingReasoningParamValue)
+                            TextField("值", text: self.$viewModel.editingReasoningParamValue)
                                 .textFieldStyle(.roundedBorder)
                                 .font(.caption)
                                 .frame(width: 100)
@@ -2533,13 +2533,13 @@ extension AIEnhancementSettingsView {
 
             HStack(spacing: 8) {
                 Button(action: { self.saveReasoningConfig() }) {
-                    Text("Save")
+                    Text("保存")
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .fluidButton(.accent, size: .small)
                 .frame(minWidth: 60, minHeight: 26)
 
-                Button("Cancel") { self.viewModel.showingReasoningConfig = false }
+                Button("取消") { self.viewModel.showingReasoningConfig = false }
                     .fluidButton(.compact, size: .compact)
                     .font(.system(size: 12))
                     .frame(minWidth: 60, minHeight: 26)
@@ -2568,7 +2568,7 @@ extension AIEnhancementSettingsView {
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
                 Button(action: { Task { await self.viewModel.testAPIConnection() } }) {
-                    Text(self.viewModel.isTestingConnection ? "Verifying..." : "Verify Connection")
+                    Text(self.viewModel.isTestingConnection ? "验证中..." : "验证连接")
                         .font(.caption)
                         .fontWeight(.semibold)
                 }
@@ -2583,13 +2583,13 @@ extension AIEnhancementSettingsView {
             if self.viewModel.connectionStatus == .success {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.fluidGreen).font(.caption)
-                    Text("Connection verified").font(.caption).foregroundStyle(Color.fluidGreen)
+                    Text("连接已验证").font(.caption).foregroundStyle(Color.fluidGreen)
                 }
             } else if self.viewModel.connectionStatus == .failed {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.red).font(.caption)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Connection failed").font(.caption).foregroundStyle(.red)
+                        Text("连接失败").font(.caption).foregroundStyle(.red)
                         if !self.viewModel.connectionErrorMessage.isEmpty {
                             Text(self.viewModel.connectionErrorMessage)
                                 .font(.caption2)
@@ -2601,7 +2601,7 @@ extension AIEnhancementSettingsView {
             } else if self.viewModel.connectionStatus == .testing {
                 HStack(spacing: 8) {
                     ProgressView().frame(width: 16, height: 16)
-                    Text("Verifying...").font(.caption).foregroundStyle(self.theme.palette.accent)
+                    Text("验证中...").font(.caption).foregroundStyle(self.theme.palette.accent)
                 }
             }
 
@@ -2616,7 +2616,7 @@ extension AIEnhancementSettingsView {
     var apiKeyManagementRow: some View {
         HStack(spacing: 8) {
             Button(action: { self.viewModel.handleAPIKeyButtonTapped() }) {
-                Label("Add or Modify API Key", systemImage: "key.fill")
+                Label("添加或修改 API 密钥", systemImage: "key.fill")
                     .labelStyle(.titleAndIcon).font(.caption)
             }
             .fluidCompactButton(isReady: true)
@@ -2637,18 +2637,18 @@ extension AIEnhancementSettingsView {
 
     var apiKeyEditorSheet: some View {
         VStack(spacing: 14) {
-            Text("Enter \(self.viewModel.providerDisplayName(for: self.viewModel.selectedProviderID)) API Key")
+            Text("输入 \(self.viewModel.providerDisplayName(for: self.viewModel.selectedProviderID)) 的 API 密钥")
                 .font(.headline)
-            SecureField("API Key (optional for local endpoints)", text: self.$viewModel.newProviderApiKey)
+            SecureField("API 密钥（本地接口可选填）", text: self.$viewModel.newProviderApiKey)
                 .textFieldStyle(.roundedBorder).frame(width: 300)
                 .onTapGesture {
                     self.viewModel.ensureKeychainAccessForAPIKeyEdit()
                 }
             HStack(spacing: 12) {
-                Button("Cancel") { self.viewModel.showAPIKeyEditor = false }
+                Button("取消") { self.viewModel.showAPIKeyEditor = false }
                     .fluidButton(.compact, size: .compact)
                     .frame(minWidth: AISettingsLayout.actionMinWidth, minHeight: AISettingsLayout.controlHeight)
-                Button("OK") {
+                Button("确定") {
                     let trimmedKey = self.viewModel.newProviderApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
                     self.viewModel.updateProviderAPIKey(trimmedKey, for: self.viewModel.selectedProviderID)
                     guard self.viewModel.saveProviderAPIKeys() else { return }
@@ -2674,7 +2674,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 14))
                     .foregroundStyle(self.theme.palette.accent)
-                Text("Add Custom Provider")
+                Text("添加自定义服务商")
                     .font(.system(size: 14, weight: .semibold))
             }
 
@@ -2684,7 +2684,7 @@ extension AIEnhancementSettingsView {
                         Image(systemName: "link")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text("OpenAI-compatible base URL")
+                        Text("兼容 OpenAI 的基础 URL")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.secondary)
                     }
@@ -2698,11 +2698,11 @@ extension AIEnhancementSettingsView {
                         Image(systemName: "key")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text("API Key (optional for local endpoints)")
+                        Text("API 密钥（本地接口可选填）")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.secondary)
                     }
-                    SecureField("Enter API key", text: self.$viewModel.newProviderApiKey)
+                    SecureField("输入你的 API 密钥", text: self.$viewModel.newProviderApiKey)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(size: 13))
                         .onTapGesture {
@@ -2716,13 +2716,13 @@ extension AIEnhancementSettingsView {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Save Provider")
+                        Text("保存服务商")
                     }
                 }
                 .fluidButton(.glass, size: .compact)
                 .disabled(self.viewModel.newProviderBaseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
-                Button("Cancel") {
+                Button("取消") {
                     self.viewModel.showingSaveProvider = false
                     self.viewModel.newProviderName = ""
                     self.viewModel.newProviderBaseURL = ""

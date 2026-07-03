@@ -25,7 +25,7 @@ struct RewriteModeView: View {
                 Image(systemName: "pencil.and.outline")
                     .font(.title2)
                     .foregroundStyle(self.theme.palette.accent)
-                Text("Edit Mode")
+                Text("编辑模式")
                     .font(.title2)
                     .fontWeight(.bold)
 
@@ -44,7 +44,7 @@ struct RewriteModeView: View {
                 Image(systemName: "info.circle")
                     .font(.caption)
                     .foregroundStyle(self.theme.palette.secondaryText)
-                Text("Edit Mode is powered by Custom Prompts.")
+                Text("编辑模式由自定义提示词驱动。")
                     .font(.caption)
                     .foregroundStyle(self.theme.palette.secondaryText)
                 Spacer(minLength: 0)
@@ -64,13 +64,13 @@ struct RewriteModeView: View {
                     if !self.service.originalText.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Text("Original Text")
+                                Text("原始文本")
                                     .font(.caption)
                                     .fontWeight(.bold)
                                     .foregroundStyle(.secondary)
                                 Spacer()
                                 if !self.service.rewrittenText.isEmpty {
-                                    Button(self.showOriginal ? "Hide" : "Show") {
+                                    Button(self.showOriginal ? "隐藏" : "显示") {
                                         withAnimation { self.showOriginal.toggle() }
                                     }
                                     .font(.caption)
@@ -92,14 +92,14 @@ struct RewriteModeView: View {
                             Image(systemName: "text.bubble")
                                 .font(.system(size: 48))
                                 .foregroundStyle(self.theme.palette.accent)
-                            Text("Edit Mode")
+                            Text("编辑模式")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                            Text("Ask the AI to write anything for you - emails, replies, summaries, answers, and more.")
+                            Text("让 AI 为你撰写任何内容——邮件、回复、摘要、解答等。")
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
 
-                            Text("Or select text first to rewrite existing content.")
+                            Text("或先选中文本，再改写已有内容。")
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                                 .multilineTextAlignment(.center)
@@ -112,7 +112,7 @@ struct RewriteModeView: View {
                     // Rewritten Text Section
                     if !self.service.rewrittenText.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Rewritten Text")
+                            Text("改写结果")
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundStyle(self.theme.palette.accent)
@@ -125,14 +125,14 @@ struct RewriteModeView: View {
                                 .textSelection(.enabled)
 
                             HStack {
-                                Button("Try Again") {
+                                Button("重试") {
                                     self.service.rewrittenText = ""
                                 }
                                 .buttonStyle(.bordered)
 
                                 Spacer()
 
-                                Button("Replace Original") {
+                                Button("替换原文") {
                                     self.service.acceptRewrite()
                                     self.onClose?()
                                 }
@@ -208,8 +208,8 @@ struct RewriteModeView: View {
                 // Input field (flexible)
                 TextField(
                     self.service.originalText.isEmpty
-                        ? "Ask me to write or edit..."
-                        : "How should I edit this?",
+                        ? "让我来写或编辑..."
+                        : "如何编辑这段内容？",
                     text: self.$inputText
                 )
                 .textFieldStyle(.roundedBorder)
@@ -348,7 +348,7 @@ struct RewriteModeView: View {
                 HStack {
                     Image(systemName: "questionmark.circle")
                         .font(.caption)
-                    Text("How to use")
+                    Text("使用方法")
                         .font(.caption)
                     Spacer()
                     Image(systemName: self.showHowTo ? "chevron.up" : "chevron.down")
@@ -369,13 +369,13 @@ struct RewriteModeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     // Create new text
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Create New Text")
+                        Text("创建新文本")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
 
                         HStack(spacing: 4) {
-                            Text("Press")
+                            Text("按")
                                 .font(.caption)
                             Text(self.shortcutDisplay)
                                 .font(.caption)
@@ -384,24 +384,24 @@ struct RewriteModeView: View {
                                 .padding(.vertical, 2)
                                 .background(self.theme.palette.cardBackground.opacity(0.8))
                                 .cornerRadius(4)
-                            Text("and speak what you want to write.")
+                            Text("然后说出你想写的内容。")
                                 .font(.caption)
                         }
                         .foregroundStyle(.primary.opacity(0.8))
 
-                        self.howToItem("\"Write an email asking for time off\"")
-                        self.howToItem("\"Draft a thank you note\"")
+                        self.howToItem("\"写一封申请休假的邮件\"")
+                        self.howToItem("\"起草一封感谢信\"")
                     }
 
                     // Edit selected text
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Edit Selected Text")
+                        Text("编辑选中文本")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
 
                         HStack(spacing: 4) {
-                            Text("Select text first, then press")
+                            Text("先选中文本，然后按")
                                 .font(.caption)
                             Text(self.shortcutDisplay)
                                 .font(.caption)
@@ -410,14 +410,14 @@ struct RewriteModeView: View {
                                 .padding(.vertical, 2)
                                 .background(Color.primary.opacity(0.1))
                                 .cornerRadius(4)
-                            Text("and speak your instruction.")
+                            Text("然后说出你的指令。")
                                 .font(.caption)
                         }
                         .foregroundStyle(.primary.opacity(0.8))
 
-                        self.howToItem("\"Make this more formal\"")
-                        self.howToItem("\"Fix grammar and spelling\"")
-                        self.howToItem("\"Summarize this\"")
+                        self.howToItem("\"让这段话更正式\"")
+                        self.howToItem("\"修正语法和拼写\"")
+                        self.howToItem("\"总结这段内容\"")
                     }
                 }
                 .padding(.horizontal, 16)
@@ -445,7 +445,7 @@ struct RewriteModeView: View {
             // Header with shimmer effect - tap to expand/collapse
             Button(action: { withAnimation(.easeInOut(duration: 0.2)) { self.isThinkingExpanded.toggle() } }) {
                 HStack(spacing: 8) {
-                    CommandShimmerText(text: "Thinking")
+                    CommandShimmerText(text: "思考中")
 
                     Spacer()
 

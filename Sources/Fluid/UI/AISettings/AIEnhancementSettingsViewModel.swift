@@ -275,7 +275,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         }
 
         switch providerID {
-        case "": return "No Provider"
+        case "": return "无服务商"
         case "openai": return "OpenAI"
         case "groq": return "Groq"
         case "apple-intelligence": return "Apple Intelligence"
@@ -386,7 +386,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
         guard PrivateAIIntegrationService.isModelInstalled(model) else {
             self.updateConnectionStatus(.failed, for: providerID)
-            self.connectionErrorMessage = "\(model.displayName) is not installed."
+            self.connectionErrorMessage = "\(model.displayName) 未安装。"
             return false
         }
 
@@ -409,7 +409,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
                 return true
             default:
                 self.updateConnectionStatus(.failed, for: providerID)
-                self.connectionErrorMessage = status.message ?? "\(model.displayName) did not report ready."
+                self.connectionErrorMessage = status.message ?? "\(model.displayName) 未就绪。"
                 return false
             }
         } catch {
@@ -608,7 +608,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         case readbackMismatch
 
         var errorDescription: String? {
-            "Saved API key could not be read back from Keychain."
+            "保存的 API 密钥无法从钥匙串中读回。"
         }
     }
 
@@ -673,31 +673,31 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
     }
 
     private func keychainPermissionExplanation(for status: OSStatus) -> String {
-        var message = "FluidVoice stores provider API keys securely in your macOS Keychain but does not currently have permission to access it."
+        var message = "FluidVoice 将服务商 API 密钥安全地存储在 macOS 钥匙串中，但当前没有访问权限。"
         if let detail = SecCopyErrorMessageString(status, nil) as String? {
-            message += "\n\nmacOS reported: \(detail) (\(status))"
+            message += "\n\nmacOS 报告：\(detail) (\(status))"
         }
-        message += "\n\nClick \"Always Allow\" when the Keychain prompt appears, or open Keychain Access > login > Passwords, locate the FluidVoice entry, and grant access."
+        message += "\n\n当钥匙串提示出现时，请点击\"始终允许\"；或打开钥匙串访问 > 登录 > 密码，找到 FluidVoice 条目并授予访问权限。"
         return message
     }
 
     private func keychainPersistenceExplanation(for error: Error) -> String {
-        var message = "FluidVoice could not save the API key to your macOS Keychain, so this provider was not verified."
+        var message = "FluidVoice 无法将 API 密钥保存到 macOS 钥匙串，因此该服务商未通过验证。"
         if let keychainError = error as? KeychainServiceError {
             switch keychainError {
             case .invalidData:
-                message += "\n\nmacOS returned unreadable Keychain data."
+                message += "\n\nmacOS 返回了无法读取的钥匙串数据。"
             case let .unhandled(status):
                 if let detail = SecCopyErrorMessageString(status, nil) as String? {
-                    message += "\n\nmacOS reported: \(detail) (\(status))"
+                    message += "\n\nmacOS 报告：\(detail) (\(status))"
                 } else {
-                    message += "\n\nmacOS reported Keychain status \(status)."
+                    message += "\n\nmacOS 报告钥匙串状态 \(status)。"
                 }
             }
         } else {
             message += "\n\n\(error.localizedDescription)"
         }
-        message += "\n\nClick \"Always Allow\" when the Keychain prompt appears, or open Keychain Access > login > Passwords, locate the FluidVoice entry, and grant access."
+        message += "\n\n当钥匙串提示出现时，请点击\"始终允许\"；或打开钥匙串访问 > 登录 > 密码，找到 FluidVoice 条目并授予访问权限。"
         return message
     }
 
@@ -721,15 +721,15 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
     func presentKeychainAccessAlert(message: String) {
         let msg = message.isEmpty
-            ? "FluidVoice stores provider API keys securely in your macOS Keychain. Please grant access by choosing \"Always Allow\" when prompted."
+            ? "FluidVoice 将服务商 API 密钥安全地存储在 macOS 钥匙串中。当系统提示时，请选择\"始终允许\"以授予访问权限。"
             : message
 
         let alert = NSAlert()
-        alert.messageText = "Keychain Access Required"
+        alert.messageText = "需要钥匙串访问权限"
         alert.informativeText = msg
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Open Keychain Access")
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "打开钥匙串访问")
+        alert.addButton(withTitle: "好")
 
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {
@@ -753,7 +753,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         let baseURL = self.providerBaseURL(for: providerID)
         if self.hasProviderAPIKeyDraft(for: providerID), !self.saveProviderAPIKeys(invalidating: providerID) {
             self.updateConnectionStatus(.failed, for: providerID)
-            self.setConnectionError("Could not save API key to Keychain. Grant access and try again.", for: providerID)
+            self.setConnectionError("无法将 API 密钥保存到钥匙串，请授予访问权限后重试。", for: providerID)
             return
         }
         let apiKey = self.providerAPIKey(for: providerID)
@@ -764,7 +764,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         if baseURL.isEmpty {
             await MainActor.run {
                 self.updateConnectionStatus(.failed, for: providerID)
-                self.setConnectionError("Base URL is required for \(providerName)", for: providerID)
+                self.setConnectionError("\(providerName) 需要填写 Base URL", for: providerID)
             }
             return
         }
@@ -772,7 +772,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         if !isLocal && apiKey.isEmpty {
             await MainActor.run {
                 self.updateConnectionStatus(.failed, for: providerID)
-                self.setConnectionError("API key is required for \(providerName). Enter your API key above.", for: providerID)
+                self.setConnectionError("\(providerName) 需要填写 API 密钥，请在上方输入。", for: providerID)
             }
             return
         }
@@ -781,7 +781,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         guard !trimmedModel.isEmpty else {
             await MainActor.run {
                 self.updateConnectionStatus(.failed, for: providerID)
-                self.setConnectionError("Select a model before verifying. You may need to add a model manually for \(providerName).", for: providerID)
+                self.setConnectionError("请先选择模型再进行验证。可能需要为 \(providerName) 手动添加模型。", for: providerID)
             }
             return
         }
@@ -826,7 +826,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         guard let url = URL(string: fullURL) else {
             await MainActor.run {
                 self.updateConnectionStatus(.failed, for: providerID)
-                self.setConnectionError("Invalid Base URL format: '\(endpoint)' could not be parsed as a URL", for: providerID)
+                self.setConnectionError("Base URL 格式无效：'\(endpoint)' 无法解析为有效 URL", for: providerID)
             }
             return
         }
@@ -904,7 +904,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         guard let jsonData = try? JSONSerialization.data(withJSONObject: requestDict, options: []) else {
             await MainActor.run {
                 self.updateConnectionStatus(.failed, for: providerID)
-                self.setConnectionError("Internal error: Failed to create test request payload", for: providerID)
+                self.setConnectionError("内部错误：无法创建测试请求负载", for: providerID)
             }
             return
         }
@@ -941,7 +941,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
             } else {
                 await MainActor.run {
                     self.updateConnectionStatus(.failed, for: providerID)
-                    self.setConnectionError("Unexpected response type from server", for: providerID)
+                    self.setConnectionError("服务器返回了意外的响应类型", for: providerID)
                 }
             }
         } catch {
@@ -995,22 +995,22 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
         switch nsError.code {
         case NSURLErrorTimedOut:
-            return "Connection to \(providerName) timed out. Check if the base URL is correct and the service is available."
+            return "连接 \(providerName) 超时，请检查 Base URL 是否正确以及服务是否可用。"
         case NSURLErrorCannotConnectToHost:
             if providerID == "ollama" || providerID == "lmstudio" {
-                return "Cannot connect. Is the \(providerName) server running? Check that the local server is started."
+                return "无法连接。\(providerName) 服务器是否正在运行？请检查本地服务器是否已启动。"
             }
-            return "Cannot connect to \(providerName). Check your internet connection and base URL."
+            return "无法连接到 \(providerName)，请检查网络连接和 Base URL。"
         case NSURLErrorNetworkConnectionLost:
-            return "Network connection lost while connecting to \(providerName). Check your internet connection."
+            return "连接 \(providerName) 时网络中断，请检查网络连接。"
         case NSURLErrorNotConnectedToInternet:
-            return "No internet connection. Connect to the internet to verify \(providerName)."
+            return "无网络连接，请联网后再验证 \(providerName)。"
         case NSURLErrorSecureConnectionFailed:
-            return "SSL/TLS error connecting to \(providerName). The server's certificate may be invalid."
+            return "连接 \(providerName) 时出现 SSL/TLS 错误，服务器证书可能无效。"
         case NSURLErrorCannotFindHost:
-            return "Cannot find host. Check if the base URL for \(providerName) is spelled correctly."
+            return "找不到主机，请检查 \(providerName) 的 Base URL 拼写是否正确。"
         default:
-            return "Network error: \(error.localizedDescription)"
+            return "网络错误：\(error.localizedDescription)"
         }
     }
 
@@ -1183,7 +1183,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         let key = self.providerKey(for: self.selectedProviderID)
         let shouldPersistKey = self.hasProviderAPIKeyDraft(for: self.selectedProviderID)
         if shouldPersistKey, !self.saveProviderAPIKeys(invalidating: self.selectedProviderID) {
-            self.fetchModelsError = "Could not save API key to Keychain. Grant access and try again."
+            self.fetchModelsError = "无法将 API 密钥保存到钥匙串，请授予访问权限后重试。"
             return
         }
         let apiKey = self.providerAPIKey(for: self.selectedProviderID)
@@ -1199,7 +1199,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
             await MainActor.run {
                 if models.isEmpty {
                     // Keep existing models if fetch returned empty
-                    self.fetchModelsError = "No models returned from API"
+                    self.fetchModelsError = "API 未返回任何模型"
                 } else {
                     self.availableModels = models
                     self.availableModelsByProvider[key] = models
@@ -1286,7 +1286,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         }
 
         if shouldPersistKey, !self.saveProviderAPIKeys(invalidating: providerID) {
-            self.fetchModelsError = "Could not save API key to Keychain. Grant access and try again."
+            self.fetchModelsError = "无法将 API 密钥保存到钥匙串，请授予访问权限后重试。"
             return
         }
 
@@ -1301,7 +1301,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
             await MainActor.run {
                 guard !models.isEmpty else {
-                    self.fetchModelsError = "No models returned from API"
+                    self.fetchModelsError = "API 未返回任何模型"
                     return
                 }
 
@@ -1556,7 +1556,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
     func promptPreview(_ text: String) -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return "Empty prompt" }
+        guard !trimmed.isEmpty else { return "空提示词" }
         let singleLine = trimmed.replacingOccurrences(of: "\n", with: " ")
         return singleLine.count > 120 ? String(singleLine.prefix(120)) + "…" : singleLine
     }
@@ -1569,7 +1569,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
     func requestDeletePrompt(_ profile: SettingsStore.DictationPromptProfile) {
         self.pendingDeletePromptID = profile.id
-        self.pendingDeletePromptName = profile.name.isEmpty ? "Untitled Prompt" : profile.name
+        self.pendingDeletePromptName = profile.name.isEmpty ? "未命名提示词" : profile.name
         self.showingDeletePromptConfirm = true
     }
 
@@ -1785,7 +1785,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
     func addAppPromptBinding(for mode: SettingsStore.PromptMode, appBundleID: String, appName: String) {
         let normalizedBundleID = self.normalizedBundleID(appBundleID)
         guard !normalizedBundleID.isEmpty else {
-            self.appPromptBindingErrorMessage = "The selected app is missing a valid bundle identifier."
+            self.appPromptBindingErrorMessage = "所选应用缺少有效的 Bundle Identifier。"
             return
         }
 
@@ -1811,7 +1811,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
     func addCurrentAppPromptBinding(for mode: SettingsStore.PromptMode) {
         guard let target = self.resolveBindingTargetApp() else {
-            self.appPromptBindingErrorMessage = "Could not detect a target app. Focus another app window (outside FluidVoice) and try again."
+            self.appPromptBindingErrorMessage = "无法检测到目标应用，请将焦点切换到其他应用窗口（FluidVoice 外部）后重试。"
             DebugLogger.shared.info(
                 "App prompt binding skipped: unable to resolve non-Fluid target app",
                 source: "AISettingsView"
@@ -1823,9 +1823,9 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
     func addAppPromptBindingFromFilePicker(for mode: SettingsStore.PromptMode) {
         let panel = NSOpenPanel()
-        panel.title = "Choose Application"
-        panel.message = "Pick an app to add an app-specific prompt override."
-        panel.prompt = "Add App"
+        panel.title = "选择应用"
+        panel.message = "选择一个应用以添加特定应用的提示词覆盖。"
+        panel.prompt = "添加应用"
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
@@ -1836,7 +1836,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         guard panel.runModal() == .OK, let appURL = panel.url else { return }
 
         guard let target = self.bindingTarget(fromApplicationURL: appURL) else {
-            self.appPromptBindingErrorMessage = "Could not read that app. Please choose a valid .app bundle."
+            self.appPromptBindingErrorMessage = "无法读取该应用，请选择有效的 .app 文件包。"
             return
         }
 
@@ -1865,11 +1865,11 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
                       $0.mode.normalized == mode.normalized
               })
         else {
-            return "Built-in Default"
+            return "内置默认"
         }
 
         let trimmed = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "Untitled Prompt" : trimmed
+        return trimmed.isEmpty ? "未命名提示词" : trimmed
     }
 
     func promptRoutingScope(for mode: SettingsStore.PromptMode) -> SettingsStore.PromptRoutingScope {
@@ -1956,7 +1956,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
         }
 
         let providerID = self.selectedProviderID.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !providerID.isEmpty else { return "Choose provider first" }
+        guard !providerID.isEmpty else { return "请先选择服务商" }
 
         let providerName = self.providerDisplayName(for: providerID)
         let providerKey = self.providerKey(for: providerID)

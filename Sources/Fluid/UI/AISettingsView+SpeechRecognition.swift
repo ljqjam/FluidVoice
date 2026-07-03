@@ -26,7 +26,7 @@ extension VoiceEngineSettingsView {
                     Image(systemName: "waveform")
                         .font(.title2)
                         .foregroundStyle(self.theme.palette.accent)
-                    Text("Voice Engine")
+                    Text("语音引擎")
                         .font(.title3)
                         .fontWeight(.semibold)
                     Spacer()
@@ -51,7 +51,7 @@ extension VoiceEngineSettingsView {
                             Image(systemName: "info.circle")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.voiceEngineSecondaryText)
-                            Text("Click a row to preview. Press Activate to load the model.")
+                            Text("点击行可预览。按激活加载模型。")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.voiceEngineSecondaryText)
                             Spacer()
@@ -65,7 +65,7 @@ extension VoiceEngineSettingsView {
                                 HStack(spacing: 6) {
                                     Image(systemName: "line.3.horizontal.decrease.circle")
                                         .font(self.theme.typography.bodySmallStrong)
-                                    Text("Filter: \(self.viewModel.providerFilter.rawValue)")
+                                    Text("筛选：\(self.viewModel.providerFilter.rawValue)")
                                         .font(self.theme.typography.bodySmallStrong)
                                 }
                                 .foregroundStyle(self.voiceEngineTitleText)
@@ -88,7 +88,7 @@ extension VoiceEngineSettingsView {
                                 }
                             } label: {
                                 HStack(spacing: 6) {
-                                    Text("Sort by: \(self.viewModel.modelSortOption.rawValue)")
+                                    Text("排序：\(self.viewModel.modelSortOption.rawValue)")
                                         .font(self.theme.typography.bodySmallStrong)
                                 }
                                 .foregroundStyle(self.voiceEngineTitleText)
@@ -109,17 +109,17 @@ extension VoiceEngineSettingsView {
                         VStack(alignment: .leading, spacing: 10) {
                             if let activeModel {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Active Model")
+                                    Text("当前模型")
                                         .font(self.theme.typography.sectionTitle)
                                         .foregroundStyle(self.voiceEngineTitleText)
                                     self.speechModelCard(for: activeModel)
                                 }
                             } else {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Active Model")
+                                    Text("当前模型")
                                         .font(self.theme.typography.sectionTitle)
                                         .foregroundStyle(self.voiceEngineTitleText)
-                                    Label("No active model yet. Download and activate one below.", systemImage: "arrow.down.circle")
+                                    Label("暂无当前模型。请在下方下载并激活一个。", systemImage: "arrow.down.circle")
                                         .font(self.theme.typography.bodySmall)
                                         .foregroundStyle(self.voiceEngineSecondaryText)
                                 }
@@ -128,7 +128,7 @@ extension VoiceEngineSettingsView {
                             Divider().padding(.vertical, 2)
 
                             VStack(alignment: .leading, spacing: 6) {
-                                Text(hasActiveModel ? "Other Models" : "Available Models")
+                                Text(hasActiveModel ? "其他模型" : "可用模型")
                                     .font(self.theme.typography.sectionTitle)
                                     .foregroundStyle(self.voiceEngineTitleText)
                                 VStack(spacing: 8) {
@@ -149,6 +149,9 @@ extension VoiceEngineSettingsView {
                                 .shadow(color: self.theme.metrics.cardShadow.color.opacity(self.theme.metrics.cardShadow.opacity), radius: self.theme.metrics.cardShadow.radius, x: self.theme.metrics.cardShadow.x, y: self.theme.metrics.cardShadow.y)
                         )
 
+                        // Live-meeting roles are independent of the daily-dictation "activated" model.
+                        self.liveMeetingSection
+
                         Divider().padding(.vertical, 4)
 
                         // Filler Words Section
@@ -159,6 +162,139 @@ extension VoiceEngineSettingsView {
             .padding(14)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// Dedicated live-meeting section. Roles here are fixed and automatic — independent of the
+    /// single daily-dictation "activated" model above: real-time uses SenseVoice, post-stop
+    /// refinement uses Cohere. Only downloading these two models is required to enable them.
+    var liveMeetingSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "person.2.wave.2.fill")
+                    .font(self.theme.typography.bodySmall)
+                    .foregroundStyle(self.theme.palette.accent)
+                Text("实时会议")
+                    .font(self.theme.typography.sectionTitle)
+                    .foregroundStyle(self.voiceEngineTitleText)
+            }
+
+            Text("实时会议不使用上方“激活”的模型，而是固定分工：实时出字用 SenseVoice，停止后用 Cohere 精修整段。只需下载这两个模型即可自动启用。")
+                .font(self.theme.typography.bodySmall)
+                .foregroundStyle(self.voiceEngineSecondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+
+            let refinementEnabled = self.settings.liveMeetingRefinementEnabled
+
+            VStack(spacing: 8) {
+                self.liveMeetingRoleRow(
+                    role: "实时出字",
+                    subtitle: "低延迟流式识别",
+                    model: .senseVoiceSmall
+                )
+                self.liveMeetingRoleRow(
+                    role: "整段精修",
+                    subtitle: refinementEnabled ? "停止后对整段音频重转写" : "已关闭，保留实时稿",
+                    model: .cohereTranscribeSixBit
+                )
+                .opacity(refinementEnabled ? 1 : 0.5)
+            }
+
+            HStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("结束后自动精修")
+                        .font(self.theme.typography.bodyStrong)
+                        .foregroundStyle(self.voiceEngineTitleText)
+                    Text("停止后用 Cohere 对整段音频重转写。若实时稿（SenseVoice）对你的中文效果更好，可关闭。")
+                        .font(self.theme.typography.bodySmall)
+                        .foregroundStyle(self.voiceEngineSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 8)
+                Toggle("", isOn: Binding(
+                    get: { self.settings.liveMeetingRefinementEnabled },
+                    set: { self.settings.liveMeetingRefinementEnabled = $0 }
+                ))
+                .toggleStyle(.switch)
+                .labelsHidden()
+            }
+            .padding(.top, 2)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(self.theme.palette.cardBackground.opacity(0.9))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(self.theme.palette.cardBorder.opacity(0.3), lineWidth: 1)
+                )
+                .shadow(color: self.theme.metrics.cardShadow.color.opacity(self.theme.metrics.cardShadow.opacity), radius: self.theme.metrics.cardShadow.radius, x: self.theme.metrics.cardShadow.x, y: self.theme.metrics.cardShadow.y)
+        )
+    }
+
+    private func liveMeetingRoleRow(role: String, subtitle: String, model: SettingsStore.SpeechModel) -> some View {
+        let installed = model.isInstalled
+        let isDownloading = self.viewModel.downloadingModel == model
+
+        return HStack(alignment: .center, spacing: 10) {
+            self.speechModelLogoView(for: model)
+                .frame(width: 28, height: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(role)
+                        .font(self.theme.typography.bodyStrong)
+                        .foregroundStyle(self.voiceEngineTitleText)
+                    Text("·")
+                        .font(self.theme.typography.bodyStrong)
+                        .foregroundStyle(self.voiceEngineTertiaryText)
+                    Text(model.humanReadableName)
+                        .font(self.theme.typography.bodyStrong)
+                        .foregroundStyle(self.voiceEngineTitleText)
+                }
+                Text(subtitle)
+                    .font(self.theme.typography.bodySmall)
+                    .foregroundStyle(self.voiceEngineSecondaryText)
+            }
+
+            Spacer(minLength: 8)
+
+            if isDownloading {
+                VStack(alignment: .trailing, spacing: 4) {
+                    ProgressView(value: self.viewModel.downloadProgress)
+                        .progressViewStyle(.linear)
+                        .frame(width: 90)
+                    Text("\(Int(self.viewModel.downloadProgress * 100))%")
+                        .font(self.theme.typography.bodySmall)
+                        .foregroundStyle(self.voiceEngineSecondaryText)
+                }
+            } else if installed {
+                Text("使用中")
+                    .font(self.theme.typography.bodySmallStrong)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(Color.fluidGreen.opacity(0.25)))
+                    .foregroundStyle(Color.fluidGreen)
+            } else {
+                Button("下载") {
+                    self.viewModel.previewSpeechModel = model
+                    self.viewModel.downloadSpeechModel(model)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .tint(.blue)
+                .disabled(self.viewModel.areSpeechModelActionsBlocked)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(self.theme.palette.cardBackground.opacity(0.6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(installed ? Color.fluidGreen.opacity(0.5) : self.theme.palette.cardBorder.opacity(0.3), lineWidth: 1)
+                )
+        )
     }
 
     /// Stats panel showing speed/accuracy bars that animate when model changes
@@ -255,7 +391,7 @@ extension VoiceEngineSettingsView {
                         color: .yellow,
                         secondaryColor: .orange,
                         icon: "bolt.fill",
-                        label: "Speed"
+                        label: "速度"
                     )
 
                     LiquidBar(
@@ -263,7 +399,7 @@ extension VoiceEngineSettingsView {
                         color: Color.fluidGreen,
                         secondaryColor: .cyan,
                         icon: "target",
-                        label: "Accuracy"
+                        label: "准确率"
                     )
                 }
                 .frame(width: 140, alignment: .center)
@@ -276,14 +412,14 @@ extension VoiceEngineSettingsView {
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(Color.fluidGreen)
 
-                    Text("Custom Words supported on Parakeet. Teach names, product terms, and uncommon words for better accuracy.")
+                    Text("Parakeet 支持自定义词汇。添加姓名、专业术语和生僻词以提升准确率。")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.voiceEngineSecondaryText)
                         .lineLimit(3)
 
                     Spacer(minLength: 8)
 
-                    Button("Open Custom Dictionary") {
+                    Button("打开自定义词典") {
                         NotificationCenter.default.post(name: .openCustomDictionaryFromVoiceEngine, object: nil)
                     }
                     .buttonStyle(.borderedProminent)
@@ -335,7 +471,7 @@ extension VoiceEngineSettingsView {
                         Image(systemName: "bolt.fill")
                             .font(.system(size: 11))
                             .foregroundStyle(.yellow)
-                        Text("Speed \(Int(model.speedPercent * 100))%")
+                        Text("速度 \(Int(model.speedPercent * 100))%")
                             .font(self.theme.typography.bodyStrong)
                             .foregroundStyle(self.voiceEngineSecondaryText)
                     }
@@ -344,13 +480,13 @@ extension VoiceEngineSettingsView {
                         Image(systemName: "target")
                             .font(.system(size: 11))
                             .foregroundStyle(Color.fluidGreen)
-                        Text("Acc \(Int(model.accuracyPercent * 100))%")
+                        Text("准确率 \(Int(model.accuracyPercent * 100))%")
                             .font(self.theme.typography.bodyStrong)
                             .foregroundStyle(self.voiceEngineSecondaryText)
                     }
 
                     if isSelected && !isActive {
-                        Text("Previewing")
+                        Text("预览中")
                             .font(self.theme.typography.bodyStrong)
                             .foregroundStyle(self.voiceEngineSecondaryText)
                     }
@@ -366,7 +502,7 @@ extension VoiceEngineSettingsView {
                         if self.viewModel.isCancellingModelDownload {
                             ProgressView()
                                 .controlSize(.mini)
-                            Text("Cancelling…")
+                            Text("取消中…")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.voiceEngineSecondaryText)
                         } else {
@@ -379,7 +515,7 @@ extension VoiceEngineSettingsView {
                         }
                     }
 
-                    Button(self.viewModel.isCancellingModelDownload ? "Cancelling…" : "Cancel") {
+                    Button(self.viewModel.isCancellingModelDownload ? "取消中…" : "取消") {
                         self.viewModel.cancelSpeechModelDownload()
                     }
                     .buttonStyle(.bordered)
@@ -398,7 +534,7 @@ extension VoiceEngineSettingsView {
                         if self.viewModel.asr.isCancellingModelPreparation {
                             ProgressView()
                                 .controlSize(.mini)
-                            Text("Cancelling…")
+                            Text("取消中…")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.voiceEngineSecondaryText)
                         } else if let progress = self.viewModel.asr.downloadProgress, self.viewModel.asr.isDownloadingModel {
@@ -411,13 +547,13 @@ extension VoiceEngineSettingsView {
                         } else {
                             ProgressView()
                                 .controlSize(.mini)
-                            Text(self.viewModel.asr.isLoadingModel ? "Loading…" : "Downloading…")
+                            Text(self.viewModel.asr.isLoadingModel ? "加载中…" : "下载中…")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(self.voiceEngineSecondaryText)
                         }
                     }
 
-                    Button(self.viewModel.asr.isCancellingModelPreparation ? "Cancelling…" : "Cancel") {
+                    Button(self.viewModel.asr.isCancellingModelPreparation ? "取消中…" : "取消") {
                         self.viewModel.cancelActiveModelPreparation()
                     }
                     .buttonStyle(.bordered)
@@ -430,14 +566,14 @@ extension VoiceEngineSettingsView {
                         self.speechModelLanguagePicker(for: model)
                             .disabled(self.viewModel.areSpeechModelActionsBlocked)
 
-                        Text("Active")
+                        Text("使用中")
                             .font(self.theme.typography.bodySmallStrong)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
                             .background(Capsule().fill(Color.fluidGreen.opacity(0.25)))
                             .foregroundStyle(Color.fluidGreen)
                     } else {
-                        Button("Activate") {
+                        Button("激活") {
                             self.viewModel.activateSpeechModel(model)
                         }
                         .buttonStyle(.borderedProminent)
@@ -480,7 +616,7 @@ extension VoiceEngineSettingsView {
                                 .disabled(self.viewModel.areSpeechModelActionsBlocked)
                             }
 
-                            Button("Download") {
+                            Button("下载") {
                                 self.viewModel.previewSpeechModel = model
                                 self.viewModel.downloadSpeechModel(model)
                             }
@@ -492,12 +628,12 @@ extension VoiceEngineSettingsView {
                         .offset(x: isSelected ? 0 : 16)
                         .opacity(isSelected ? 1 : 0)
                     } else {
-                        Text("Not downloaded")
+                        Text("未下载")
                             .font(self.theme.typography.bodySmall)
                             .foregroundStyle(self.voiceEngineTertiaryText)
                             .opacity(isSelected ? 0 : 1)
 
-                        Button("Download") {
+                        Button("下载") {
                             self.viewModel.previewSpeechModel = model
                             self.viewModel.downloadSpeechModel(model)
                         }
@@ -643,18 +779,18 @@ extension VoiceEngineSettingsView {
             if (self.viewModel.asr.isDownloadingModel || self.viewModel.asr.isLoadingModel) && !self.viewModel.asr.isAsrReady {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small).fixedSize()
-                    Text(self.viewModel.asr.isLoadingModel ? "Loading model…" : "Downloading model…")
+                    Text(self.viewModel.asr.isLoadingModel ? "加载模型中…" : "下载模型中…")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.voiceEngineSecondaryText)
                 }
             } else if self.viewModel.asr.isAsrReady {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.fluidGreen).font(self.theme.typography.bodySmall)
-                Text("Ready").font(self.theme.typography.bodySmall).foregroundStyle(self.voiceEngineSecondaryText)
+                Text("就绪").font(self.theme.typography.bodySmall).foregroundStyle(self.voiceEngineSecondaryText)
 
                 Button(action: { Task { await self.viewModel.deleteModels() } }) {
                     HStack(spacing: 4) {
                         Image(systemName: "trash")
-                        Text("Delete")
+                        Text("删除")
                     }
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.red)
@@ -662,14 +798,14 @@ extension VoiceEngineSettingsView {
                 .buttonStyle(.plain)
             } else if self.viewModel.asr.modelsExistOnDisk {
                 Image(systemName: "doc.fill").foregroundStyle(self.theme.palette.accent).font(self.theme.typography.bodySmall)
-                Text("Cached")
+                Text("已缓存")
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(self.voiceEngineSecondaryText)
 
                 Button(action: { Task { await self.viewModel.deleteModels() } }) {
                     HStack(spacing: 4) {
                         Image(systemName: "trash")
-                        Text("Delete")
+                        Text("删除")
                     }
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(.red)
@@ -694,7 +830,7 @@ extension VoiceEngineSettingsView {
                     Button(action: { Task { await self.viewModel.downloadModels() } }) {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.down.circle.fill")
-                            Text("Download")
+                            Text("下载")
                         }
                         .font(self.theme.typography.bodySmall)
                     }
@@ -715,10 +851,10 @@ extension VoiceEngineSettingsView {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Remove Filler Words")
+                    Text("移除填充词")
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.voiceEngineTitleText)
-                    Text("Automatically remove filler sounds like 'um', 'uh', 'er' from transcriptions")
+                    Text("自动从转录中移除“嗯”、“啊”、“呃”等填充音")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.voiceEngineSecondaryText)
                 }

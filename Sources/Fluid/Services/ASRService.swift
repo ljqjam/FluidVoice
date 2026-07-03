@@ -110,14 +110,14 @@ final class ASRService: ObservableObject {
 
     /// Returns a user-friendly status message for model loading state
     var modelStatusMessage: String {
-        if self.isAsrReady { return "Model ready" }
-        if self.isCancellingModelPreparation { return "Cancelling model preparation..." }
-        if self.isCancellingModelDownload { return "Cancelling model download..." }
-        if self.downloadingModelId != nil { return "Downloading model..." }
-        if self.isDownloadingModel { return "Downloading model..." }
-        if self.isLoadingModel { return "Loading model into memory..." }
-        if self.modelsExistOnDisk { return "Model cached, needs loading" }
-        return "Model not downloaded"
+        if self.isAsrReady { return "模型已就绪" }
+        if self.isCancellingModelPreparation { return "正在取消模型准备…" }
+        if self.isCancellingModelDownload { return "正在取消模型下载…" }
+        if self.downloadingModelId != nil { return "正在下载模型…" }
+        if self.isDownloadingModel { return "正在下载模型…" }
+        if self.isLoadingModel { return "正在将模型载入内存…" }
+        if self.modelsExistOnDisk { return "模型已缓存，等待加载" }
+        return "模型尚未下载"
     }
 
     // MARK: - Transcription Provider (Settable)
@@ -126,6 +126,7 @@ final class ASRService: ObservableObject {
     private var fluidAudioProvider: FluidAudioProvider?
     private var parakeetRealtimeProvider: ParakeetRealtimeProvider?
     private var externalCoreMLProvider: ExternalCoreMLTranscriptionProvider?
+    private var senseVoiceProvider: SenseVoiceProvider?
     private var nemotronProviders: [NemotronProvider.Mode: NemotronProvider] = [:]
     private var whisperProvider: WhisperProvider?
     private var appleSpeechProvider: AppleSpeechProvider?
@@ -189,6 +190,8 @@ final class ASRService: ObservableObject {
             return self.getNemotronProvider(mode: model.nemotronProviderMode)
         case .qwen3Asr:
             return self.getFluidAudioProvider()
+        case .senseVoiceSmall:
+            return self.getSenseVoiceProvider()
         default:
             return self.getWhisperProvider()
         }
@@ -226,6 +229,16 @@ final class ASRService: ObservableObject {
         let provider = ExternalCoreMLTranscriptionProvider()
         self.externalCoreMLProvider = provider
         DebugLogger.shared.info("ASRService: Created external CoreML provider", source: "ASRService")
+        return provider
+    }
+
+    private func getSenseVoiceProvider() -> SenseVoiceProvider {
+        if let existing = senseVoiceProvider {
+            return existing
+        }
+        let provider = SenseVoiceProvider()
+        self.senseVoiceProvider = provider
+        DebugLogger.shared.info("ASRService: Created SenseVoice provider", source: "ASRService")
         return provider
     }
 
@@ -277,6 +290,13 @@ final class ASRService: ObservableObject {
     /// This allows file transcription to work with any provider (Parakeet, Whisper, etc.)
     var fileTranscriptionProvider: TranscriptionProvider {
         self.transcriptionProvider
+    }
+
+    /// Runs a transcription operation through the shared CoreML serialization queue.
+    /// Used by external features (e.g. LiveMeetingTranscriptionService) so they never access
+    /// the underlying CoreML models concurrently with the dictation pipeline.
+    func runSerializedTranscription<T>(_ operation: @escaping () async throws -> T) async throws -> T {
+        try await self.transcriptionExecutor.run(operation)
     }
 
     private func currentTranscriptionAnalyticsDimensions() -> (provider: String, model: String) {
@@ -386,6 +406,8 @@ final class ASRService: ObservableObject {
             return ParakeetRealtimeProvider()
         case .cohereTranscribeSixBit:
             return ExternalCoreMLTranscriptionProvider(modelOverride: model)
+        case .senseVoiceSmall:
+            return SenseVoiceProvider()
         case .nemotronOffline, .nemotronStreaming, .nemotronStreaming320:
             return NemotronProvider(mode: model.nemotronProviderMode)
         case .qwen3Asr:
@@ -500,6 +522,7 @@ final class ASRService: ObservableObject {
         self.fluidAudioProvider = nil
         self.parakeetRealtimeProvider = nil
         self.externalCoreMLProvider = nil
+        self.senseVoiceProvider = nil
         self.whisperProvider = nil
         self.appleSpeechProvider = nil
         self._appleSpeechAnalyzerProvider = nil

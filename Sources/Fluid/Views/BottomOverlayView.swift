@@ -1256,13 +1256,13 @@ private struct BottomOverlayModeMenuView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            self.modeRow("Dictate", mode: .dictation, rowID: "dictate")
-            self.modeRow("Edit", mode: .edit, rowID: "edit")
+            self.modeRow("口述", mode: .dictation, rowID: "dictate")
+            self.modeRow("编辑", mode: .edit, rowID: "edit")
 
             Divider()
                 .padding(.vertical, 4)
 
-            self.modeRow("Command", mode: .command, rowID: "command")
+            self.modeRow("指令", mode: .command, rowID: "command")
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
@@ -1336,7 +1336,7 @@ private struct BottomOverlayPromptMenuView: View {
             self.onDismissRequested()
         }) {
             HStack {
-                Text("Off")
+                Text("关闭")
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark")
@@ -1372,7 +1372,7 @@ private struct BottomOverlayPromptMenuView: View {
             self.onDismissRequested()
         }) {
             HStack {
-                Text("Default")
+                Text("默认")
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark")
@@ -1616,7 +1616,7 @@ private struct BottomOverlayActionsMenuView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             self.actionRow(
-                title: "Reprocess Last Dictation",
+                title: "重新处理上次听写",
                 icon: "arrow.clockwise",
                 rowID: "reprocess_last",
                 enabled: self.canReprocessLast
@@ -1625,7 +1625,7 @@ private struct BottomOverlayActionsMenuView: View {
             }
 
             self.actionRow(
-                title: "Copy Last Transcription",
+                title: "复制上次转录",
                 icon: "doc.on.doc",
                 rowID: "copy_last",
                 enabled: self.canCopyLast
@@ -1634,7 +1634,7 @@ private struct BottomOverlayActionsMenuView: View {
             }
 
             self.actionRow(
-                title: "Paste Last Transcription",
+                title: "粘贴上次转录",
                 icon: "arrow.down.doc",
                 rowID: "paste_last",
                 enabled: self.canPasteLast
@@ -1646,7 +1646,7 @@ private struct BottomOverlayActionsMenuView: View {
                 .padding(.vertical, 4)
 
             self.actionRow(
-                title: "Undo AI on Last",
+                title: "撤销上次 AI 处理",
                 icon: "arrow.uturn.backward",
                 rowID: "undo_ai_last",
                 enabled: self.canUndoLastAI
@@ -1967,9 +1967,9 @@ struct BottomOverlayView: View {
 
     private var modeLabel: String {
         switch self.contentState.mode {
-        case .dictation: return "Dictate"
-        case .edit, .rewrite, .write: return "Edit"
-        case .command: return "Command"
+        case .dictation: return "口述"
+        case .edit, .rewrite, .write: return "编辑"
+        case .command: return "指令"
         }
     }
 
@@ -1979,9 +1979,9 @@ struct BottomOverlayView: View {
 
     private var processingLabel: String {
         switch self.contentState.mode {
-        case .dictation: return "Refining..."
-        case .edit, .rewrite, .write: return "Thinking..."
-        case .command: return "Working..."
+        case .dictation: return "优化中…"
+        case .edit, .rewrite, .write: return "思考中…"
+        case .command: return "处理中…"
         }
     }
 
@@ -2069,14 +2069,14 @@ struct BottomOverlayView: View {
             appBundleID: self.promptResolutionBundleID
         ) {
             let name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            return name.isEmpty ? "Untitled" : name
+            return name.isEmpty ? "未命名" : name
         }
-        return "Default"
+        return "默认"
     }
 
     private var promptSelectorDisplayLabel: String {
         let label = self.selectedPromptLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !label.isEmpty else { return "Default" }
+        guard !label.isEmpty else { return "默认" }
 
         let maxLength: Int
         if self.isCompactControls {
@@ -2380,7 +2380,7 @@ struct BottomOverlayView: View {
     private var modeSelectorTrigger: some View {
         HStack(spacing: 5) {
             if !self.isCompactControls {
-                Text("Mode:")
+                Text("模式：")
                     .font(.system(size: self.promptSelectorFontSize, weight: .medium))
                     .foregroundStyle(.white.opacity(0.5))
                     .lineLimit(1)
@@ -2430,7 +2430,7 @@ struct BottomOverlayView: View {
 
     private var promptSelectorTrigger: some View {
         HStack(spacing: 5) {
-            Text("AI Prompt:")
+            Text("AI 提示词：")
                 .font(.system(size: self.promptSelectorFontSize, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))
                 .lineLimit(1)
@@ -2442,7 +2442,7 @@ struct BottomOverlayView: View {
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if self.isAppPromptOverrideActive {
-                Text("App")
+                Text("应用")
                     .font(.system(size: max(self.promptSelectorFontSize - 2, 8), weight: .semibold))
                     .foregroundStyle(.white.opacity(0.9))
                     .padding(.horizontal, 5)
@@ -2506,7 +2506,7 @@ struct BottomOverlayView: View {
     private var actionsSelectorTrigger: some View {
         let actionsDisabled = self.historyStore.entries.isEmpty || self.contentState.isProcessing
         return HStack(spacing: 5) {
-            Text("Actions")
+            Text("操作")
                 .font(.system(size: self.promptSelectorFontSize, weight: .medium))
                 .foregroundStyle(.white.opacity(0.75))
                 .lineLimit(1)
@@ -2553,8 +2553,8 @@ struct BottomOverlayView: View {
             }
             .help(
                 self.historyStore.entries.isEmpty
-                    ? "No saved dictation history available"
-                    : "Reprocess the latest dictation using current AI settings"
+                    ? "暂无保存的听写记录"
+                    : "使用当前 AI 设置重新处理最近一次听写"
             )
     }
 
@@ -2583,7 +2583,7 @@ struct BottomOverlayView: View {
             self.closeActionsMenu()
             self.contentState.onOpenPreferencesRequested?()
         }
-        .help("Open Preferences")
+        .help("打开偏好设置")
     }
 
     private func failureIconButton(systemName: String, help: String, action: @escaping () -> Void) -> some View {
@@ -2603,7 +2603,7 @@ struct BottomOverlayView: View {
 
     private var aiProcessingFailureView: some View {
         HStack(spacing: 8) {
-            Text("AI Enhancement failed")
+            Text("AI 增强失败")
                 .font(.system(size: self.layout.transFontSize, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
                 .lineLimit(1)
@@ -2611,12 +2611,12 @@ struct BottomOverlayView: View {
 
             Spacer(minLength: 4)
 
-            self.failureIconButton(systemName: "arrow.clockwise", help: "Try again") {
+            self.failureIconButton(systemName: "arrow.clockwise", help: "重试") {
                 self.contentState.clearAIProcessingFailure()
                 self.contentState.onReprocessLastRequested?()
             }
 
-            self.failureIconButton(systemName: "xmark", help: "Dismiss") {
+            self.failureIconButton(systemName: "xmark", help: "关闭") {
                 self.contentState.clearAIProcessingFailure()
                 NotchOverlayManager.shared.hide()
             }
@@ -2803,7 +2803,7 @@ struct BottomOverlayView: View {
                                 (self.appServices.asr.isLoadingModel || self.appServices.asr.isDownloadingModel)
                                 && self.settings.overlaySize != .small
                             {
-                                Text("Loading model…")
+                                Text("模型加载中…")
                                     .font(.system(size: max(self.layout.modeFontSize - 2, 9), weight: .medium))
                                     .foregroundStyle(.orange.opacity(0.85))
                                     .lineLimit(1)

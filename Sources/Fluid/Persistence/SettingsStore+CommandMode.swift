@@ -52,31 +52,31 @@ extension SettingsStore {
     var commandModeReadinessIssue: String? {
         let sourceProviderID = self.commandModeLinkedToGlobal ? self.selectedProviderID : self.commandModeSelectedProviderID
         if sourceProviderID == "apple-intelligence" || sourceProviderID == "apple-intelligence-disabled" {
-            return "Command Mode cannot use Apple Intelligence because terminal tools require a chat API. Choose a verified chat provider or turn Sync off."
+            return "命令模式无法使用 Apple Intelligence，因为终端工具需要聊天 API。请选择已验证的聊天服务商，或关闭同步。"
         }
         if self.isPrivateAIProviderID(sourceProviderID) {
-            return "\(PrivateAIProviderFeature.displayName) for Command Mode is coming soon. Choose a verified chat provider or turn Sync off."
+            return "\(PrivateAIProviderFeature.displayName) 的命令模式即将推出。请选择已验证的聊天服务商，或关闭同步。"
         }
 
         let providerID = self.effectiveCommandModeProviderID
         guard !providerID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return "Command Mode needs a verified chat provider."
+            return "命令模式需要一个已验证的聊天服务商。"
         }
 
         let model = self.effectiveCommandModeSelectedModel.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !model.isEmpty else {
-            return "Command Mode needs a selected chat model."
+            return "命令模式需要选择一个聊天模型。"
         }
 
         if self.isUnsupportedCommandModeModel(model) {
-            return "Command Mode needs a chat model. The selected model is not supported by the chat/completions endpoint."
+            return "命令模式需要一个聊天模型。所选模型不受聊天/补全接口支持。"
         }
 
         guard self.isCommandModeProviderVerified(providerID) else {
             if self.commandModeLinkedToGlobal {
-                return "Command Mode needs a verified chat provider. Verify the synced AI Enhancement provider, or turn Sync off and choose one for Command Mode."
+                return "命令模式需要一个已验证的聊天服务商。请验证同步的 AI 增强服务商，或关闭同步并为命令模式单独选择一个。"
             }
-            return "Command Mode needs a verified chat provider. Verify this provider in AI Enhancement before using Command Mode."
+            return "命令模式需要一个已验证的聊天服务商。请先在 AI 增强中验证此服务商，再使用命令模式。"
         }
 
         return nil

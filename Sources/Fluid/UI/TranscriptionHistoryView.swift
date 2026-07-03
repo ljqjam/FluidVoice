@@ -61,21 +61,21 @@ struct TranscriptionHistoryView: View {
                 self.selectedEntryID = self.filteredEntries.first?.id
             }
         }
-        .alert("Clear All History", isPresented: self.$showClearConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Clear All", role: .destructive) {
+        .alert("清空历史记录", isPresented: self.$showClearConfirmation) {
+            Button("取消", role: .cancel) {}
+            Button("全部清除", role: .destructive) {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     self.historyStore.clearAllHistory()
                     self.selectedEntryID = nil
                 }
             }
         } message: {
-            Text("This will permanently delete all \(self.historyStore.entries.count) transcription entries. This action cannot be undone.")
+            Text("此操作将永久删除全部 \(self.historyStore.entries.count) 条转录记录，且无法撤销。")
         }
-        .alert("Report Sent", isPresented: self.$showReportConfirmation) {
-            Button("OK", role: .cancel) {}
+        .alert("反馈已发送", isPresented: self.$showReportConfirmation) {
+            Button("好", role: .cancel) {}
         } message: {
-            Text("Thank you for helping improve FluidVoice dictation.")
+            Text("感谢您帮助改善 FluidVoice 的听写功能。")
         }
         .sheet(item: self.$selectedReportEntry) { entry in
             TranscriptionFeedbackReportSheet(entry: entry) {
@@ -94,7 +94,7 @@ struct TranscriptionHistoryView: View {
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.secondary)
 
-            TextField("Search transcriptions...", text: self.$searchQuery)
+            TextField("搜索转录记录…", text: self.$searchQuery)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
 
@@ -142,7 +142,7 @@ struct TranscriptionHistoryView: View {
             VStack(alignment: .leading, spacing: 4) {
                 // Top row: App name and time
                 HStack(spacing: 6) {
-                    Text(entry.appName.isEmpty ? "Unknown App" : entry.appName)
+                    Text(entry.appName.isEmpty ? "未知应用" : entry.appName)
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(isSelected ? .white : .secondary)
                         .lineLimit(1)
@@ -163,7 +163,7 @@ struct TranscriptionHistoryView: View {
                         Image(systemName: "waveform")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(isSelected ? .white.opacity(0.8) : self.theme.palette.accent)
-                            .help("Saved local dictation audio")
+                            .help("已保存本地听写音频")
                     }
 
                     if entry.aiProcessingError != nil {
@@ -201,20 +201,20 @@ struct TranscriptionHistoryView: View {
             Button {
                 self.copyToClipboard(entry.processedText)
             } label: {
-                Label(entry.wasAIProcessed ? "Copy AI Text" : "Copy Text", systemImage: "doc.on.doc")
+                Label(entry.wasAIProcessed ? "复制 AI 文本" : "复制文本", systemImage: "doc.on.doc")
             }
 
             if entry.wasAIProcessed {
                 Button {
                     self.copyToClipboard(entry.rawText)
                 } label: {
-                    Label("Copy Raw Text", systemImage: "doc.on.doc.fill")
+                    Label("复制原始文本", systemImage: "doc.on.doc.fill")
                 }
 
                 Button {
                     self.copyToClipboard(self.combinedText(for: entry))
                 } label: {
-                    Label("Copy Both", systemImage: "doc.on.doc")
+                    Label("全部复制", systemImage: "doc.on.doc")
                 }
             }
 
@@ -224,13 +224,13 @@ struct TranscriptionHistoryView: View {
                 Button {
                     self.exportPair(entry)
                 } label: {
-                    Label("Export Pair...", systemImage: "square.and.arrow.up")
+                    Label("导出配对…", systemImage: "square.and.arrow.up")
                 }
 
                 Button {
                     self.revealAudio(entry)
                 } label: {
-                    Label("Reveal Audio", systemImage: "waveform")
+                    Label("显示音频文件", systemImage: "waveform")
                 }
             }
 
@@ -239,7 +239,7 @@ struct TranscriptionHistoryView: View {
             Button {
                 self.openFeedbackReport(for: entry)
             } label: {
-                Label("Report Bad Result...", systemImage: "hand.thumbsup.slash")
+                Label("报告错误结果…", systemImage: "hand.thumbsup.slash")
             }
 
             Divider()
@@ -252,7 +252,7 @@ struct TranscriptionHistoryView: View {
                     }
                 }
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label("删除", systemImage: "trash")
             }
         }
     }
@@ -268,13 +268,13 @@ struct TranscriptionHistoryView: View {
                 .foregroundStyle(.tertiary)
 
             VStack(spacing: 4) {
-                Text(self.searchQuery.isEmpty ? "No History Yet" : "No Results")
+                Text(self.searchQuery.isEmpty ? "暂无历史记录" : "无结果")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.secondary)
 
                 Text(self.searchQuery.isEmpty
-                    ? "Your transcriptions will appear here"
-                    : "Try a different search term")
+                    ? "您的转录记录将显示在这里"
+                    : "请尝试其他搜索词")
                     .font(.system(size: 12))
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
@@ -295,7 +295,7 @@ struct TranscriptionHistoryView: View {
 
             HStack {
                 // Stats
-                Text("\(self.historyStore.entries.count) entries")
+                Text("\(self.historyStore.entries.count) 条记录")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.tertiary)
 
@@ -306,7 +306,7 @@ struct TranscriptionHistoryView: View {
                     Button {
                         self.showClearConfirmation = true
                     } label: {
-                        Text("Clear All")
+                        Text("全部清除")
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.secondary)
                     }
@@ -327,7 +327,7 @@ struct TranscriptionHistoryView: View {
                 // Header
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
-                        Text("Transcription Details")
+                        Text("转录详情")
                             .font(.system(size: 18, weight: .semibold))
 
                         Spacer()
@@ -335,7 +335,7 @@ struct TranscriptionHistoryView: View {
                         Button {
                             self.copyToClipboard(entry.processedText)
                         } label: {
-                            Label(entry.wasAIProcessed ? "Copy AI" : "Copy", systemImage: "doc.on.doc")
+                            Label(entry.wasAIProcessed ? "复制 AI" : "复制", systemImage: "doc.on.doc")
                                 .font(.system(size: 12, weight: .medium))
                         }
                         .buttonStyle(.bordered)
@@ -345,7 +345,7 @@ struct TranscriptionHistoryView: View {
                             Button {
                                 self.exportPair(entry)
                             } label: {
-                                Label("Export Pair", systemImage: "square.and.arrow.up")
+                                Label("导出配对", systemImage: "square.and.arrow.up")
                                     .font(.system(size: 12, weight: .medium))
                             }
                             .buttonStyle(.bordered)
@@ -354,7 +354,7 @@ struct TranscriptionHistoryView: View {
                             Button {
                                 self.revealAudio(entry)
                             } label: {
-                                Label("Audio", systemImage: "waveform")
+                                Label("音频", systemImage: "waveform")
                                     .font(.system(size: 12, weight: .medium))
                             }
                             .buttonStyle(.bordered)
@@ -364,18 +364,18 @@ struct TranscriptionHistoryView: View {
                         Button {
                             self.openFeedbackReport(for: entry)
                         } label: {
-                            Label("Report", systemImage: "hand.thumbsup.slash")
+                            Label("报告", systemImage: "hand.thumbsup.slash")
                                 .font(.system(size: 12, weight: .medium))
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
-                        .help("Review and send this example to FluidVoice")
+                        .help("查看并将此示例发送给 FluidVoice")
 
                         if entry.wasAIProcessed {
                             Button {
                                 self.copyToClipboard(entry.rawText)
                             } label: {
-                                Label("Raw", systemImage: "doc.on.doc.fill")
+                                Label("原始", systemImage: "doc.on.doc.fill")
                                     .font(.system(size: 12, weight: .medium))
                             }
                             .buttonStyle(.bordered)
@@ -384,7 +384,7 @@ struct TranscriptionHistoryView: View {
                             Button {
                                 self.copyToClipboard(self.combinedText(for: entry))
                             } label: {
-                                Label("Both", systemImage: "doc.on.doc")
+                                Label("全部", systemImage: "doc.on.doc")
                                     .font(.system(size: 12, weight: .medium))
                             }
                             .buttonStyle(.borderedProminent)
@@ -405,7 +405,7 @@ struct TranscriptionHistoryView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(Color.orange)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("AI Enhancement failed - raw transcription was typed instead")
+                            Text("AI 增强失败 — 已直接输入原始转录内容")
                                 .font(.system(size: 12, weight: .semibold))
                             Text(aiError)
                                 .font(.system(size: 11))
@@ -427,15 +427,15 @@ struct TranscriptionHistoryView: View {
 
                 // Final Text Section
                 self.detailSection(
-                    title: "Final Text",
+                    title: "最终文本",
                     content: entry.processedText,
-                    badge: entry.wasAIProcessed ? "AI Enhanced" : nil
+                    badge: entry.wasAIProcessed ? "AI 增强" : nil
                 )
 
                 // Raw Text Section (only if different)
                 if entry.wasAIProcessed {
                     self.detailSection(
-                        title: "Original Transcription",
+                        title: "原始转录",
                         content: entry.rawText,
                         badge: nil,
                         isSecondary: true
@@ -460,7 +460,7 @@ struct TranscriptionHistoryView: View {
                             self.selectedEntryID = nextEntry?.id
                         }
                     } label: {
-                        Label("Delete Entry", systemImage: "trash")
+                        Label("删除记录", systemImage: "trash")
                             .font(.system(size: 12, weight: .medium))
                     }
                     .buttonStyle(.bordered)
@@ -515,7 +515,7 @@ struct TranscriptionHistoryView: View {
 
     private func metadataGrid(_ entry: TranscriptionHistoryEntry) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Details")
+            Text("详细信息")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
@@ -525,11 +525,11 @@ struct TranscriptionHistoryView: View {
                 GridItem(.flexible(), spacing: 16),
                 GridItem(.flexible(), spacing: 16),
             ], spacing: 12) {
-                self.metadataItem(icon: "app.fill", label: "Application", value: entry.appName.isEmpty ? "Unknown" : entry.appName)
-                self.metadataItem(icon: "macwindow", label: "Window", value: entry.windowTitle.isEmpty ? "Unknown" : entry.windowTitle)
-                self.metadataItem(icon: "character.cursor.ibeam", label: "Characters", value: "\(entry.characterCount)")
-                self.metadataItem(icon: "sparkles", label: "AI Processed", value: entry.wasAIProcessed ? "Yes" : "No")
-                self.metadataItem(icon: "waveform", label: "Audio", value: self.audioMetadataText(for: entry))
+                self.metadataItem(icon: "app.fill", label: "应用程序", value: entry.appName.isEmpty ? "未知" : entry.appName)
+                self.metadataItem(icon: "macwindow", label: "窗口", value: entry.windowTitle.isEmpty ? "未知" : entry.windowTitle)
+                self.metadataItem(icon: "character.cursor.ibeam", label: "字符数", value: "\(entry.characterCount)")
+                self.metadataItem(icon: "sparkles", label: "AI 处理", value: entry.wasAIProcessed ? "是" : "否")
+                self.metadataItem(icon: "waveform", label: "音频", value: self.audioMetadataText(for: entry))
             }
         }
     }
@@ -577,7 +577,7 @@ struct TranscriptionHistoryView: View {
     }
 
     private func audioMetadataText(for entry: TranscriptionHistoryEntry) -> String {
-        guard let audio = entry.audio, self.hasAudio(entry) else { return "No" }
+        guard let audio = entry.audio, self.hasAudio(entry) else { return "无" }
         let seconds = Double(audio.durationMilliseconds) / 1000.0
         let size = ByteCountFormatter.string(fromByteCount: Int64(audio.byteCount), countStyle: .file)
         return "\(String(format: "%.1f", seconds))s, \(size)"
@@ -604,10 +604,10 @@ struct TranscriptionHistoryView: View {
             try DictationAudioHistoryStore.shared.exportPair(entry: entry, to: url)
         } catch {
             let alert = NSAlert()
-            alert.messageText = "Pair Export Failed"
+            alert.messageText = "配对导出失败"
             alert.informativeText = error.localizedDescription
             alert.alertStyle = .critical
-            alert.addButton(withTitle: "OK")
+            alert.addButton(withTitle: "好")
             alert.runModal()
         }
     }
@@ -620,7 +620,7 @@ struct TranscriptionHistoryView: View {
                 .font(.system(size: 40, weight: .light))
                 .foregroundStyle(.tertiary)
 
-            Text("Select a transcription")
+            Text("请选择一条转录记录")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(.secondary)
         }
@@ -653,17 +653,17 @@ private struct TranscriptionFeedbackReportSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Share anonymous datapoint")
+                Text("分享匿名数据")
                     .font(.system(size: 18, weight: .semibold))
-                Text("Help improve our model. Only the example shown below will be sent.")
+                Text("帮助改善我们的模型，仅发送以下示例内容。")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
 
-            self.feedbackField(title: "Raw Text", text: self.$inputText, height: 88)
-            self.feedbackField(title: "Processed Text", text: self.$outputText, height: 88)
-            self.feedbackField(title: "Processing Model", text: self.$processingModel, height: 40)
-            self.feedbackField(title: "Comment optional", text: self.$comment, height: 72)
+            self.feedbackField(title: "原始文本", text: self.$inputText, height: 88)
+            self.feedbackField(title: "处理后文本", text: self.$outputText, height: 88)
+            self.feedbackField(title: "处理模型", text: self.$processingModel, height: 40)
+            self.feedbackField(title: "备注（可选）", text: self.$comment, height: 72)
 
             if let errorMessage {
                 Text(errorMessage)
@@ -674,7 +674,7 @@ private struct TranscriptionFeedbackReportSheet: View {
 
             HStack {
                 Spacer()
-                Button("Cancel") {
+                Button("取消") {
                     self.dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
@@ -691,7 +691,7 @@ private struct TranscriptionFeedbackReportSheet: View {
                                 .controlSize(.small)
                                 .fixedSize()
                         }
-                        Text(self.isSending ? "Sending..." : "Send Example")
+                        Text(self.isSending ? "发送中…" : "发送示例")
                     }
                 }
                 .keyboardShortcut(.defaultAction)

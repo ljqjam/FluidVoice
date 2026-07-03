@@ -65,7 +65,7 @@ struct SearchableModelPicker: View {
             // Model button that opens popover
             Button(action: { self.isShowingPopover.toggle() }) {
                 HStack(spacing: 6) {
-                    Text(self.selectedModel.isEmpty ? "Select Model" : self.selectedModel)
+                    Text(self.selectedModel.isEmpty ? "选择模型" : self.selectedModel)
                         .font(.system(size: 12, weight: .semibold))
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -89,7 +89,7 @@ struct SearchableModelPicker: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
-                        TextField("Search models...", text: self.$searchText)
+                        TextField("搜索模型...", text: self.$searchText)
                             .textFieldStyle(.plain)
                     }
                     .searchablePickerSearchFieldChrome()
@@ -102,10 +102,10 @@ struct SearchableModelPicker: View {
                                 Image(systemName: "tray")
                                     .font(.title2)
                                     .foregroundStyle(.secondary)
-                                Text("No models")
+                                Text("无模型")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                Text("Click refresh to fetch from API")
+                                Text("点击刷新以从 API 获取模型")
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                             }
@@ -115,7 +115,7 @@ struct SearchableModelPicker: View {
                             ScrollView {
                                 LazyVStack(alignment: .leading, spacing: 0) {
                                     if self.filteredModels.isEmpty {
-                                        Text("No models match '\(self.searchText)'")
+                                        Text("未找到匹配“\(self.searchText)”的模型")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                             .padding()
@@ -150,7 +150,7 @@ struct SearchableModelPicker: View {
 
                             if self.filteredModels.count > 100 {
                                 Divider()
-                                Text("\(self.filteredModels.count - 100) more (use search)")
+                                Text("还有 \(self.filteredModels.count - 100) 个（请使用搜索）")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                                     .padding(6)
@@ -179,7 +179,7 @@ struct SearchableModelPicker: View {
                     .buttonStyle(.borderless)
                     .disabled(self.isRefreshing || !self.refreshEnabled)
                     .opacity(self.refreshEnabled ? 1 : 0.45)
-                    .help("Refresh model list")
+                    .help("刷新模型列表")
                 } else {
                     Button(action: {
                         Task { await onRefresh() }
@@ -199,7 +199,7 @@ struct SearchableModelPicker: View {
                     .fluidCompactButton(isReady: false)
                     .disabled(self.isRefreshing || !self.refreshEnabled)
                     .opacity(self.refreshEnabled ? 1 : 0.45)
-                    .help("Refresh model list")
+                    .help("刷新模型列表")
                 }
             }
         }

@@ -97,11 +97,11 @@ final class SettingsStore: ObservableObject {
         var displayName: String {
             switch self.normalized {
             case .dictate:
-                return "Dictate"
+                return "听写"
             case .edit:
-                return "Edit"
+                return "编辑"
             case .write, .rewrite:
-                return "Edit"
+                return "编辑"
             }
         }
 
@@ -135,9 +135,9 @@ final class SettingsStore: ObservableObject {
         var displayName: String {
             switch self {
             case .primary:
-                return "Primary Dictation Shortcut"
+                return "主要听写快捷键"
             case .secondary:
-                return "Secondary Dictation Shortcut"
+                return "次要听写快捷键"
             }
         }
     }
@@ -1697,10 +1697,10 @@ final class SettingsStore: ObservableObject {
 
         var displayName: String {
             switch self {
-            case .pill: return "Pill"
-            case .small: return "Small"
-            case .medium: return "Medium"
-            case .large: return "Large"
+            case .pill: return "胶囊"
+            case .small: return "小"
+            case .medium: return "中"
+            case .large: return "大"
             }
         }
     }
@@ -1712,8 +1712,8 @@ final class SettingsStore: ObservableObject {
 
         var displayName: String {
             switch self {
-            case .top: return "Top of Screen"
-            case .bottom: return "Bottom of Screen"
+            case .top: return "屏幕顶部"
+            case .bottom: return "屏幕底部"
             }
         }
     }
@@ -1727,9 +1727,9 @@ final class SettingsStore: ObservableObject {
         var displayName: String {
             switch self {
             case .standard:
-                return "Standard Notch"
+                return "标准刘海"
             case .minimal:
-                return "Compact"
+                return "紧凑"
             }
         }
     }
@@ -1867,9 +1867,9 @@ final class SettingsStore: ObservableObject {
 
         var displayName: String {
             switch self {
-            case .system: return "System"
-            case .light: return "Light"
-            case .dark: return "Dark"
+            case .system: return "系统"
+            case .light: return "浅色"
+            case .dark: return "深色"
             }
         }
 
@@ -1904,7 +1904,7 @@ final class SettingsStore: ObservableObject {
 
         var displayName: String {
             switch self {
-            case .none: return "None"
+            case .none: return "无"
             case .fluidSfx0: return "Fluid SFX 0"
             case .fluidSfx1: return "Fluid SFX 1"
             case .fluidSfx2: return "Fluid SFX 2"
@@ -3567,6 +3567,17 @@ final class SettingsStore: ObservableObject {
         }
     }
 
+    /// When enabled, stopping a live meeting runs a second Cohere pass over the full recording to
+    /// refine the live SenseVoice transcript. Disable to keep the (often stronger, for Chinese)
+    /// live transcript as-is.
+    var liveMeetingRefinementEnabled: Bool {
+        get { self.defaults.object(forKey: Keys.liveMeetingRefinementEnabled) as? Bool ?? true }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.liveMeetingRefinementEnabled)
+        }
+    }
+
     // MARK: - GAAV Mode
 
     /// Legacy combined GAAV setting. New behavior uses the split formatting toggles below.
@@ -3719,6 +3730,10 @@ final class SettingsStore: ObservableObject {
         case nemotronStreaming = "nemotron-3.5-streaming"
         case nemotronStreaming320 = "nemotron-3.5-streaming-320"
 
+        // MARK: - SenseVoice (sherpa-onnx, Apple Silicon Only)
+
+        case senseVoiceSmall = "sensevoice-small"
+
         // MARK: - Apple Native
 
         case appleSpeech = "apple-speech"
@@ -3749,6 +3764,7 @@ final class SettingsStore: ObservableObject {
             case .nemotronOffline: return "Nemotron 3.5 Multilingual"
             case .nemotronStreaming: return "Nemotron Speech 3.5 - Ultra Fast Low Latency"
             case .nemotronStreaming320: return "Nemotron Speech 3.5 - Ultra Fast Low Latency"
+            case .senseVoiceSmall: return "SenseVoice Small"
             case .appleSpeech: return "Apple ASR Legacy"
             case .appleSpeechAnalyzer: return "Apple Speech - macOS 26+"
             case .whisperTiny: return "Whisper Tiny"
@@ -3763,16 +3779,17 @@ final class SettingsStore: ObservableObject {
         var languageSupport: String {
             switch self {
             case .parakeetTDT:
-                return "25 Languages"
-            case .parakeetTDTv2: return "English Only (Higher Accuracy)"
-            case .parakeetRealtime: return "English Only (Live Streaming)"
-            case .qwen3Asr: return "30 Languages"
-            case .cohereTranscribeSixBit: return "14 Languages (Select Manually)"
-            case .nemotronOffline, .nemotronStreaming, .nemotronStreaming320: return "Around 40 Languages"
-            case .appleSpeech: return "System Languages"
+                return "25 种语言"
+            case .parakeetTDTv2: return "仅英语（更高精度）"
+            case .parakeetRealtime: return "仅英语（实时流式）"
+            case .qwen3Asr: return "30 种语言"
+            case .cohereTranscribeSixBit: return "14 种语言（手动选择）"
+            case .nemotronOffline, .nemotronStreaming, .nemotronStreaming320: return "约 40 种语言"
+            case .senseVoiceSmall: return "中/英/日/韩/粤 5 种语言"
+            case .appleSpeech: return "系统语言"
             case .appleSpeechAnalyzer: return "EN, ES, FR, DE, IT, JA, KO, PT, ZH"
             case .whisperTiny, .whisperBase, .whisperSmall, .whisperMedium, .whisperLargeTurbo, .whisperLarge:
-                return "99 Languages"
+                return "99 种语言"
             }
         }
 
@@ -3786,8 +3803,9 @@ final class SettingsStore: ObservableObject {
             case .nemotronOffline: return "~530.8 MiB"
             case .nemotronStreaming: return "~668.2 MiB"
             case .nemotronStreaming320: return "~668.2 MiB"
-            case .appleSpeech: return "Built-in"
-            case .appleSpeechAnalyzer: return "Built-in"
+            case .senseVoiceSmall: return "~230 MiB"
+            case .appleSpeech: return "内置"
+            case .appleSpeechAnalyzer: return "内置"
             case .whisperTiny: return "~74.1 MiB"
             case .whisperBase: return "~141.1 MiB"
             case .whisperSmall: return "~465.0 MiB"
@@ -3806,6 +3824,7 @@ final class SettingsStore: ObservableObject {
             case .cohereTranscribeSixBit: return 1_650_748_785
             case .nemotronOffline: return 556_552_620
             case .nemotronStreaming, .nemotronStreaming320: return 700_685_415
+            case .senseVoiceSmall: return 241_000_000
             case .whisperTiny: return 77_691_713
             case .whisperBase: return 147_951_465
             case .whisperSmall: return 487_601_967
@@ -3818,14 +3837,14 @@ final class SettingsStore: ObservableObject {
 
         var requiresAppleSilicon: Bool {
             switch self {
-            case .parakeetTDT, .parakeetTDTv2, .parakeetRealtime, .qwen3Asr, .cohereTranscribeSixBit, .nemotronOffline, .nemotronStreaming, .nemotronStreaming320: return true
+            case .parakeetTDT, .parakeetTDTv2, .parakeetRealtime, .qwen3Asr, .cohereTranscribeSixBit, .nemotronOffline, .nemotronStreaming, .nemotronStreaming320, .senseVoiceSmall: return true
             default: return false
             }
         }
 
         var isWhisperModel: Bool {
             switch self {
-            case .parakeetTDT, .parakeetTDTv2, .parakeetRealtime, .qwen3Asr, .cohereTranscribeSixBit, .nemotronOffline, .nemotronStreaming, .nemotronStreaming320, .appleSpeech, .appleSpeechAnalyzer: return false
+            case .parakeetTDT, .parakeetTDTv2, .parakeetRealtime, .qwen3Asr, .cohereTranscribeSixBit, .nemotronOffline, .nemotronStreaming, .nemotronStreaming320, .senseVoiceSmall, .appleSpeech, .appleSpeechAnalyzer: return false
             default: return true
             }
         }
@@ -3924,6 +3943,7 @@ final class SettingsStore: ObservableObject {
             case .nemotronOffline: return "Nemotron 3.5 Multilingual"
             case .nemotronStreaming: return "Nemotron Speech 3.5 - Ultra Fast Low Latency"
             case .nemotronStreaming320: return "Nemotron Speech 3.5 - Ultra Fast Low Latency"
+            case .senseVoiceSmall: return "SenseVoice - 中文优选"
             case .appleSpeech: return "Apple ASR Legacy"
             case .appleSpeechAnalyzer: return "Apple Speech - macOS 26+"
             case .whisperTiny: return "Fast & Light"
@@ -3939,40 +3959,42 @@ final class SettingsStore: ObservableObject {
         var cardDescription: String {
             switch self {
             case .parakeetTDT:
-                return "Fast multilingual transcription. Supports Bulgarian, Croatian, Czech, Danish, " +
-                    "Dutch, English, Estonian, Finnish, French, German, Greek, Hungarian, Italian, " +
-                    "Latvian, Lithuanian, Maltese, Polish, Portuguese, Romanian, Russian, Slovak, " +
-                    "Slovenian, Spanish, Swedish, and Ukrainian."
+                return "快速多语言转录，支持保加利亚语、克罗地亚语、捷克语、丹麦语、" +
+                    "荷兰语、英语、爱沙尼亚语、芬兰语、法语、德语、希腊语、匈牙利语、意大利语、" +
+                    "拉脱维亚语、立陶宛语、马耳他语、波兰语、葡萄牙语、罗马尼亚语、俄语、斯洛伐克语、" +
+                    "斯洛文尼亚语、西班牙语、瑞典语和乌克兰语。"
             case .parakeetTDTv2:
-                return "Optimized for English accuracy and fastest transcription."
+                return "专为英语精度和最快转录速度优化。"
             case .parakeetRealtime:
-                return "English-only streaming local dictation with low-latency partial text and end-of-utterance detection."
+                return "仅限英语的流式本地听写，具备低延迟部分文字显示和语音结束检测。"
             case .qwen3Asr:
-                return "Qwen3 multilingual ASR via FluidAudio. Higher quality, heavier memory footprint."
+                return "通过 FluidAudio 运行的 Qwen3 多语言 ASR，质量更高，内存占用更大。"
             case .cohereTranscribeSixBit:
-                return "High-accuracy multilingual transcription. Select the language manually before dictation for best results."
+                return "高精度多语言转录，听写前请手动选择语言以获得最佳效果。"
             case .nemotronOffline:
-                return "Slower but more accurate NVIDIA Nemotron 3.5 transcription. Supports 40 language-locales with auto or manual language selection."
+                return "速度较慢但精度更高的 NVIDIA Nemotron 3.5 转录，支持约 40 种语言区域，可自动或手动选择语言。"
             case .nemotronStreaming:
-                return "NVIDIA Nemotron 3.5 streaming-capable transcription. Supports 40 language-locales with auto or manual language selection."
+                return "支持流式转录的 NVIDIA Nemotron 3.5，支持约 40 种语言区域，可自动或手动选择语言。"
             case .nemotronStreaming320:
-                return "NVIDIA Nemotron 3.5 streaming-capable transcription. Supports 40 language-locales with auto or manual language selection."
+                return "支持流式转录的 NVIDIA Nemotron 3.5，支持约 40 种语言区域，可自动或手动选择语言。"
+            case .senseVoiceSmall:
+                return "阿里 FunAudioLLM 出品的非自回归模型，中文/粤语识别准确率突出，推理速度极快，适合实时会议转写与中文听写。"
             case .appleSpeech:
-                return "Built-in macOS speech recognition. No model download required."
+                return "macOS 内置语音识别，无需下载模型。"
             case .appleSpeechAnalyzer:
-                return "Advanced and modern on-device recognition for newer macOS devices."
+                return "面向新款 macOS 设备的先进现代化本地识别。"
             case .whisperTiny:
-                return "Minimal resource usage. Best for older Macs or battery life."
+                return "资源占用极低，适合老款 Mac 或延长电池续航。"
             case .whisperBase:
-                return "Good balance of speed and accuracy. Works on any Mac."
+                return "速度与精度的良好平衡，适用于任何 Mac。"
             case .whisperSmall:
-                return "Better accuracy than Base. Moderate resource usage."
+                return "精度优于 Base，资源占用适中。"
             case .whisperMedium:
-                return "High accuracy for demanding tasks. Requires more memory."
+                return "适用于高要求任务的高精度，需要更多内存。"
             case .whisperLargeTurbo:
-                return "Near-maximum accuracy with optimized speed."
+                return "接近最高精度，兼顾优化速度。"
             case .whisperLarge:
-                return "Best possible accuracy. Large download and memory usage."
+                return "最佳精度，下载体积大，内存占用高。"
             }
         }
 
@@ -3987,6 +4009,8 @@ final class SettingsStore: ObservableObject {
                 return 8.0
             case .nemotronOffline, .nemotronStreaming, .nemotronStreaming320:
                 return 8.0
+            case .senseVoiceSmall:
+                return 4.0
             case .appleSpeech, .appleSpeechAnalyzer:
                 return 2.0 // Built-in, minimal overhead
             case .whisperTiny:
@@ -4030,6 +4054,7 @@ final class SettingsStore: ObservableObject {
             case .cohereTranscribeSixBit: return 3
             case .nemotronOffline: return 3
             case .nemotronStreaming, .nemotronStreaming320: return 4
+            case .senseVoiceSmall: return 5
             case .appleSpeech: return 4
             case .appleSpeechAnalyzer: return 4
             case .whisperTiny: return 4
@@ -4051,6 +4076,7 @@ final class SettingsStore: ObservableObject {
             case .cohereTranscribeSixBit: return 5
             case .nemotronOffline: return 5
             case .nemotronStreaming, .nemotronStreaming320: return 4
+            case .senseVoiceSmall: return 4
             case .appleSpeech: return 4
             case .appleSpeechAnalyzer: return 4
             case .whisperTiny: return 2
@@ -4072,6 +4098,7 @@ final class SettingsStore: ObservableObject {
             case .cohereTranscribeSixBit: return 0.85
             case .nemotronOffline: return 0.85
             case .nemotronStreaming, .nemotronStreaming320: return 1.0
+            case .senseVoiceSmall: return 1.0
             case .appleSpeech: return 0.60
             case .appleSpeechAnalyzer: return 0.85
             case .whisperTiny: return 0.90
@@ -4093,6 +4120,7 @@ final class SettingsStore: ObservableObject {
             case .cohereTranscribeSixBit: return 0.98
             case .nemotronOffline: return 0.90
             case .nemotronStreaming, .nemotronStreaming320: return 0.85
+            case .senseVoiceSmall: return 0.90
             case .appleSpeech: return 0.60
             case .appleSpeechAnalyzer: return 0.80
             case .whisperTiny: return 0.40
@@ -4107,13 +4135,14 @@ final class SettingsStore: ObservableObject {
         /// Optional badge text for the card (e.g., "FluidVoice Pick")
         var badgeText: String? {
             switch self {
-            case .parakeetTDT: return "FluidVoice Pick"
-            case .parakeetTDTv2: return "FluidVoice Pick"
+            case .parakeetTDT: return "FluidVoice 精选"
+            case .parakeetTDTv2: return "FluidVoice 精选"
             case .parakeetRealtime: return "Beta"
             case .qwen3Asr: return "Beta"
-            case .cohereTranscribeSixBit: return "New"
-            case .nemotronOffline, .nemotronStreaming, .nemotronStreaming320: return "New + Beta"
-            case .appleSpeechAnalyzer: return "New"
+            case .cohereTranscribeSixBit: return "全新"
+            case .nemotronOffline, .nemotronStreaming, .nemotronStreaming320: return "全新 + Beta"
+            case .senseVoiceSmall: return "全新"
+            case .appleSpeechAnalyzer: return "全新"
             default: return nil
             }
         }
@@ -4121,7 +4150,7 @@ final class SettingsStore: ObservableObject {
         /// Optimization level for Apple Silicon (for display)
         var appleSiliconOptimized: Bool {
             switch self {
-            case .parakeetTDT, .parakeetTDTv2, .parakeetRealtime, .qwen3Asr, .cohereTranscribeSixBit, .nemotronOffline, .nemotronStreaming, .nemotronStreaming320, .appleSpeechAnalyzer:
+            case .parakeetTDT, .parakeetTDTv2, .parakeetRealtime, .qwen3Asr, .cohereTranscribeSixBit, .nemotronOffline, .nemotronStreaming, .nemotronStreaming320, .appleSpeechAnalyzer, .senseVoiceSmall:
                 return true
             default:
                 return false
@@ -4185,6 +4214,7 @@ final class SettingsStore: ObservableObject {
             case openai = "OpenAI"
             case qwen = "Qwen"
             case cohere = "Cohere"
+            case alibaba = "Alibaba"
         }
 
         /// Which provider this model belongs to
@@ -4198,6 +4228,8 @@ final class SettingsStore: ObservableObject {
                 return .qwen
             case .cohereTranscribeSixBit:
                 return .cohere
+            case .senseVoiceSmall:
+                return .alibaba
             case .whisperTiny, .whisperBase, .whisperSmall, .whisperMedium, .whisperLargeTurbo, .whisperLarge:
                 return .openai
             }
@@ -4263,6 +4295,8 @@ final class SettingsStore: ObservableObject {
                 #else
                 return false
                 #endif
+            case .senseVoiceSmall:
+                return SenseVoiceModelLocator.modelsExist()
             default:
                 // Whisper models
                 guard let whisperFile = self.whisperModelFile else { return false }
@@ -4325,6 +4359,8 @@ final class SettingsStore: ObservableObject {
                 return "Qwen"
             case .cohereTranscribeSixBit:
                 return "Cohere"
+            case .senseVoiceSmall:
+                return "Alibaba"
             case .appleSpeech, .appleSpeechAnalyzer:
                 return "Apple"
             case .whisperTiny, .whisperBase, .whisperSmall, .whisperMedium, .whisperLargeTurbo, .whisperLarge:
@@ -4349,6 +4385,8 @@ final class SettingsStore: ObservableObject {
                 return "#E67E22"
             case .cohereTranscribeSixBit:
                 return "#FA6B3C"
+            case .senseVoiceSmall:
+                return "#FF6A00"
             case .appleSpeech, .appleSpeechAnalyzer:
                 return "#A2AAAD" // Apple Gray
             case .whisperTiny, .whisperBase, .whisperSmall, .whisperMedium, .whisperLargeTurbo, .whisperLarge:
@@ -4371,17 +4409,17 @@ final class SettingsStore: ObservableObject {
 
         var displayName: String {
             switch self {
-            case .auto: return "Automatic (Recommended)"
-            case .fluidAudio: return "FluidAudio (Apple Silicon)"
-            case .whisper: return "Whisper (Intel/Universal)"
+            case .auto: return "自动（推荐）"
+            case .fluidAudio: return "FluidAudio（Apple Silicon）"
+            case .whisper: return "Whisper（Intel/通用）"
             }
         }
 
         var description: String {
             switch self {
-            case .auto: return "Uses FluidAudio on Apple Silicon, Whisper on Intel"
-            case .fluidAudio: return "Fast CoreML-based transcription optimized for M-series chips"
-            case .whisper: return "whisper.cpp - CPU-based, works on any Mac"
+            case .auto: return "在 Apple Silicon 上使用 FluidAudio，在 Intel 上使用 Whisper"
+            case .fluidAudio: return "基于 CoreML 的快速转录，针对 M 系列芯片优化"
+            case .whisper: return "whisper.cpp — 基于 CPU，适用于任何 Mac"
             }
         }
     }
@@ -4519,6 +4557,7 @@ private extension SettingsStore {
         // Filler Words
         static let fillerWords = "FillerWords"
         static let removeFillerWordsEnabled = "RemoveFillerWordsEnabled"
+        static let liveMeetingRefinementEnabled = "LiveMeetingRefinementEnabled"
 
         /// GAAV Mode (removes capitalization and trailing punctuation)
         static let gaavModeEnabled = "GAAVModeEnabled"
@@ -4594,18 +4633,18 @@ extension SettingsStore {
         var displayName: String {
             switch self {
             case .standard:
-                return "Clipboard Free Insert"
+                return "免剪贴板插入"
             case .reliablePaste:
-                return "Clipboard Paste"
+                return "剪贴板粘贴"
             }
         }
 
         var description: String {
             switch self {
             case .standard:
-                return "Fastest path. Inserts text without changing the clipboard, with paste fallback if direct insertion is unavailable."
+                return "最快路径。不修改剪贴板直接插入文字，若直接插入不可用则回退至粘贴。"
             case .reliablePaste:
-                return "Compatibility path. Uses a temporary clipboard paste, so clipboard history apps may briefly record dictated text."
+                return "兼容路径。使用临时剪贴板粘贴，剪贴板历史记录应用可能会短暂记录听写内容。"
             }
         }
     }
@@ -4652,21 +4691,21 @@ extension SettingsStore {
 
         var displayName: String {
             switch self {
-            case .tiny: return "Tiny (~75 MB)"
-            case .base: return "Base (~142 MB)"
-            case .small: return "Small (~466 MB)"
-            case .medium: return "Medium (~1.5 GB)"
-            case .large: return "Large (~2.9 GB)"
+            case .tiny: return "Tiny（约 75 MB）"
+            case .base: return "Base（约 142 MB）"
+            case .small: return "Small（约 466 MB）"
+            case .medium: return "Medium（约 1.5 GB）"
+            case .large: return "Large（约 2.9 GB）"
             }
         }
 
         var description: String {
             switch self {
-            case .tiny: return "Fastest, lower accuracy"
-            case .base: return "Good balance of speed and accuracy"
-            case .small: return "Better accuracy, slower"
-            case .medium: return "High accuracy, requires more memory"
-            case .large: return "Best accuracy, large download"
+            case .tiny: return "最快，精度较低"
+            case .base: return "速度与精度的良好平衡"
+            case .small: return "更高精度，速度较慢"
+            case .medium: return "高精度，占用更多内存"
+            case .large: return "最高精度，下载体积大"
             }
         }
     }
@@ -4731,20 +4770,20 @@ extension SettingsStore {
 
         var displayName: String {
             switch self {
-            case .arabic: return "Arabic"
-            case .german: return "German"
-            case .greek: return "Greek"
-            case .english: return "English"
-            case .spanish: return "Spanish"
-            case .french: return "French"
-            case .italian: return "Italian"
-            case .japanese: return "Japanese"
-            case .korean: return "Korean"
-            case .dutch: return "Dutch"
-            case .polish: return "Polish"
-            case .portuguese: return "Portuguese"
-            case .vietnamese: return "Vietnamese"
-            case .mandarinChinese: return "Mandarin Chinese"
+            case .arabic: return "阿拉伯语"
+            case .german: return "德语"
+            case .greek: return "希腊语"
+            case .english: return "英语"
+            case .spanish: return "西班牙语"
+            case .french: return "法语"
+            case .italian: return "意大利语"
+            case .japanese: return "日语"
+            case .korean: return "韩语"
+            case .dutch: return "荷兰语"
+            case .polish: return "波兰语"
+            case .portuguese: return "葡萄牙语"
+            case .vietnamese: return "越南语"
+            case .mandarinChinese: return "普通话（中文）"
             }
         }
 

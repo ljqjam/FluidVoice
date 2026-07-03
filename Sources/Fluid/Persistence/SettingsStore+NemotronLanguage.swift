@@ -51,9 +51,9 @@ extension SettingsStore {
 
         var compactDisplayName: String {
             switch self.rawValue {
-            case "auto": return "Auto"
-            case "hi": return "Hindi"
-            case "en": return "English"
+            case "auto": return "自动"
+            case "hi": return "印地语"
+            case "en": return "英语"
             default:
                 return self.displayName
                     .components(separatedBy: " (")
@@ -62,7 +62,7 @@ extension SettingsStore {
         }
 
         private static let displayNames: [String: String] = [
-            "auto": "Auto Detect",
+            "auto": "自动检测",
             "es": "Spanish (es-US, es-ES)",
             "it": "Italian (it-IT)",
             "pt": "Portuguese (pt-BR, pt-PT)",

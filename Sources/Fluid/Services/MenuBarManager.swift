@@ -420,26 +420,26 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         // Open Main Window
-        let openItem = NSMenuItem(title: "Open Fluid Voice", action: #selector(openMainWindow), keyEquivalent: "")
+        let openItem = NSMenuItem(title: "打开 FluidVoice", action: #selector(openMainWindow), keyEquivalent: "")
         openItem.target = self
         menu.addItem(openItem)
 
         // Preferences
-        let preferencesItem = NSMenuItem(title: "Settings...", action: #selector(openPreferences), keyEquivalent: ",")
+        let preferencesItem = NSMenuItem(title: "设置…", action: #selector(openPreferences), keyEquivalent: ",")
         preferencesItem.target = self
         preferencesItem.keyEquivalentModifierMask = [.command]
         menu.addItem(preferencesItem)
 
         let customDictionaryItem = NSMenuItem(
-            title: "Custom Dictionary",
+            title: "自定义词典",
             action: #selector(openCustomDictionary),
             keyEquivalent: ""
         )
         customDictionaryItem.target = self
         menu.addItem(customDictionaryItem)
 
-        let microphoneSubmenu = NSMenu(title: "Microphone")
-        let microphoneMenuItem = NSMenuItem(title: "Microphone", action: nil, keyEquivalent: "")
+        let microphoneSubmenu = NSMenu(title: "麦克风")
+        let microphoneMenuItem = NSMenuItem(title: "麦克风", action: nil, keyEquivalent: "")
         microphoneMenuItem.submenu = microphoneSubmenu
         menu.addItem(microphoneMenuItem)
         self.microphoneMenuItem = microphoneMenuItem
@@ -447,7 +447,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
 
         // Check for Updates
         let updateItem = NSMenuItem(
-            title: "Check for Updates...",
+            title: "检查更新…",
             action: #selector(checkForUpdates(_:)),
             keyEquivalent: ""
         )
@@ -457,7 +457,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         let rollbackMenuItem = NSMenuItem(
-            title: "Rollback to Previous Version...",
+            title: "回滚至旧版本…",
             action: #selector(rollbackToPreviousVersion(_:)),
             keyEquivalent: ""
         )
@@ -470,7 +470,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
 
         // Quit
         let quitItem = NSMenuItem(
-            title: "Quit Fluid Voice",
+            title: "退出 FluidVoice",
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )
@@ -495,7 +495,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         // Update status text with hotkey info
         let hotkeyDisplay = SettingsStore.shared.primaryDictationShortcutDisplayString
         let hotkeyInfo = hotkeyDisplay.isEmpty ? "" : " (\(hotkeyDisplay))"
-        let statusTitle = self.isRecording ? "Recording...\(hotkeyInfo)" : "Ready to Record\(hotkeyInfo)"
+        let statusTitle = self.isRecording ? "录制中…\(hotkeyInfo)" : "准备录制\(hotkeyInfo)"
         self.statusMenuItem?.title = statusTitle
         self.microphoneMenuItem?.isEnabled = true
 
@@ -514,7 +514,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         guard let submenu = self.microphoneSubmenu else { return }
 
         submenu.removeAllItems()
-        let loadingItem = NSMenuItem(title: "Loading...", action: nil, keyEquivalent: "")
+        let loadingItem = NSMenuItem(title: "加载中…", action: nil, keyEquivalent: "")
         loadingItem.isEnabled = false
         submenu.addItem(loadingItem)
 
@@ -538,7 +538,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         submenu.removeAllItems()
 
         guard !inputDevices.isEmpty else {
-            let emptyItem = NSMenuItem(title: "No microphones found", action: nil, keyEquivalent: "")
+            let emptyItem = NSMenuItem(title: "未找到麦克风", action: nil, keyEquivalent: "")
             emptyItem.isEnabled = false
             submenu.addItem(emptyItem)
             return
@@ -548,7 +548,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
 
         for device in inputDevices {
             let isSystemDefault = device.uid == defaultInputUID
-            let title = isSystemDefault ? "\(device.name) (System Default)" : device.name
+            let title = isSystemDefault ? "\(device.name)（系统默认）" : device.name
             let item = NSMenuItem(title: title, action: #selector(selectMicrophone(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = device.uid
@@ -559,7 +559,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
 
         if self.isRecording {
             submenu.addItem(.separator())
-            let recordingItem = NSMenuItem(title: "Unavailable while recording", action: nil, keyEquivalent: "")
+            let recordingItem = NSMenuItem(title: "录制期间不可用", action: nil, keyEquivalent: "")
             recordingItem.isEnabled = false
             submenu.addItem(recordingItem)
         }
@@ -600,10 +600,10 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
                 )
                 let ok = NSAlert()
-                ok.messageText = "Update Found!"
-                ok.informativeText = "A new version is available and will be installed now."
+                ok.messageText = "发现更新！"
+                ok.informativeText = "新版本即将安装。"
                 ok.alertStyle = .informational
-                ok.addButton(withTitle: "OK")
+                ok.addButton(withTitle: "好")
                 ok.runModal()
             } catch {
                 let msg = NSAlert()
@@ -611,11 +611,11 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
                     let isBeta = SettingsStore.shared.betaReleasesEnabled
                     msg.messageText = isBeta ? "You’re Up To Date (Beta)" : "You’re Up To Date"
                     msg.informativeText = isBeta
-                        ? "You're already running the latest build available in the beta channel."
-                        : "You're already running the latest version of FluidVoice."
+                        ? "您已运行测试渠道中的最新版本。"
+                        : "您已运行 FluidVoice 的最新版本。"
                 } else {
-                    msg.messageText = "Update Check Failed"
-                    msg.informativeText = "Unable to check for updates. Please try again later.\n\nError: \(error.localizedDescription)"
+                    msg.messageText = "更新检查失败"
+                    msg.informativeText = "无法检查更新，请稍后重试。\n\n错误：\(error.localizedDescription)"
                 }
                 msg.alertStyle = .informational
                 msg.runModal()
@@ -627,11 +627,11 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         let availableVersion = SimpleUpdater.shared.latestRollbackVersion() ?? ""
         guard !availableVersion.isEmpty else {
             let msg = NSAlert()
-            msg.messageText = "No rollback backup found"
-            msg.informativeText = "No previous version backup is available on this device."
+            msg.messageText = "未找到回滚备份"
+            msg.informativeText = "此设备上没有可用的旧版本备份。"
             msg.alertStyle = .informational
-            msg.addButton(withTitle: "Get Previous Builds")
-            msg.addButton(withTitle: "Cancel")
+            msg.addButton(withTitle: "获取旧版本")
+            msg.addButton(withTitle: "取消")
             if msg.runModal() == .alertFirstButtonReturn {
                 self.openPreviousBuildPicker()
             }
@@ -639,11 +639,11 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         }
 
         let confirm = NSAlert()
-        confirm.messageText = "Rollback to \(availableVersion)?"
-        confirm.informativeText = "This will restore the backup and relaunch FluidVoice."
+        confirm.messageText = "回滚至 \(availableVersion)？"
+        confirm.informativeText = "这将还原备份并重新启动 FluidVoice。"
         confirm.alertStyle = .warning
-        confirm.addButton(withTitle: "Rollback")
-        confirm.addButton(withTitle: "Cancel")
+        confirm.addButton(withTitle: "回滚")
+        confirm.addButton(withTitle: "取消")
 
         guard confirm.runModal() == .alertFirstButtonReturn else { return }
 
@@ -651,21 +651,21 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
             do {
                 try await SimpleUpdater.shared.rollbackToLatestBackup()
                 let success = NSAlert()
-                success.messageText = "Rollback Successful"
-                success.informativeText = "Rolled back to \(availableVersion). FluidVoice will relaunch shortly."
+                success.messageText = "回滚成功"
+                success.informativeText = "已回滚至 \(availableVersion)，FluidVoice 即将重启。"
                 success.alertStyle = .informational
-                success.addButton(withTitle: "Report Bug")
-                success.addButton(withTitle: "OK")
+                success.addButton(withTitle: "反馈问题")
+                success.addButton(withTitle: "好")
                 let response = success.runModal()
                 if response == .alertFirstButtonReturn {
                     self.openIssueReportingPage()
                 }
             } catch {
                 let fail = NSAlert()
-                fail.messageText = "Rollback Failed"
+                fail.messageText = "回滚失败"
                 fail.informativeText = error.localizedDescription
                 fail.alertStyle = .critical
-                fail.addButton(withTitle: "OK")
+                fail.addButton(withTitle: "好")
                 fail.runModal()
             }
         }
@@ -699,15 +699,15 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         }
 
         let picker = NSAlert()
-        picker.messageText = "Download Previous Build"
-        picker.informativeText = "Choose one of the latest release builds to install manually."
+        picker.messageText = "下载旧版本"
+        picker.informativeText = "选择以下某个版本手动安装。"
         picker.alertStyle = .informational
 
         for option in options {
             picker.addButton(withTitle: option.version)
         }
-        picker.addButton(withTitle: "All Releases")
-        picker.addButton(withTitle: "Cancel")
+        picker.addButton(withTitle: "全部版本")
+        picker.addButton(withTitle: "取消")
 
         let response = picker.runModal()
         let first = NSApplication.ModalResponse.alertFirstButtonReturn.rawValue

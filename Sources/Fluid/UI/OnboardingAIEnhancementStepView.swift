@@ -119,7 +119,7 @@ struct OnboardingAIEnhancementStepView: View {
 
     private var privateAIModelSizeText: String {
         guard let byteCount = self.privateAIModel.artifact.byteCount, byteCount > 0 else {
-            return "Size shown before download"
+            return "下载前显示大小"
         }
         return "~\(ByteCountFormatter.string(fromByteCount: byteCount, countStyle: .file))"
     }
@@ -149,21 +149,21 @@ struct OnboardingAIEnhancementStepView: View {
             return PrivateAIModelDownloadProgressText.buttonTitle(for: self.privateAISetupProgress)
         }
         if self.isLoadingPrivateAI {
-            return "Loading..."
+            return "加载中..."
         }
         if self.isDeletingPrivateAI {
-            return "Deleting..."
+            return "删除中..."
         }
         if !self.isPrivateAIInstalled {
-            return "Download"
+            return "下载"
         }
         if self.isPrivateAIAvailable, !self.shouldShowTryout {
-            return "Test FluidVoice"
+            return "测试 FluidVoice"
         }
         if self.isPrivateAIAvailable, self.shouldShowTryout {
-            return "Using"
+            return "使用中"
         }
-        return "Use"
+        return "使用"
     }
 
     private var primaryPrivateAIButtonIcon: String? {
@@ -280,7 +280,7 @@ struct OnboardingAIEnhancementStepView: View {
                 FluidOnboardingCompactAppIconMark(size: 52)
                     .padding(.bottom, 18)
 
-                Text("One more thing...")
+                Text("还有一件事...")
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -323,20 +323,20 @@ struct OnboardingAIEnhancementStepView: View {
 
     private var setupSubtitleText: String {
         if self.hasPrivateAIProvider {
-            return "FluidVoice can polish raw dictation locally with an optional built-in AI engine."
+            return "FluidVoice 可通过可选的内置 AI 引擎在本地润色原始听写内容。"
         }
-        return "Optional: connect your own AI provider to polish dictation."
+        return "可选：连接你自己的 AI 提供商以润色听写内容。"
     }
 
     private var setupQuestionText: String {
-        self.hasPrivateAIProvider ? "Want FluidVoice to polish your dictation?" : "Want AI polishing?"
+        self.hasPrivateAIProvider ? "希望 FluidVoice 润色你的听写内容吗？" : "需要 AI 润色吗？"
     }
 
     private var setupFootnoteText: String {
         if self.shouldShowTryout {
-            return "Try it below before finishing setup."
+            return "完成设置前，请在下方试用。"
         }
-        return "You can change this later in AI Enhancement settings."
+        return "你可以稍后在 AI 增强设置中更改。"
     }
 
     private func playgroundSection(containerWidth: CGFloat) -> some View {
@@ -346,14 +346,14 @@ struct OnboardingAIEnhancementStepView: View {
                     .padding(.bottom, 18)
 
                 VStack(spacing: 8) {
-                    Text("Let's polish your text.")
+                    Text("来润色你的文本吧。")
                         .font(.system(size: 32, weight: .semibold))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                         .lineLimit(1)
                         .minimumScaleFactor(0.74)
 
-                    Text("Choose an example, press \(self.shortcutDisplay), then dictate it naturally.")
+                    Text("选择一个示例，按下 \(self.shortcutDisplay)，然后自然地说出来。")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(Color.white.opacity(0.62))
                         .multilineTextAlignment(.center)
@@ -369,7 +369,7 @@ struct OnboardingAIEnhancementStepView: View {
                 .frame(width: self.exampleGridWidth(containerWidth: containerWidth))
                 .padding(.bottom, 12)
 
-            Text(self.isTestReady ? "Looks good. Finish setup when you're ready." : "The polished result will appear on the selected row.")
+            Text(self.isTestReady ? "看起来不错！准备好后完成设置。" : "润色结果将显示在所选行中。")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(Color.white.opacity(0.46))
                 .multilineTextAlignment(.center)
@@ -403,7 +403,7 @@ struct OnboardingAIEnhancementStepView: View {
 
     private var examplesPanel: some View {
         VStack(spacing: ExampleGridMetrics.rowSpacing) {
-            self.exampleGridHeader(leftTitle: "Raw dictation (before)", rightTitle: "Polished (after)")
+            self.exampleGridHeader(leftTitle: "原始听写（处理前）", rightTitle: "润色后")
 
             ForEach(Self.examples) { example in
                 self.exampleRow(example)
@@ -491,7 +491,7 @@ struct OnboardingAIEnhancementStepView: View {
 
     private var playgroundExamplesPanel: some View {
         VStack(spacing: ExampleGridMetrics.rowSpacing) {
-            self.exampleGridHeader(leftTitle: "Try saying this", rightTitle: "Polished output")
+            self.exampleGridHeader(leftTitle: "尝试说这句话", rightTitle: "润色输出")
 
             ForEach(Self.examples) { example in
                 self.playgroundExampleRow(example)
@@ -629,7 +629,7 @@ struct OnboardingAIEnhancementStepView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(FluidOnboardingLandingColors.blue)
 
-                        Text("Listening...")
+                        Text("正在聆听...")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(Color.white.opacity(0.74))
                     }
@@ -637,13 +637,13 @@ struct OnboardingAIEnhancementStepView: View {
                     .padding(.vertical, 14)
                 } else if isSelected {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Dictate here.")
+                        Text("在此听写。")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(Color.white.opacity(0.36))
                             .lineLimit(1)
                             .minimumScaleFactor(0.82)
 
-                        Text("Press \(self.shortcutDisplay) and speak this example.")
+                        Text("按下 \(self.shortcutDisplay) 并说出此示例。")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(Color.white.opacity(0.28))
                             .lineLimit(1)
@@ -693,7 +693,7 @@ struct OnboardingAIEnhancementStepView: View {
             )
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Try example. \(example.raw)")
+        .accessibilityLabel("试用示例：\(example.raw)")
     }
 
     @ViewBuilder
@@ -711,22 +711,22 @@ struct OnboardingAIEnhancementStepView: View {
 
         return HStack(alignment: .center, spacing: 18) {
             VStack(alignment: .leading, spacing: 10) {
-                Text("AI provider")
+                Text("AI 提供商")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
 
-                Label("Connect your own provider to polish dictation.", systemImage: "sparkles")
+                Label("连接你自己的提供商以润色听写内容。", systemImage: "sparkles")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color.white.opacity(0.74))
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
 
                 HStack(spacing: 13) {
-                    self.modelFact("key.fill", "Uses your API key")
-                    self.modelFact("slider.horizontal.3", "Configurable later")
-                    self.modelFact("network", "Cloud or local")
+                    self.modelFact("key.fill", "使用你的 API 密钥")
+                    self.modelFact("slider.horizontal.3", "稍后可配置")
+                    self.modelFact("network", "云端或本地")
                 }
             }
 
@@ -735,7 +735,7 @@ struct OnboardingAIEnhancementStepView: View {
             self.pillButton(
                 PillButtonConfiguration(
                     id: "generic-ai-provider",
-                    title: "Set up provider",
+                    title: "配置提供商",
                     systemImage: "arrow.up.right",
                     tone: .primary,
                     width: 168,
@@ -777,7 +777,7 @@ struct OnboardingAIEnhancementStepView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.78)
 
-                        Text("Experimental")
+                        Text("实验性功能")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(Color(red: 1.0, green: 0.72, blue: 0.26))
                             .padding(.horizontal, 8)
@@ -788,12 +788,12 @@ struct OnboardingAIEnhancementStepView: View {
                             )
                     }
 
-                    Text("Powered by \(self.privateAIModelDisplayName)")
+                    Text("由 \(self.privateAIModelDisplayName) 提供支持")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.42))
                         .lineLimit(1)
 
-                    Label("Trained on 100K+ dictation data points to polish your words.", systemImage: "sparkles")
+                    Label("基于 10 万余条听写数据训练，精心润色你的文字。", systemImage: "sparkles")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.74))
                         .lineLimit(1)
@@ -814,7 +814,7 @@ struct OnboardingAIEnhancementStepView: View {
                         self.pillButton(
                             PillButtonConfiguration(
                                 id: "private-ai-provider-delete",
-                                title: "Delete",
+                                title: "删除",
                                 systemImage: "trash.fill",
                                 tone: .destructive,
                                 width: 112,
@@ -829,9 +829,9 @@ struct OnboardingAIEnhancementStepView: View {
             }
 
             HStack(spacing: 13) {
-                self.modelFact("lock.fill", "Runs locally. No API key.")
-                self.modelFact("internaldrive", "Download size \(self.privateAIModelSizeText)")
-                self.modelFact("timer", "May be slower on older Macs.")
+                self.modelFact("lock.fill", "本地运行，无需 API 密钥。")
+                self.modelFact("internaldrive", "下载大小 \(self.privateAIModelSizeText)")
+                self.modelFact("timer", "在较旧的 Mac 上可能较慢。")
             }
 
             if self.isDownloadingPrivateAI {
@@ -862,7 +862,7 @@ struct OnboardingAIEnhancementStepView: View {
     private var privateAIDownloadProgressView: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 8) {
-                Text(self.privateAISetupStatusText ?? "Downloading. This can take a few minutes.")
+                Text(self.privateAISetupStatusText ?? "下载中，可能需要几分钟。")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Color.white.opacity(0.66))
                     .lineLimit(1)
@@ -933,7 +933,7 @@ struct OnboardingAIEnhancementStepView: View {
             self.pillButton(
                 PillButtonConfiguration(
                     id: "back",
-                    title: "Back",
+                    title: "返回",
                     systemImage: nil,
                     tone: .secondary,
                     width: 132,
@@ -973,7 +973,7 @@ struct OnboardingAIEnhancementStepView: View {
         self.pillButton(
             PillButtonConfiguration(
                 id: "ai-provider",
-                title: self.hasPrivateAIProvider ? "Use my own AI provider" : "Set up AI provider",
+                title: self.hasPrivateAIProvider ? "使用我自己的 AI 提供商" : "配置 AI 提供商",
                 systemImage: "arrow.up.right",
                 tone: .secondary,
                 width: 280,
@@ -992,7 +992,7 @@ struct OnboardingAIEnhancementStepView: View {
         self.pillButton(
             PillButtonConfiguration(
                 id: "ai-skip",
-                title: "Skip for now",
+                title: "暂时跳过",
                 systemImage: nil,
                 tone: .secondary,
                 width: 132,
@@ -1011,7 +1011,7 @@ struct OnboardingAIEnhancementStepView: View {
         self.pillButton(
             PillButtonConfiguration(
                 id: "ai-skip-tryout",
-                title: "Skip",
+                title: "跳过",
                 systemImage: nil,
                 tone: .secondary,
                 width: 132,
@@ -1030,7 +1030,7 @@ struct OnboardingAIEnhancementStepView: View {
         self.pillButton(
             PillButtonConfiguration(
                 id: "ai-finish",
-                title: "Finish setup",
+                title: "完成设置",
                 systemImage: "checkmark",
                 tone: .primary,
                 width: 164,
@@ -1170,7 +1170,7 @@ struct OnboardingAIEnhancementStepView: View {
     private func downloadPrivateAIModel() {
         guard self.canNavigateOrMutate else { return }
         guard self.privateAIModel.canDownload else {
-            self.privateAISetupErrorMessage = "Download is not available for this build."
+            self.privateAISetupErrorMessage = "此版本不支持下载。"
             return
         }
 
