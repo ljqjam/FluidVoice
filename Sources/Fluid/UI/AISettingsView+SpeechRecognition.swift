@@ -165,8 +165,8 @@ extension VoiceEngineSettingsView {
     }
 
     /// Dedicated live-meeting section. Roles here are fixed and automatic — independent of the
-    /// single daily-dictation "activated" model above: real-time uses SenseVoice, post-stop
-    /// refinement uses Cohere. Only downloading these two models is required to enable them.
+    /// single daily-dictation "activated" model above: real-time uses streaming-zipformer (中文),
+    /// post-stop refinement uses FireRedASR. Only downloading these two models is required.
     var liveMeetingSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
@@ -178,7 +178,7 @@ extension VoiceEngineSettingsView {
                     .foregroundStyle(self.voiceEngineTitleText)
             }
 
-            Text("实时会议不使用上方“激活”的模型，而是固定分工：实时出字用 SenseVoice，停止后用 Cohere 精修整段。只需下载这两个模型即可自动启用。")
+            Text("实时会议不使用上方“激活”的模型，而是固定分工：实时出字用 streaming-zipformer（中文），停止后用 FireRedASR 精修整段。只需下载这两个模型即可自动启用。")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(self.voiceEngineSecondaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -188,13 +188,17 @@ extension VoiceEngineSettingsView {
             VStack(spacing: 8) {
                 self.liveMeetingRoleRow(
                     role: "实时出字",
+                    modelName: "streaming-zipformer（中文）",
                     subtitle: "低延迟流式识别",
-                    model: .senseVoiceSmall
+                    logo: "waveform",
+                    modelRole: .streaming
                 )
                 self.liveMeetingRoleRow(
                     role: "整段精修",
+                    modelName: "FireRedASR（中文）",
                     subtitle: refinementEnabled ? "停止后对整段音频重转写" : "已关闭，保留实时稿",
-                    model: .cohereTranscribeSixBit
+                    logo: "sparkles",
+                    modelRole: .refine
                 )
                 .opacity(refinementEnabled ? 1 : 0.5)
             }
@@ -204,7 +208,7 @@ extension VoiceEngineSettingsView {
                     Text("结束后自动精修")
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.voiceEngineTitleText)
-                    Text("停止后用 Cohere 对整段音频重转写。若实时稿（SenseVoice）对你的中文效果更好，可关闭。")
+                    Text("停止后用 FireRedASR 对整段音频重转写。若实时稿（streaming-zipformer）对你的中文效果更好，可关闭。")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.voiceEngineSecondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -231,12 +235,21 @@ extension VoiceEngineSettingsView {
         )
     }
 
-    private func liveMeetingRoleRow(role: String, subtitle: String, model: SettingsStore.SpeechModel) -> some View {
-        let installed = model.isInstalled
-        let isDownloading = self.viewModel.downloadingModel == model
+    private func liveMeetingRoleRow(
+        role: String,
+        modelName: String,
+        subtitle: String,
+        logo: String,
+        modelRole: LiveMeetingModelRole
+    ) -> some View {
+        let installed = self.viewModel.liveMeetingModelInstalled(modelRole)
+        let isDownloading = self.viewModel.downloadingLiveMeetingRole == modelRole
+        let anyDownloading = self.viewModel.downloadingLiveMeetingRole != nil
 
         return HStack(alignment: .center, spacing: 10) {
-            self.speechModelLogoView(for: model)
+            Image(systemName: logo)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(self.theme.palette.accent)
                 .frame(width: 28, height: 28)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -247,7 +260,7 @@ extension VoiceEngineSettingsView {
                     Text("·")
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.voiceEngineTertiaryText)
-                    Text(model.humanReadableName)
+                    Text(modelName)
                         .font(self.theme.typography.bodyStrong)
                         .foregroundStyle(self.voiceEngineTitleText)
                 }
@@ -260,10 +273,10 @@ extension VoiceEngineSettingsView {
 
             if isDownloading {
                 VStack(alignment: .trailing, spacing: 4) {
-                    ProgressView(value: self.viewModel.downloadProgress)
+                    ProgressView(value: self.viewModel.liveMeetingDownloadProgress)
                         .progressViewStyle(.linear)
                         .frame(width: 90)
-                    Text("\(Int(self.viewModel.downloadProgress * 100))%")
+                    Text("\(Int(self.viewModel.liveMeetingDownloadProgress * 100))%")
                         .font(self.theme.typography.bodySmall)
                         .foregroundStyle(self.voiceEngineSecondaryText)
                 }
@@ -276,13 +289,12 @@ extension VoiceEngineSettingsView {
                     .foregroundStyle(Color.fluidGreen)
             } else {
                 Button("下载") {
-                    self.viewModel.previewSpeechModel = model
-                    self.viewModel.downloadSpeechModel(model)
+                    self.viewModel.downloadLiveMeetingModel(modelRole)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
                 .tint(.blue)
-                .disabled(self.viewModel.areSpeechModelActionsBlocked)
+                .disabled(anyDownloading)
             }
         }
         .padding(.horizontal, 12)

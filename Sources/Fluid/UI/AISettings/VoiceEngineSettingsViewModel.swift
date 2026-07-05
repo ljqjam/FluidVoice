@@ -2,6 +2,13 @@ import AppKit
 import Combine
 import SwiftUI
 
+/// Fixed roles of the live-meeting pipeline. These models are downloaded independently of the
+/// daily-dictation `SpeechModel` enum to avoid touching its many exhaustive switches.
+enum LiveMeetingModelRole: String {
+    case streaming
+    case refine
+}
+
 @MainActor
 final class VoiceEngineSettingsViewModel: ObservableObject {
     let settings: SettingsStore
@@ -45,6 +52,55 @@ final class VoiceEngineSettingsViewModel: ObservableObject {
     }
 
     @Published var removeFillerWordsEnabled: Bool
+
+    // MARK: - Live Meeting Models
+
+    /// Which live-meeting model is currently downloading (nil = none). Independent of `downloadingModel`.
+    @Published var downloadingLiveMeetingRole: LiveMeetingModelRole?
+    /// Progress (0...1) for the active live-meeting download.
+    @Published var liveMeetingDownloadProgress: Double = 0
+
+    func liveMeetingModelInstalled(_ role: LiveMeetingModelRole) -> Bool {
+        switch role {
+        case .streaming: return StreamingZipformerModelLocator.modelsExist()
+        case .refine: return FireRedAsrModelLocator.modelsExist()
+        }
+    }
+
+    func downloadLiveMeetingModel(_ role: LiveMeetingModelRole) {
+        guard self.downloadingLiveMeetingRole == nil else { return }
+        self.downloadingLiveMeetingRole = role
+        self.liveMeetingDownloadProgress = 0
+
+        Task { [weak self] in
+            guard let self else { return }
+            defer {
+                Task { @MainActor in
+                    self.downloadingLiveMeetingRole = nil
+                    self.liveMeetingDownloadProgress = 0
+                }
+            }
+            let progressHandler: (Double) -> Void = { [weak self] value in
+                Task { @MainActor in self?.liveMeetingDownloadProgress = value }
+            }
+            do {
+                switch role {
+                case .streaming:
+                    try await StreamingZipformerProvider().prepare(progressHandler: progressHandler)
+                case .refine:
+                    try await FireRedAsrProvider().prepare(progressHandler: progressHandler)
+                }
+                DebugLogger.shared.info("Live-meeting model downloaded: \(role.rawValue)", source: "VoiceEngineVM")
+            } catch is CancellationError {
+                DebugLogger.shared.info("Live-meeting model download cancelled: \(role.rawValue)", source: "VoiceEngineVM")
+            } catch {
+                DebugLogger.shared.error("Failed to download live-meeting model \(role.rawValue): \(error)", source: "VoiceEngineVM")
+                self.asr.errorTitle = "模型下载失败"
+                self.asr.errorMessage = error.localizedDescription
+                self.asr.showError = true
+            }
+        }
+    }
 
     init(settings: SettingsStore, appServices: AppServices) {
         self.settings = settings

@@ -210,7 +210,7 @@ public func sherpaOnnxOnlineRecognizerConfig(
 ///  let result = recognizer.getResult()
 ///  print("text: \(result.text)")
 ///
-class SherpaOnnxOnlineRecongitionResult {
+public class SherpaOnnxOnlineRecongitionResult {
   /// A pointer to the underlying counterpart in C
   private let result: UnsafePointer<SherpaOnnxOnlineRecognizerResult>
 
@@ -243,23 +243,23 @@ class SherpaOnnxOnlineRecongitionResult {
   /// Return the actual recognition result.
   /// For English models, it contains words separated by spaces.
   /// For Chinese models, it contains Chinese words.
-  var text: String { _text }
+  public var text: String { _text }
 
-  var count: Int { Int(result.pointee.count) }
+  public var count: Int { Int(result.pointee.count) }
 
-  var tokens: [String] { _tokens }
+  public var tokens: [String] { _tokens }
 
-  var timestamps: [Float] { _timestamps }
+  public var timestamps: [Float] { _timestamps }
 }
 
-class SherpaOnnxRecognizer {
+public class SherpaOnnxRecognizer {
   /// A pointer to the underlying counterpart in C
   private let recognizer: OpaquePointer
   private var stream: OpaquePointer
   private let lock = NSLock()  // for thread-safe stream replacement
 
   /// Constructor taking a model config
-  init(
+  public init(
     config: UnsafePointer<SherpaOnnxOnlineRecognizerConfig>
   ) {
     self.recognizer = SherpaOnnxCreateOnlineRecognizer(config)
@@ -277,22 +277,22 @@ class SherpaOnnxRecognizer {
   ///   - samples: Audio samples normalized to the range [-1, 1]
   ///   - sampleRate: Sample rate of the input audio samples. Must match
   ///                 the one expected by the model.
-  func acceptWaveform(samples: [Float], sampleRate: Int = 16_000) {
+  public func acceptWaveform(samples: [Float], sampleRate: Int = 16_000) {
     SherpaOnnxOnlineStreamAcceptWaveform(stream, Int32(sampleRate), samples, Int32(samples.count))
   }
 
-  func isReady() -> Bool {
+  public func isReady() -> Bool {
     return SherpaOnnxIsOnlineStreamReady(recognizer, stream) != 0
   }
 
   /// If there are enough number of feature frames, it invokes the neural
   /// network computation and decoding. Otherwise, it is a no-op.
-  func decode() {
+  public func decode() {
     SherpaOnnxDecodeOnlineStream(recognizer, stream)
   }
 
   /// Get the decoding results so far
-  func getResult() -> SherpaOnnxOnlineRecongitionResult {
+  public func getResult() -> SherpaOnnxOnlineRecongitionResult {
     guard let result = SherpaOnnxGetOnlineStreamResult(recognizer, stream) else {
       fatalError("SherpaOnnxGetOnlineStreamResult returned nil")
     }
@@ -304,7 +304,7 @@ class SherpaOnnxRecognizer {
   /// If hotwords is an empty string, it just recreates the decoding stream
   /// If hotwords is not empty, it will create a new decoding stream with
   /// the given hotWords appended to the default hotwords.
-  func reset(hotwords: String? = nil) {
+  public func reset(hotwords: String? = nil) {
     guard let words = hotwords, !words.isEmpty else {
       SherpaOnnxOnlineStreamReset(recognizer, stream)
       return
@@ -324,12 +324,12 @@ class SherpaOnnxRecognizer {
 
   /// Signal that no more audio samples would be available.
   /// After this call, you cannot call acceptWaveform() any more.
-  func inputFinished() {
+  public func inputFinished() {
     SherpaOnnxOnlineStreamInputFinished(stream)
   }
 
   /// Return true is an endpoint has been detected.
-  func isEndpoint() -> Bool {
+  public func isEndpoint() -> Bool {
     return SherpaOnnxOnlineStreamIsEndpoint(recognizer, stream) != 0
   }
 }

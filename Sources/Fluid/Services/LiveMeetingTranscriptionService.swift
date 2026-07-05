@@ -2,19 +2,41 @@ import AVFoundation
 import Combine
 import Foundation
 
+/// A single meeting transcript line: one VAD-detected utterance with its start time
+/// (seconds from session start) and transcribed text. Lines are the source of truth for
+/// the live view, history, and export — each renders as a timestamped block.
+struct MeetingTranscriptLine: Identifiable, Equatable {
+    let id: UUID
+    let startTime: TimeInterval
+    var text: String
+
+    init(id: UUID = UUID(), startTime: TimeInterval, text: String) {
+        self.id = id
+        self.startTime = startTime
+        self.text = text
+    }
+}
+
 /// Real-time meeting transcription: captures microphone + system audio simultaneously,
 /// mixes them into a single 16 kHz mono stream, and transcribes it live using the shared
-/// ASR provider. Completed segments are appended to a growing transcript and saved to the
+/// ASR provider. Completed utterances become timestamped lines and are saved to the
 /// file-transcription history when the session stops.
 @MainActor
 final class LiveMeetingTranscriptionService: ObservableObject {
     @Published var isRunning = false
-    @Published var liveTranscript = ""
+    @Published var lines: [MeetingTranscriptLine] = []
     @Published var partialText = ""
     @Published var status = ""
     @Published var errorMessage: String?
     @Published var audioLevel: CGFloat = 0
     @Published var elapsedSeconds: TimeInterval = 0
+
+    /// Full transcript as `[MM:SS] text` lines, used for copy / export / saving.
+    var liveTranscript: String {
+        self.lines
+            .map { "[\(Self.formatTimestamp($0.startTime))] \($0.text)" }
+            .joined(separator: "\n")
+    }
 
     private let asrService: ASRService
     private let mixer = LiveAudioMixer()
@@ -32,16 +54,31 @@ final class LiveMeetingTranscriptionService: ObservableObject {
     private var transcribeLoopTask: Task<Void, Never>?
     private var startDate: Date?
 
+    // A completed utterance awaiting transcription, tagged with its session start time.
+    private struct PendingUtterance {
+        let startTime: TimeInterval
+        let samples: [Float]
+    }
+
     // Voice-activity segmentation state.
     private var currentSegment: [Float] = []
     private var inSpeech = false
     private var trailingSilenceSamples = 0
-    private var pendingUtterances: [[Float]] = []
+    private var pendingUtterances: [PendingUtterance] = []
 
-    // Silero VAD (nil → RMS fallback), full-session recording, and live-path provider override.
+    // Running sample counters used to timestamp utterances (RMS fallback path).
+    private var totalSamplesProcessed = 0
+    private var currentSegmentStartSample = 0
+
+    // Silero VAD (nil → RMS fallback) and live-path provider override.
     private var vadSegmenter: SileroVADSegmenter?
-    private var audioFileWriter: MeetingAudioFileWriter?
     private var liveUtteranceProvider: TranscriptionProvider?
+
+    // Per-utterance two-pass refinement: retain each line's audio (only when refinement is
+    // enabled and the FireRedASR model is present) so we can re-transcribe it at stop while
+    // preserving the line's timestamp and position. Released once refinement finishes.
+    private var retainAudioForRefinement = false
+    private var refineItems: [(id: UUID, samples: [Float])] = []
 
     // Live partial preview: decode the in-progress (not-yet-finalized) speech buffer with the fast
     // live provider so text appears while the user is still speaking, before the utterance closes.
@@ -76,16 +113,12 @@ final class LiveMeetingTranscriptionService: ObservableObject {
 
         let engine = self.micEngineStorage as? AVAudioEngine
         let systemCapture = self.systemCapture
-        let recordingURL = self.audioFileWriter?.url
         Task.detached {
             if let engine {
                 engine.inputNode.removeTap(onBus: 0)
                 engine.stop()
             }
             await systemCapture.stop()
-            if let recordingURL {
-                try? FileManager.default.removeItem(at: recordingURL)
-            }
         }
     }
 
@@ -101,32 +134,29 @@ final class LiveMeetingTranscriptionService: ObservableObject {
 
         self.errorMessage = nil
         self.status = "正在准备模型…"
-        self.liveTranscript = ""
+        self.lines = []
         self.partialText = ""
         self.currentSegment = []
         self.inSpeech = false
         self.trailingSilenceSamples = 0
         self.pendingUtterances = []
+        self.totalSamplesProcessed = 0
+        self.currentSegmentStartSample = 0
         self.vadSegmenter = nil
-        self.audioFileWriter = nil
         self.liveUtteranceProvider = nil
+        self.refineItems = []
+        self.retainAudioForRefinement = false
         self.previewBuffer = []
         self.isPreviewing = false
         self.lastPreviewAt = .distantPast
         self.elapsedSeconds = 0
         self.mixer.reset()
 
-        do {
-            try await self.asrService.ensureAsrReady()
-        } catch {
+        // 实时会议使用独立中文模型：streaming-zipformer（实时出字）+ FireRedASR（精修），
+        // 与全局听写引擎解耦。streaming-zipformer 为必需项，未下载则无法开始。
+        guard StreamingZipformerModelLocator.modelsExist() else {
             self.status = ""
-            self.errorMessage = "模型加载失败：\(error.localizedDescription)"
-            return
-        }
-
-        guard self.asrService.fileTranscriptionProvider.isReady else {
-            self.status = ""
-            self.errorMessage = "转写引擎尚未就绪。"
+            self.errorMessage = "请先在「设置 › 语音识别 › 实时会议模型」中下载 streaming-zipformer（中文）模型。"
             return
         }
 
@@ -164,22 +194,23 @@ final class LiveMeetingTranscriptionService: ObservableObject {
             DebugLogger.shared.warning("Live meeting: Silero VAD unavailable, falling back to RMS", source: "LiveMeetingTranscriptionService")
         }
 
-        // 整场混音落盘，供 stop 时 Cohere two-pass 精修；写入失败则跳过精修。
-        let recordingURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("live-meeting-\(UUID().uuidString).wav")
-        self.audioFileWriter = try? MeetingAudioFileWriter(url: recordingURL)
-        if self.audioFileWriter == nil {
-            DebugLogger.shared.warning("Live meeting: audio writer init failed, two-pass disabled", source: "LiveMeetingTranscriptionService")
-        }
+        // 两遍精修（逐句）：仅在开启且 FireRedASR 已下载时保留各句音频，供 stop 时逐句精修。
+        self.retainAudioForRefinement = SettingsStore.shared.liveMeetingRefinementEnabled
+            && FireRedAsrModelLocator.modelsExist()
 
-        // 实时路径优先 SenseVoice：已下载即用，与全局听写模型解耦。
+        // 实时路径：streaming-zipformer（中文，真流式），已由上方 pre-flight 保证模型存在。
         self.liveUtteranceProvider = nil
-        if SenseVoiceModelLocator.modelsExist() {
-            let senseVoice = SenseVoiceProvider()
-            if (try? await senseVoice.prepare(progressHandler: nil)) != nil, senseVoice.isReady {
-                self.liveUtteranceProvider = senseVoice
-                DebugLogger.shared.info("Live meeting: using SenseVoice for live utterances", source: "LiveMeetingTranscriptionService")
-            }
+        let zipformer = StreamingZipformerProvider()
+        do {
+            try await zipformer.prepare(progressHandler: nil)
+            self.liveUtteranceProvider = zipformer
+            DebugLogger.shared.info("Live meeting: using streaming-zipformer for live utterances", source: "LiveMeetingTranscriptionService")
+        } catch {
+            self.stopMicrophone()
+            await self.systemCapture.stop()
+            self.status = ""
+            self.errorMessage = "实时转写模型加载失败：\(error.localizedDescription)"
+            return
         }
 
         // Drop the warm-up pre-roll (audio captured while VAD/writer/provider were
@@ -214,10 +245,11 @@ final class LiveMeetingTranscriptionService: ObservableObject {
             self.processVAD(block: remaining)
         }
         if let segmenter = self.vadSegmenter {
-            for utterance in segmenter.flush()
-                where Double(utterance.count) / self.sampleRate >= self.minUtteranceSeconds
+            for segment in segmenter.flush()
+                where Double(segment.samples.count) / self.sampleRate >= self.minUtteranceSeconds
             {
-                self.pendingUtterances.append(utterance)
+                let startTime = Double(segment.startSample) / self.sampleRate
+                self.pendingUtterances.append(PendingUtterance(startTime: startTime, samples: segment.samples))
             }
         } else {
             self.flushCurrentUtterance()
@@ -235,44 +267,12 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         self.audioLevel = 0
         self.status = ""
 
-        // Two-pass：Cohere 已下载且录音存在 → 全文精修，替换 live 稿。
-        let recordingURL = self.audioFileWriter?.url
-        self.audioFileWriter = nil
-        defer {
-            if let recordingURL {
-                try? FileManager.default.removeItem(at: recordingURL)
-            }
-        }
-
-        let liveText = self.liveTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
-        var refinedText: String?
-        let audioFileExists = recordingURL.map { FileManager.default.fileExists(atPath: $0.path) } ?? false
-        if SettingsStore.shared.liveMeetingRefinementEnabled,
-           LiveMeetingRefinement.shouldAttempt(
-               cohereInstalled: SettingsStore.SpeechModel.cohereTranscribeSixBit.isInstalled,
-               audioFileExists: audioFileExists
-           ), let recordingURL {
-            self.status = "正在精修转录…"
-            do {
-                let cohere = ExternalCoreMLTranscriptionProvider(
-                    modelOverride: .cohereTranscribeSixBit,
-                    languageOverride: .mandarinChinese
-                )
-                try await cohere.prepare(progressHandler: nil)
-                let result = try await self.asrService.runSerializedTranscription {
-                    try await cohere.transcribeFile(at: recordingURL)
-                }
-                refinedText = result.text.trimmingCharacters(in: .whitespacesAndNewlines)
-            } catch {
-                DebugLogger.shared.warning("Live meeting refinement failed: \(error)", source: "LiveMeetingTranscriptionService")
-            }
-        }
-
-        let finalText = LiveMeetingRefinement.finalTranscript(live: liveText, refined: refinedText)
-        self.liveTranscript = finalText
+        // Two-pass：逐句用 FireRedASR 精修，保留时间戳与分行结构（替换对应行文本）。
+        await self.refineLinesIfNeeded()
+        self.refineItems = []
         self.status = ""
 
-        let text = finalText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = self.liveTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
         if !text.isEmpty {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -287,6 +287,35 @@ final class LiveMeetingTranscriptionService: ObservableObject {
             MeetingTranscriptExporter.export(text: text, displayName: result.fileName)
         }
         DebugLogger.shared.info("Live meeting transcription stopped", source: "LiveMeetingTranscriptionService")
+    }
+
+    /// Re-transcribes each retained utterance with FireRedASR and replaces the matching line's
+    /// text in place, keeping its timestamp and position. No-op unless refinement is enabled and
+    /// audio was retained during the session.
+    private func refineLinesIfNeeded() async {
+        guard self.retainAudioForRefinement, !self.refineItems.isEmpty else { return }
+        let fireRed = FireRedAsrProvider()
+        do {
+            try await fireRed.prepare(progressHandler: nil)
+        } catch {
+            DebugLogger.shared.warning("Live meeting refinement setup failed: \(error)", source: "LiveMeetingTranscriptionService")
+            return
+        }
+        let total = self.refineItems.count
+        for (index, item) in self.refineItems.enumerated() {
+            self.status = "正在精修转录…（\(index + 1)/\(total)）"
+            do {
+                let result = try await self.asrService.runSerializedTranscription { [samples = item.samples] in
+                    try await fireRed.transcribeFinal(samples)
+                }
+                let refined = result.text.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !refined.isEmpty, let idx = self.lines.firstIndex(where: { $0.id == item.id }) {
+                    self.lines[idx].text = refined
+                }
+            } catch {
+                DebugLogger.shared.warning("Live meeting per-utterance refinement failed: \(error)", source: "LiveMeetingTranscriptionService")
+            }
+        }
     }
 
     // MARK: - Microphone
@@ -371,7 +400,6 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         guard !block.isEmpty else { return }
 
         self.audioLevel = CGFloat(min(1.0, Double(Self.rms(block)) * 12))
-        try? self.audioFileWriter?.append(block)
         self.processVAD(block: block)
     }
 
@@ -379,13 +407,16 @@ final class LiveMeetingTranscriptionService: ObservableObject {
     /// silence, and enqueue a completed utterance when a pause is detected or the cap is reached.
     private func processVAD(block: [Float]) {
         guard !block.isEmpty else { return }
+        let blockStartSample = self.totalSamplesProcessed
+        self.totalSamplesProcessed += block.count
 
         if let segmenter = self.vadSegmenter {
             let completed = segmenter.acceptWaveform(block)
-            for utterance in completed
-                where Double(utterance.count) / self.sampleRate >= self.minUtteranceSeconds
+            for segment in completed
+                where Double(segment.samples.count) / self.sampleRate >= self.minUtteranceSeconds
             {
-                self.pendingUtterances.append(utterance)
+                let startTime = Double(segment.startSample) / self.sampleRate
+                self.pendingUtterances.append(PendingUtterance(startTime: startTime, samples: segment.samples))
             }
             if !completed.isEmpty {
                 self.resetPreview()
@@ -399,6 +430,9 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         let isSpeech = Self.rms(block) >= self.speechRMSThreshold
 
         if isSpeech {
+            if !self.inSpeech {
+                self.currentSegmentStartSample = blockStartSample
+            }
             self.inSpeech = true
             self.currentSegment.append(contentsOf: block)
             self.trailingSilenceSamples = 0
@@ -437,7 +471,8 @@ final class LiveMeetingTranscriptionService: ObservableObject {
             }
         }
         guard Double(utterance.count) / self.sampleRate >= self.minUtteranceSeconds else { return }
-        self.pendingUtterances.append(utterance)
+        let startTime = Double(self.currentSegmentStartSample) / self.sampleRate
+        self.pendingUtterances.append(PendingUtterance(startTime: startTime, samples: utterance))
     }
 
     // MARK: - Live partial preview
@@ -510,18 +545,18 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         }
     }
 
-    private func transcribeAndAppend(_ utterance: [Float]) async {
+    private func transcribeAndAppend(_ utterance: PendingUtterance) async {
         do {
             let provider = self.liveUtteranceProvider ?? self.asrService.fileTranscriptionProvider
-            let result = try await self.asrService.runSerializedTranscription { [provider] in
-                try await provider.transcribeFinal(utterance)
+            let result = try await self.asrService.runSerializedTranscription { [provider, samples = utterance.samples] in
+                try await provider.transcribeFinal(samples)
             }
             let text = result.text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !text.isEmpty else { return }
-            if self.liveTranscript.isEmpty {
-                self.liveTranscript = text
-            } else {
-                self.liveTranscript += "\n" + text
+            let line = MeetingTranscriptLine(startTime: utterance.startTime, text: text)
+            self.lines.append(line)
+            if self.retainAudioForRefinement {
+                self.refineItems.append((id: line.id, samples: utterance.samples))
             }
         } catch {
             DebugLogger.shared.warning("Live utterance transcription failed: \(error)", source: "LiveMeetingTranscriptionService")
@@ -529,6 +564,12 @@ final class LiveMeetingTranscriptionService: ObservableObject {
     }
 
     // MARK: - Audio helpers
+
+    /// Formats seconds from session start as `MM:SS` for line timestamps.
+    static func formatTimestamp(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds))
+        return String(format: "%02d:%02d", total / 60, total % 60)
+    }
 
     private static func rms(_ samples: [Float]) -> Float {
         guard !samples.isEmpty else { return 0 }

@@ -127,7 +127,7 @@ struct LiveMeetingTranscriptionView: View {
                 Text("转录内容")
                     .font(.headline)
                 Spacer()
-                if !self.service.liveTranscript.isEmpty {
+                if !self.service.lines.isEmpty {
                     Button(action: { self.copyToClipboard(self.service.liveTranscript) }) {
                         Image(systemName: "doc.on.doc")
                     }
@@ -144,23 +144,25 @@ struct LiveMeetingTranscriptionView: View {
 
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        if self.service.liveTranscript.isEmpty, self.service.partialText.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if self.service.lines.isEmpty, self.service.partialText.isEmpty {
                             Text(self.service.isRunning ? "正在聆听…" : "点击「开始」采集系统声音与麦克风，实时转写会议内容。")
                                 .font(.body)
                                 .foregroundColor(.secondary)
                         } else {
-                            if !self.service.liveTranscript.isEmpty {
-                                Text(self.service.liveTranscript)
-                                    .font(.body)
-                                    .textSelection(.enabled)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            ForEach(self.service.lines) { line in
+                                self.transcriptLine(
+                                    timestamp: self.formatDuration(line.startTime),
+                                    text: line.text,
+                                    isPartial: false
+                                )
                             }
                             if !self.service.partialText.isEmpty {
-                                Text(self.service.partialText)
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                self.transcriptLine(
+                                    timestamp: self.formatDuration(self.service.elapsedSeconds),
+                                    text: self.service.partialText,
+                                    isPartial: true
+                                )
                             }
                         }
                         Color.clear.frame(height: 1).id("bottom")
@@ -169,7 +171,7 @@ struct LiveMeetingTranscriptionView: View {
                 }
                 .frame(minHeight: 260, maxHeight: 420)
                 .background(self.cardBackground(cornerRadius: 8, fill: self.theme.palette.contentBackground))
-                .onChange(of: self.service.liveTranscript) { _, _ in
+                .onChange(of: self.service.lines) { _, _ in
                     withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
                 }
                 .onChange(of: self.service.partialText) { _, _ in
@@ -179,6 +181,22 @@ struct LiveMeetingTranscriptionView: View {
         }
         .padding()
         .background(self.cardBackground(cornerRadius: 12))
+    }
+
+    /// One meeting transcript block: a `[MM:SS]` timestamp label above the utterance text.
+    /// Partial (not-yet-finalized) lines are dimmed.
+    private func transcriptLine(timestamp: String, text: String, isPartial: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(timestamp)
+                .font(.caption.monospacedDigit())
+                .foregroundColor(.secondary)
+            Text(text)
+                .font(.body)
+                .foregroundColor(isPartial ? .secondary : .primary)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Error Card

@@ -1,5 +1,13 @@
 import Foundation
 
+/// A completed VAD speech segment plus its start offset (in samples) relative to the
+/// beginning of the stream fed to the VAD. `startSample / 16000` gives the start time
+/// in seconds, used to timestamp each meeting transcript line.
+struct VADSegment {
+    let startSample: Int
+    let samples: [Float]
+}
+
 #if arch(arm64)
 import SherpaOnnx
 
@@ -58,7 +66,7 @@ final class SileroVADSegmenter {
         DebugLogger.shared.info("SileroVAD: segmenter ready", source: "SileroVADSegmenter")
     }
 
-    func acceptWaveform(_ block: [Float]) -> [[Float]] {
+    func acceptWaveform(_ block: [Float]) -> [VADSegment] {
         self.pending.append(contentsOf: block)
         while self.pending.count >= Self.windowSize {
             self.vad.acceptWaveform(samples: Array(self.pending.prefix(Self.windowSize)))
@@ -67,7 +75,7 @@ final class SileroVADSegmenter {
         return self.drainCompletedSegments()
     }
 
-    func flush() -> [[Float]] {
+    func flush() -> [VADSegment] {
         if !self.pending.isEmpty {
             self.vad.acceptWaveform(samples: self.pending)
             self.pending = []
@@ -80,10 +88,11 @@ final class SileroVADSegmenter {
         self.vad.isSpeechDetected()
     }
 
-    private func drainCompletedSegments() -> [[Float]] {
-        var segments: [[Float]] = []
+    private func drainCompletedSegments() -> [VADSegment] {
+        var segments: [VADSegment] = []
         while !self.vad.isEmpty() {
-            segments.append(self.vad.front().samples)
+            let front = self.vad.front()
+            segments.append(VADSegment(startSample: front.start, samples: front.samples))
             self.vad.pop()
         }
         return segments
@@ -95,8 +104,8 @@ final class SileroVADSegmenter {
 /// Intel stub: live meeting keeps the RMS fallback path.
 final class SileroVADSegmenter {
     static func makeDefault() async -> SileroVADSegmenter? { nil }
-    func acceptWaveform(_ block: [Float]) -> [[Float]] { [] }
-    func flush() -> [[Float]] { [] }
+    func acceptWaveform(_ block: [Float]) -> [VADSegment] { [] }
+    func flush() -> [VADSegment] { [] }
     var isSpeechActive: Bool { false }
 }
 #endif
