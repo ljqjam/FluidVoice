@@ -1,5 +1,17 @@
 import Foundation
 
+/// A provider that supports true-streaming partial previews on a dedicated decoding stream:
+/// state is kept across calls so partials grow monotonically instead of being re-decoded from
+/// scratch each tick. Callers must serialize these with any other decode on the same model.
+protocol IncrementalStreamingPreview: AnyObject {
+    /// Start a fresh preview stream for a new utterance (clears prior decoding state).
+    func resetPreviewStream()
+    /// Feed only the newly captured samples; returns the cumulative partial text so far.
+    func feedPreviewStream(_ samples: [Float]) -> String
+    /// Release the preview stream at session end.
+    func releasePreviewStream()
+}
+
 #if arch(arm64)
 import SherpaOnnx
 
@@ -7,7 +19,7 @@ import SherpaOnnx
 /// Chinese-optimized true-streaming transducer; replaces SenseVoice as the live-meeting
 /// utterance/preview transcriber. Decodes a supplied buffer by feeding it into a fresh online
 /// stream, flushing with trailing silence, then draining the decode loop for the final result.
-final class StreamingZipformerProvider: TranscriptionProvider {
+final class StreamingZipformerProvider: TranscriptionProvider, IncrementalStreamingPreview {
     let name = "Streaming Zipformer (中文)"
 
     var isAvailable: Bool { true }
@@ -81,6 +93,22 @@ final class StreamingZipformerProvider: TranscriptionProvider {
         try await self.decodeBuffer(samples)
     }
 
+    // MARK: - Incremental streaming preview
+
+    func resetPreviewStream() {
+        self.recognizer?.resetPreviewStream()
+    }
+
+    func feedPreviewStream(_ samples: [Float]) -> String {
+        guard let recognizer = self.recognizer else { return "" }
+        return recognizer.feedPreviewStream(samples: samples, sampleRate: self.sampleRate)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func releasePreviewStream() {
+        self.recognizer?.releasePreviewStream()
+    }
+
     private func decodeBuffer(_ samples: [Float]) async throws -> ASRTranscriptionResult {
         guard let recognizer = self.recognizer else {
             throw Self.makeError("streaming-zipformer 模型尚未初始化。")
@@ -125,7 +153,7 @@ final class StreamingZipformerProvider: TranscriptionProvider {
 
 #else
 
-final class StreamingZipformerProvider: TranscriptionProvider {
+final class StreamingZipformerProvider: TranscriptionProvider, IncrementalStreamingPreview {
     let name = "Streaming Zipformer (中文)"
     let isAvailable = false
     let isReady = false
@@ -145,5 +173,9 @@ final class StreamingZipformerProvider: TranscriptionProvider {
             userInfo: [NSLocalizedDescriptionKey: "streaming-zipformer 仅支持 Apple Silicon Mac。"]
         )
     }
+
+    func resetPreviewStream() {}
+    func feedPreviewStream(_ samples: [Float]) -> String { "" }
+    func releasePreviewStream() {}
 }
 #endif

@@ -268,6 +268,9 @@ public class SherpaOnnxRecognizer {
 
   deinit {
     SherpaOnnxDestroyOnlineStream(stream)
+    if let previewStream {
+      SherpaOnnxDestroyOnlineStream(previewStream)
+    }
     SherpaOnnxDestroyOnlineRecognizer(recognizer)
   }
 
@@ -331,6 +334,40 @@ public class SherpaOnnxRecognizer {
   /// Return true is an endpoint has been detected.
   public func isEndpoint() -> Bool {
     return SherpaOnnxOnlineStreamIsEndpoint(recognizer, stream) != 0
+  }
+
+  // MARK: - Secondary preview stream
+
+  /// An independent decoding stream on the same model, used for true-streaming partial previews
+  /// while the primary `stream` is reserved for final per-utterance decodes. Keeping its own
+  /// state lets partials grow monotonically instead of being re-decoded from scratch each tick.
+  private var previewStream: OpaquePointer?
+
+  /// (Re)create the preview stream, clearing its decoding state. Call once per utterance start.
+  public func resetPreviewStream() {
+    if let existing = previewStream {
+      SherpaOnnxDestroyOnlineStream(existing)
+    }
+    previewStream = SherpaOnnxCreateOnlineStream(recognizer)
+  }
+
+  /// Feed new audio to the preview stream and drain the decoder. Returns the cumulative text so far.
+  public func feedPreviewStream(samples: [Float], sampleRate: Int = 16_000) -> String {
+    guard let previewStream else { return "" }
+    SherpaOnnxOnlineStreamAcceptWaveform(previewStream, Int32(sampleRate), samples, Int32(samples.count))
+    while SherpaOnnxIsOnlineStreamReady(recognizer, previewStream) != 0 {
+      SherpaOnnxDecodeOnlineStream(recognizer, previewStream)
+    }
+    guard let result = SherpaOnnxGetOnlineStreamResult(recognizer, previewStream) else { return "" }
+    return SherpaOnnxOnlineRecongitionResult(result: result).text
+  }
+
+  /// Release the preview stream when the session ends.
+  public func releasePreviewStream() {
+    if let existing = previewStream {
+      SherpaOnnxDestroyOnlineStream(existing)
+      previewStream = nil
+    }
   }
 }
 

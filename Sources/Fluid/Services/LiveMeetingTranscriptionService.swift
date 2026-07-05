@@ -80,15 +80,17 @@ final class LiveMeetingTranscriptionService: ObservableObject {
     private var retainAudioForRefinement = false
     private var refineItems: [(id: UUID, samples: [Float])] = []
 
-    // Live partial preview: decode the in-progress (not-yet-finalized) speech buffer with the fast
-    // live provider so text appears while the user is still speaking, before the utterance closes.
-    private var previewBuffer: [Float] = []
+    // Live partial preview via a true-streaming decode: newly captured speech is fed incrementally
+    // to a dedicated preview stream that keeps its decoding state, so the partial text grows
+    // monotonically (stable) instead of being re-decoded from scratch each tick. The committed
+    // per-utterance line still comes from `liveUtteranceProvider.transcribeFinal` and is unaffected.
+    private var previewStreamProvider: IncrementalStreamingPreview?
+    private var previewDelta: [Float] = []
+    private var previewNeedsReset = true
     private var previewToken = 0
     private var isPreviewing = false
     private var lastPreviewAt = Date.distantPast
     private let previewThrottleSeconds: TimeInterval = 0.6
-    private let previewMaxSeconds: Double = 12
-    private let previewMinSeconds: Double = 0.3
 
     private let sampleRate: Double = 16_000
     private let captureTickSeconds: TimeInterval = 0.15
@@ -144,9 +146,11 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         self.currentSegmentStartSample = 0
         self.vadSegmenter = nil
         self.liveUtteranceProvider = nil
+        self.previewStreamProvider = nil
         self.refineItems = []
         self.retainAudioForRefinement = false
-        self.previewBuffer = []
+        self.previewDelta = []
+        self.previewNeedsReset = true
         self.isPreviewing = false
         self.lastPreviewAt = .distantPast
         self.elapsedSeconds = 0
@@ -204,6 +208,7 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         do {
             try await zipformer.prepare(progressHandler: nil)
             self.liveUtteranceProvider = zipformer
+            self.previewStreamProvider = zipformer
             DebugLogger.shared.info("Live meeting: using streaming-zipformer for live utterances", source: "LiveMeetingTranscriptionService")
         } catch {
             self.stopMicrophone()
@@ -260,6 +265,16 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         self.transcribeLoopTask?.cancel()
         self.transcribeLoopTask = nil
         self.partialText = ""
+
+        // Release the preview stream after any in-flight preview decode has drained (serialized so
+        // the stream is never freed mid-decode).
+        if let previewStreamProvider = self.previewStreamProvider {
+            _ = try? await self.asrService.runSerializedTranscription {
+                previewStreamProvider.releasePreviewStream()
+                return true
+            }
+            self.previewStreamProvider = nil
+        }
 
         let duration = self.startDate.map { Date().timeIntervalSince($0) } ?? self.elapsedSeconds
         self.startDate = nil
@@ -477,53 +492,56 @@ final class LiveMeetingTranscriptionService: ObservableObject {
 
     // MARK: - Live partial preview
 
-    /// Appends in-progress speech to the preview buffer (capped) and throttles a decode so the
-    /// user sees tentative text before the utterance closes. No-op unless a fast live provider
-    /// (SenseVoice) is active — the file provider is too slow for per-tick previews.
+    /// Queues newly captured speech and throttles an incremental decode so the user sees tentative
+    /// text before the utterance closes. No-op unless a streaming-capable preview provider is active.
     private func accumulatePreview(_ block: [Float]) {
-        guard self.liveUtteranceProvider != nil else { return }
-        self.previewBuffer.append(contentsOf: block)
-        let maxCount = Int(self.previewMaxSeconds * self.sampleRate)
-        if self.previewBuffer.count > maxCount {
-            self.previewBuffer.removeFirst(self.previewBuffer.count - maxCount)
-        }
+        guard self.previewStreamProvider != nil else { return }
+        self.previewDelta.append(contentsOf: block)
         self.schedulePreviewIfNeeded()
     }
 
-    /// Invalidates the current preview (bumps the token so late decodes are dropped) and clears
-    /// the tentative text. Called whenever an utterance finalizes or the session stops.
+    /// Ends the current preview: bumps the token so late decodes are dropped, drops any unfed audio,
+    /// clears the tentative text, and marks the preview stream to be reset before the next utterance.
+    /// Called whenever an utterance finalizes or the session stops.
     private func resetPreview() {
         self.previewToken &+= 1
-        self.previewBuffer.removeAll(keepingCapacity: true)
+        self.previewDelta.removeAll(keepingCapacity: true)
+        self.previewNeedsReset = true
         if !self.partialText.isEmpty {
             self.partialText = ""
         }
     }
 
     private func schedulePreviewIfNeeded() {
-        guard let provider = self.liveUtteranceProvider, !self.isPreviewing else { return }
+        guard let provider = self.previewStreamProvider, !self.isPreviewing else { return }
+        guard !self.previewDelta.isEmpty else { return }
         guard Date().timeIntervalSince(self.lastPreviewAt) >= self.previewThrottleSeconds else { return }
-        guard Double(self.previewBuffer.count) / self.sampleRate >= self.previewMinSeconds else { return }
 
         self.lastPreviewAt = Date()
         self.isPreviewing = true
-        let snapshot = self.previewBuffer
+        let delta = self.previewDelta
+        self.previewDelta = []
+        let needsReset = self.previewNeedsReset
+        self.previewNeedsReset = false
         let token = self.previewToken
         Task { [weak self, provider] in
-            await self?.runPreview(snapshot, provider: provider, token: token)
+            await self?.runPreview(delta, provider: provider, needsReset: needsReset, token: token)
         }
     }
 
-    private func runPreview(_ samples: [Float], provider: TranscriptionProvider, token: Int) async {
+    private func runPreview(_ samples: [Float], provider: IncrementalStreamingPreview, needsReset: Bool, token: Int) async {
         defer { self.isPreviewing = false }
         guard self.isRunning else { return }
         do {
-            let result = try await self.asrService.runSerializedTranscription { [provider] in
-                try await provider.transcribeStreaming(samples)
+            // Reset + feed run inside the serialized queue so preview decodes never overlap the
+            // per-utterance final decode on the same model, and the stream is never freed mid-decode.
+            let text = try await self.asrService.runSerializedTranscription { [provider] in
+                if needsReset { provider.resetPreviewStream() }
+                return provider.feedPreviewStream(samples)
             }
             // Drop stale results: the utterance may have finalized (or session stopped) meanwhile.
             guard self.isRunning, token == self.previewToken else { return }
-            self.partialText = result.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.partialText = text
         } catch {
             // Preview is best-effort; ignore failures.
         }
