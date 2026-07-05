@@ -136,6 +136,7 @@ final class FileTranscriptionHistoryStore: ObservableObject {
         if let entry = self.entries.first(where: { $0.id == id }) {
             MeetingTranscriptExporter.delete(displayName: entry.fileName)
         }
+        MeetingRefinementStore.shared.deleteRecord(entryID: id)
         self.entries.removeAll { $0.id == id }
         if self.selectedEntryID == id {
             self.selectedEntryID = self.entries.first?.id
@@ -143,11 +144,54 @@ final class FileTranscriptionHistoryStore: ObservableObject {
         self.saveEntries()
     }
 
+    /// Overwrites an entry's transcript text (used after on-demand meeting refinement).
+    func updateText(id: UUID, text: String) {
+        guard let index = self.entries.firstIndex(where: { $0.id == id }) else { return }
+        let old = self.entries[index]
+        self.entries[index] = FileTranscriptionEntry(
+            id: old.id,
+            timestamp: old.timestamp,
+            fileName: old.fileName,
+            duration: old.duration,
+            processingTime: old.processingTime,
+            confidence: old.confidence,
+            text: text
+        )
+        self.saveEntries()
+    }
+
+    /// Renames an entry, moving its exported `.txt` file to match. Ignores blank/unchanged names.
+    func renameEntry(id: UUID, newName: String) {
+        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              let index = self.entries.firstIndex(where: { $0.id == id })
+        else {
+            return
+        }
+        let old = self.entries[index]
+        guard trimmed != old.fileName else { return }
+
+        self.entries[index] = FileTranscriptionEntry(
+            id: old.id,
+            timestamp: old.timestamp,
+            fileName: trimmed,
+            duration: old.duration,
+            processingTime: old.processingTime,
+            confidence: old.confidence,
+            text: old.text
+        )
+        self.saveEntries()
+
+        MeetingTranscriptExporter.delete(displayName: old.fileName)
+        MeetingTranscriptExporter.export(text: old.text, displayName: trimmed)
+    }
+
     func clearAll() {
         self.entries.removeAll()
         self.selectedEntryID = nil
         self.saveEntries()
         MeetingTranscriptExporter.deleteAll()
+        MeetingRefinementStore.shared.deleteAll()
         DebugLogger.shared.info("Cleared all file transcription history", source: "FileTranscriptionHistoryStore")
     }
 

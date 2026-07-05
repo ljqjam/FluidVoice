@@ -10,6 +10,16 @@ import FluidAudio
 #endif
 
 // swiftlint:disable file_length type_body_length
+
+/// Real-time engine used by live meeting transcription.
+enum LiveMeetingEngineMode: String, CaseIterable {
+    /// streaming-zipformer live word-by-word output, optional FireRedASR whole-session refinement at stop.
+    case streaming
+    /// FireRedASR per-utterance quasi-realtime: each finished utterance is decoded directly at final
+    /// quality — no streaming preview, no second refinement pass.
+    case highQuality
+}
+
 final class SettingsStore: ObservableObject {
     static let shared = SettingsStore()
     static let transcriptionPreviewCharLimitRange: ClosedRange<Int> = 50...800
@@ -3567,14 +3577,17 @@ final class SettingsStore: ObservableObject {
         }
     }
 
-    /// When enabled, stopping a live meeting runs a second Cohere pass over the full recording to
-    /// refine the live SenseVoice transcript. Disable to keep the (often stronger, for Chinese)
-    /// live transcript as-is.
-    var liveMeetingRefinementEnabled: Bool {
-        get { self.defaults.object(forKey: Keys.liveMeetingRefinementEnabled) as? Bool ?? true }
+    /// Which real-time engine live meeting transcription uses. Defaults to the low-latency streaming
+    /// engine; `.highQuality` swaps to FireRedASR per-utterance decoding for better accuracy at the
+    /// cost of no live preview and slightly higher latency.
+    var liveMeetingEngineMode: LiveMeetingEngineMode {
+        get {
+            let raw = self.defaults.string(forKey: Keys.liveMeetingEngineMode) ?? ""
+            return LiveMeetingEngineMode(rawValue: raw) ?? .streaming
+        }
         set {
             objectWillChange.send()
-            self.defaults.set(newValue, forKey: Keys.liveMeetingRefinementEnabled)
+            self.defaults.set(newValue.rawValue, forKey: Keys.liveMeetingEngineMode)
         }
     }
 
@@ -4557,7 +4570,7 @@ private extension SettingsStore {
         // Filler Words
         static let fillerWords = "FillerWords"
         static let removeFillerWordsEnabled = "RemoveFillerWordsEnabled"
-        static let liveMeetingRefinementEnabled = "LiveMeetingRefinementEnabled"
+        static let liveMeetingEngineMode = "LiveMeetingEngineMode"
 
         /// GAAV Mode (removes capitalization and trailing punctuation)
         static let gaavModeEnabled = "GAAVModeEnabled"

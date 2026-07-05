@@ -5,7 +5,11 @@ struct MeetingTranscriptionView: View {
     let asrService: ASRService
     @StateObject private var transcriptionService: MeetingTranscriptionService
     @ObservedObject private var fileHistoryStore = FileTranscriptionHistoryStore.shared
+    @ObservedObject private var refinementService = MeetingRefinementService.shared
     @State private var selectedFileURL: URL?
+    @State private var pendingDeleteEntryID: UUID?
+    @State private var renamingEntryID: UUID?
+    @State private var renameText: String = ""
     @Environment(\.theme) private var theme
 
     init(asrService: ASRService) {
@@ -90,6 +94,44 @@ struct MeetingTranscriptionView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(self.theme.palette.windowBackground)
+        .onAppear {
+            MeetingRefinementStore.shared.deleteExpired()
+        }
+        .confirmationDialog(
+            "此操作将永久删除该条转录记录，且无法撤销",
+            isPresented: Binding(
+                get: { self.pendingDeleteEntryID != nil },
+                set: { if !$0 { self.pendingDeleteEntryID = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("删除", role: .destructive) {
+                if let id = self.pendingDeleteEntryID {
+                    self.fileHistoryStore.deleteEntry(id: id)
+                }
+                self.pendingDeleteEntryID = nil
+            }
+            Button("取消", role: .cancel) {
+                self.pendingDeleteEntryID = nil
+            }
+        }
+        .alert("重命名会议", isPresented: Binding(
+            get: { self.renamingEntryID != nil },
+            set: { if !$0 { self.renamingEntryID = nil } }
+        )) {
+            TextField("会议名称", text: self.$renameText)
+            Button("保存") {
+                if let id = self.renamingEntryID {
+                    self.fileHistoryStore.renameEntry(id: id, newName: self.renameText)
+                }
+                self.renamingEntryID = nil
+            }
+            Button("取消", role: .cancel) {
+                self.renamingEntryID = nil
+            }
+        } message: {
+            Text("为这条转录记录输入新的名称。")
+        }
         .overlay(alignment: .topTrailing) {
             if self.showingCopyConfirmation {
                 Text("已复制！")
@@ -371,46 +413,58 @@ struct MeetingTranscriptionView: View {
 
     private func recentEntryRow(entry: FileTranscriptionEntry) -> some View {
         let isSelected = self.fileHistoryStore.selectedEntryID == entry.id
-        return Button(action: {
-            self.fileHistoryStore.selectedEntryID = entry.id
-        }) {
-            HStack {
-                Image(systemName: "doc.text.fill")
-                    .font(.body)
-                    .foregroundColor(Color.fluidGreen)
-                    .frame(width: 24)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(entry.fileName)
-                        .font(.system(size: 14, weight: .medium))
-                        .lineLimit(1)
-                    Text(entry.relativeTimeString)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(entry.previewText)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "chevron.right.circle.fill")
+        return HStack(spacing: 8) {
+            Button(action: {
+                self.fileHistoryStore.selectedEntryID = entry.id
+            }) {
+                HStack {
+                    Image(systemName: "doc.text.fill")
+                        .font(.body)
                         .foregroundColor(Color.fluidGreen)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entry.fileName)
+                            .font(.system(size: 14, weight: .medium))
+                            .lineLimit(1)
+                        Text(entry.relativeTimeString)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(entry.previewText)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    if isSelected {
+                        Image(systemName: "chevron.right.circle.fill")
+                            .foregroundColor(Color.fluidGreen)
+                    }
                 }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(self.theme.palette.cardBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .stroke(isSelected ? Color.fluidGreen.opacity(0.5) : self.theme.palette.cardBorder.opacity(0.3), lineWidth: isSelected ? 2 : 1)
+                        )
+                )
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(self.theme.palette.cardBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(isSelected ? Color.fluidGreen.opacity(0.5) : self.theme.palette.cardBorder.opacity(0.3), lineWidth: isSelected ? 2 : 1)
-                    )
-            )
+            .buttonStyle(.plain)
+
+            Button(action: {
+                self.pendingDeleteEntryID = entry.id
+            }) {
+                Image(systemName: "trash")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("删除此转录记录")
         }
-        .buttonStyle(.plain)
     }
 
     private func historyDetailCard(entry: FileTranscriptionEntry) -> some View {
@@ -430,6 +484,16 @@ struct MeetingTranscriptionView: View {
                 }
                 Spacer()
                 HStack(spacing: 8) {
+                    if MeetingRefinementStore.shared.canRefine(entryID: entry.id) {
+                        self.refineButton(entry: entry)
+                    }
+                    Button(action: {
+                        self.renameText = entry.fileName
+                        self.renamingEntryID = entry.id
+                    }) {
+                        Image(systemName: "pencil")
+                    }
+                    .help("重命名会议")
                     Button(action: { self.copyToClipboard(entry.text) }) {
                         Image(systemName: "doc.on.doc")
                     }
@@ -442,7 +506,7 @@ struct MeetingTranscriptionView: View {
                     }
                     .help("导出转录")
                     Button(action: {
-                        self.fileHistoryStore.deleteEntry(id: entry.id)
+                        self.pendingDeleteEntryID = entry.id
                     }) {
                         Image(systemName: "trash")
                     }
@@ -477,6 +541,30 @@ struct MeetingTranscriptionView: View {
                         .stroke(self.theme.palette.cardBorder.opacity(0.45), lineWidth: 1)
                 )
         )
+    }
+
+    @ViewBuilder
+    private func refineButton(entry: FileTranscriptionEntry) -> some View {
+        if self.refinementService.refiningEntryID == entry.id {
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.small)
+                    .fixedSize()
+                Text(self.refinementService.progressText)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        } else {
+            Button(action: {
+                Task {
+                    await self.refinementService.refine(entryID: entry.id, asrService: self.asrService)
+                }
+            }) {
+                Image(systemName: "sparkles")
+            }
+            .help("用 FireRedASR 精修此场转录")
+            .disabled(self.refinementService.isRefining)
+        }
     }
 
     // MARK: - Error Card

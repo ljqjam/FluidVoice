@@ -178,50 +178,26 @@ extension VoiceEngineSettingsView {
                     .foregroundStyle(self.voiceEngineTitleText)
             }
 
-            Text("实时会议不使用上方“激活”的模型，而是固定分工：实时出字用 streaming-zipformer（中文），停止后用 FireRedASR 精修整段。只需下载这两个模型即可自动启用。")
+            Text("实时会议不使用上方“激活”的模型。可选两种实时引擎：流式（streaming-zipformer，逐字低延迟）或高质量（FireRedASR，逐句准实时、质量更好）。下载对应模型即可自动启用。")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(self.voiceEngineSecondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
-            let refinementEnabled = self.settings.liveMeetingRefinementEnabled
-
-            VStack(spacing: 8) {
-                self.liveMeetingRoleRow(
-                    role: "实时出字",
-                    modelName: "streaming-zipformer（中文）",
-                    subtitle: "低延迟流式识别",
-                    logo: "waveform",
-                    modelRole: .streaming
-                )
-                self.liveMeetingRoleRow(
-                    role: "整段精修",
-                    modelName: "FireRedASR（中文）",
-                    subtitle: refinementEnabled ? "停止后对整段音频重转写" : "已关闭，保留实时稿",
-                    logo: "sparkles",
-                    modelRole: .refine
-                )
-                .opacity(refinementEnabled ? 1 : 0.5)
+            Picker("实时引擎", selection: Binding(
+                get: { self.settings.liveMeetingEngineMode },
+                set: { self.settings.liveMeetingEngineMode = $0 }
+            )) {
+                Text("流式 · 逐字").tag(LiveMeetingEngineMode.streaming)
+                Text("高质量 · 逐句").tag(LiveMeetingEngineMode.highQuality)
             }
+            .pickerStyle(.segmented)
+            .labelsHidden()
 
-            HStack(alignment: .center, spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("结束后自动精修")
-                        .font(self.theme.typography.bodyStrong)
-                        .foregroundStyle(self.voiceEngineTitleText)
-                    Text("停止后用 FireRedASR 对整段音频重转写。若实时稿（streaming-zipformer）对你的中文效果更好，可关闭。")
-                        .font(self.theme.typography.bodySmall)
-                        .foregroundStyle(self.voiceEngineSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer(minLength: 8)
-                Toggle("", isOn: Binding(
-                    get: { self.settings.liveMeetingRefinementEnabled },
-                    set: { self.settings.liveMeetingRefinementEnabled = $0 }
-                ))
-                .toggleStyle(.switch)
-                .labelsHidden()
+            if self.settings.liveMeetingEngineMode == .streaming {
+                self.streamingEngineControls
+            } else {
+                self.highQualityEngineControls
             }
-            .padding(.top, 2)
         }
         .padding(12)
         .background(
@@ -233,6 +209,48 @@ extension VoiceEngineSettingsView {
                 )
                 .shadow(color: self.theme.metrics.cardShadow.color.opacity(self.theme.metrics.cardShadow.opacity), radius: self.theme.metrics.cardShadow.radius, x: self.theme.metrics.cardShadow.x, y: self.theme.metrics.cardShadow.y)
         )
+    }
+
+    /// Streaming engine: streaming-zipformer live output; per-utterance audio is retained 7 days so the
+    /// user can refine each session on demand from the history list. FireRedASR must be downloaded.
+    @ViewBuilder
+    private var streamingEngineControls: some View {
+        VStack(spacing: 8) {
+            self.liveMeetingRoleRow(
+                role: "实时出字",
+                modelName: "streaming-zipformer（中文）",
+                subtitle: "低延迟流式识别",
+                logo: "waveform",
+                modelRole: .streaming
+            )
+            self.liveMeetingRoleRow(
+                role: "按需精修",
+                modelName: "FireRedASR（中文）",
+                subtitle: "结束后可在「会议转录 › 最近的转录」中按需精修",
+                logo: "sparkles",
+                modelRole: .refine
+            )
+        }
+    }
+
+    /// High-quality engine: FireRedASR per-utterance quasi-realtime, single model, no refinement pass.
+    @ViewBuilder
+    private var highQualityEngineControls: some View {
+        VStack(spacing: 8) {
+            self.liveMeetingRoleRow(
+                role: "实时出字",
+                modelName: "FireRedASR（中文）",
+                subtitle: "逐句准实时，首遍即最终质量",
+                logo: "sparkles",
+                modelRole: .refine
+            )
+        }
+
+        Text("每句说完后用 FireRedASR 直接出最终质量文本，无需二次精修。质量更高、抗噪更强，代价是没有逐字预览、单句延迟略增（准实时）。")
+            .font(self.theme.typography.bodySmall)
+            .foregroundStyle(self.voiceEngineSecondaryText)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 2)
     }
 
     private func liveMeetingRoleRow(

@@ -183,6 +183,9 @@ SettingsStore.xcuserstate
 
 **/.vscode/
 
+# JetBrains IDEs
+.idea/
+
 .mcp_temp/
 
 # Build and release scripts (developer-specific)

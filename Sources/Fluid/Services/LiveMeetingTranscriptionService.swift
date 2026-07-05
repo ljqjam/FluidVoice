@@ -156,12 +156,21 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         self.elapsedSeconds = 0
         self.mixer.reset()
 
-        // 实时会议使用独立中文模型：streaming-zipformer（实时出字）+ FireRedASR（精修），
-        // 与全局听写引擎解耦。streaming-zipformer 为必需项，未下载则无法开始。
-        guard StreamingZipformerModelLocator.modelsExist() else {
-            self.status = ""
-            self.errorMessage = "请先在「设置 › 语音识别 › 实时会议模型」中下载 streaming-zipformer（中文）模型。"
-            return
+        // 实时会议使用独立中文模型，与全局听写引擎解耦。按所选实时引擎校验必需模型是否已下载。
+        let engineMode = SettingsStore.shared.liveMeetingEngineMode
+        switch engineMode {
+        case .streaming:
+            guard StreamingZipformerModelLocator.modelsExist() else {
+                self.status = ""
+                self.errorMessage = "请先在「设置 › 语音识别 › 实时会议模型」中下载 streaming-zipformer（中文）模型。"
+                return
+            }
+        case .highQuality:
+            guard FireRedAsrModelLocator.modelsExist() else {
+                self.status = ""
+                self.errorMessage = "请先在「设置 › 语音识别 › 实时会议模型」中下载 FireRedASR（中文）模型。"
+                return
+            }
         }
 
         // Microphone.
@@ -198,24 +207,45 @@ final class LiveMeetingTranscriptionService: ObservableObject {
             DebugLogger.shared.warning("Live meeting: Silero VAD unavailable, falling back to RMS", source: "LiveMeetingTranscriptionService")
         }
 
-        // 两遍精修（逐句）：仅在开启且 FireRedASR 已下载时保留各句音频，供 stop 时逐句精修。
-        self.retainAudioForRefinement = SettingsStore.shared.liveMeetingRefinementEnabled
-            && FireRedAsrModelLocator.modelsExist()
-
-        // 实时路径：streaming-zipformer（中文，真流式），已由上方 pre-flight 保证模型存在。
+        // 实时引擎：按模式选择。
+        // - streaming：streaming-zipformer 逐字流式出字；逐句音频保留 7 天，供结束后在历史记录中按需 FireRedASR 精修。
+        // - highQuality：FireRedASR 逐句准实时，首遍即最终质量，无流式预览、无精修。
         self.liveUtteranceProvider = nil
-        let zipformer = StreamingZipformerProvider()
-        do {
-            try await zipformer.prepare(progressHandler: nil)
-            self.liveUtteranceProvider = zipformer
-            self.previewStreamProvider = zipformer
-            DebugLogger.shared.info("Live meeting: using streaming-zipformer for live utterances", source: "LiveMeetingTranscriptionService")
-        } catch {
-            self.stopMicrophone()
-            await self.systemCapture.stop()
-            self.status = ""
-            self.errorMessage = "实时转写模型加载失败：\(error.localizedDescription)"
-            return
+        self.previewStreamProvider = nil
+        self.retainAudioForRefinement = false
+
+        switch engineMode {
+        case .streaming:
+            // Always retain per-utterance audio for streaming sessions so the user can trigger
+            // on-demand FireRedASR refinement from the history list later (kept for 7 days). The
+            // FireRedASR model isn't required now — it may be downloaded within the retention window.
+            self.retainAudioForRefinement = true
+            let zipformer = StreamingZipformerProvider()
+            do {
+                try await zipformer.prepare(progressHandler: nil)
+                self.liveUtteranceProvider = zipformer
+                self.previewStreamProvider = zipformer
+                DebugLogger.shared.info("Live meeting: using streaming-zipformer for live utterances", source: "LiveMeetingTranscriptionService")
+            } catch {
+                self.stopMicrophone()
+                await self.systemCapture.stop()
+                self.status = ""
+                self.errorMessage = "实时转写模型加载失败：\(error.localizedDescription)"
+                return
+            }
+        case .highQuality:
+            let fireRed = FireRedAsrProvider()
+            do {
+                try await fireRed.prepare(progressHandler: nil)
+                self.liveUtteranceProvider = fireRed
+                DebugLogger.shared.info("Live meeting: using FireRedASR for quasi-realtime live utterances", source: "LiveMeetingTranscriptionService")
+            } catch {
+                self.stopMicrophone()
+                await self.systemCapture.stop()
+                self.status = ""
+                self.errorMessage = "实时转写模型加载失败：\(error.localizedDescription)"
+                return
+            }
         }
 
         // Drop the warm-up pre-roll (audio captured while VAD/writer/provider were
@@ -282,11 +312,6 @@ final class LiveMeetingTranscriptionService: ObservableObject {
         self.audioLevel = 0
         self.status = ""
 
-        // Two-pass：逐句用 FireRedASR 精修，保留时间戳与分行结构（替换对应行文本）。
-        await self.refineLinesIfNeeded()
-        self.refineItems = []
-        self.status = ""
-
         let text = self.liveTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
         if !text.isEmpty {
             let formatter = DateFormatter()
@@ -300,37 +325,22 @@ final class LiveMeetingTranscriptionService: ObservableObject {
             )
             FileTranscriptionHistoryStore.shared.addEntry(result)
             MeetingTranscriptExporter.export(text: text, displayName: result.fileName)
+            self.persistRefinementAudio(entryID: result.id)
         }
+        self.refineItems = []
         DebugLogger.shared.info("Live meeting transcription stopped", source: "LiveMeetingTranscriptionService")
     }
 
-    /// Re-transcribes each retained utterance with FireRedASR and replaces the matching line's
-    /// text in place, keeping its timestamp and position. No-op unless refinement is enabled and
-    /// audio was retained during the session.
-    private func refineLinesIfNeeded() async {
+    /// Persists each retained utterance's audio to disk keyed by the saved history entry so refinement
+    /// can be triggered on demand later. No-op unless audio was retained (streaming sessions).
+    private func persistRefinementAudio(entryID: UUID) {
         guard self.retainAudioForRefinement, !self.refineItems.isEmpty else { return }
-        let fireRed = FireRedAsrProvider()
-        do {
-            try await fireRed.prepare(progressHandler: nil)
-        } catch {
-            DebugLogger.shared.warning("Live meeting refinement setup failed: \(error)", source: "LiveMeetingTranscriptionService")
-            return
+        let samplesByLine = Dictionary(self.refineItems.map { ($0.id, $0.samples) }, uniquingKeysWith: { first, _ in first })
+        let segments: [(lineID: UUID, startTime: TimeInterval, text: String, samples: [Float])] = self.lines.compactMap { line in
+            guard let samples = samplesByLine[line.id] else { return nil }
+            return (lineID: line.id, startTime: line.startTime, text: line.text, samples: samples)
         }
-        let total = self.refineItems.count
-        for (index, item) in self.refineItems.enumerated() {
-            self.status = "正在精修转录…（\(index + 1)/\(total)）"
-            do {
-                let result = try await self.asrService.runSerializedTranscription { [samples = item.samples] in
-                    try await fireRed.transcribeFinal(samples)
-                }
-                let refined = result.text.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !refined.isEmpty, let idx = self.lines.firstIndex(where: { $0.id == item.id }) {
-                    self.lines[idx].text = refined
-                }
-            } catch {
-                DebugLogger.shared.warning("Live meeting per-utterance refinement failed: \(error)", source: "LiveMeetingTranscriptionService")
-            }
-        }
+        MeetingRefinementStore.shared.save(entryID: entryID, endDate: Date(), segments: segments)
     }
 
     // MARK: - Microphone
